@@ -1,10 +1,10 @@
 # solidity native functions
 
 ## HOW-TO analyze function names that are invoked on the block explorer (w/o need to look at the code)
-### DESCRIPTION...
+    **DESCRIPTION...**
     when you see any txs in the block explorer, you can scroll down to the very bottom and look for 'raw input' and you will see a 'hex value' that looks like an address. this hex value can be mapped to a function name that is readable in 'english'
 
-### EXAMPLE....
+    **EXAMPLE...**
     here is an example of how to read these mappings (allows you to look at a txs on the block explorer, and instantly know the code thats being run in that txs)
 
     txs: 
@@ -16,11 +16,11 @@
     mapping in  SOL_NATIVE_FUNC.md file: 
      - 2. approve(address,uint256): 0x095ea7b3
 
-### NOTES...
+    **NOTES...**
     in this example, the user paid gas to call the 'approve' function, which simply lets metamask approve a token for spending
 
 ## common solidity functions mapped to hex values (that you see in the block explorer)
-### Examples of common Ethereum function names along with their corresponding function selectors represented as hexadecimal values:
+    **Examples of common Ethereum function names along with their corresponding function selectors represented as hexadecimal values:**
     1. `transfer(address,uint256)`: `0xa9059cbb` - Used in ERC-20 token contracts for transferring tokens from one address to another.
     2. `approve(address,uint256)`: `0x095ea7b3` - Another ERC-20 function used for approving a spender to transfer tokens from the caller's address.
     3. `transferFrom(address,address,uint256)`: `0x23b872dd` - Used in ERC-20 contracts to allow a third party (spender) to transfer tokens on behalf of the token holder.
