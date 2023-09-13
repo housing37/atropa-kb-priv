@@ -19,7 +19,7 @@
 from web3 import Web3
 
 # 2) set the address of the wallet to check balance
-account_address = '0x18872b59aD8616026423dD6e446Ed0b9EbAEaDba' # random new (returns 0)
+account_address = '0xYourWalletAddress' # random new (returns 0)
 
 # 3) set variables for the token you want to check the balance of
 contract_address = "0x6B175474E89094C44Da98b954EedeAC495271d0F" # pDAI token
