@@ -1,6 +1,11 @@
 # atropa
 PulseChain ATROPA dev tools &amp; knowledgebase
 
+## contributors
+    TG: @j4havok
+    TG: @WhiteRabbit0x0
+    TG: @housing37
+
 ## description
     - this repo is utilized to help organize and decipher the atrop ecosystem on pulsechain
     - it may contain... 
