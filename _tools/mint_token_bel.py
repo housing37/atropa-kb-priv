@@ -66,8 +66,6 @@ contract_address = '0x4C1518286E1b8D5669Fe965EF174B8B4Ae2f017B' # Annabelle: The
 
 # set caller keys & gas params
 #sender_address = "0xYourSenderAddress"
-sender_address = '0x18872b59aD8616026423dD6e446Ed0b9EbAEaDba' # new random # *WARNING* DO NOT COMMIT
-sender_secret = 'b495ff964afb78ca36ec6933a3dbd31b9befd170d2ba8406c6cda42308b672c7' # *WARNING* DO NOT COMMIT
 #private_key = "0xYourPrivateKey"
 #gas_price = w3.toWei("10", "gwei")  # Replace with your desired gas price
 #gas_limit = 200000  # Replace with your desired gas limit

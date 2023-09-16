@@ -29,9 +29,6 @@ from web3 import Web3
 contract_address = '0x1f737F7994811fE994Fe72957C374e5cD5D5418A' # ⑨ (テディベア) - TeddyBear9
 sender_address = "0xYourSenderAddress"
 sender_secret = "sender_address_private_key"
-sender_address = '0x18872b59aD8616026423dD6e446Ed0b9EbAEaDba' # new random # *WARNING* DO NOT COMMIT
-sender_secret = 'b495ff964afb78ca36ec6933a3dbd31b9befd170d2ba8406c6cda42308b672c7' # *WARNING* DO NOT COMMIT
-
 
 # function hex (decompiled) & contract ABI (re-compiled) from contract_address
 #   byte-code: https://scan.pulsechain.com/address/0xA1BEe1daE9Af77dAC73aA0459eD63b4D93fC6d29/contracts#address-tabs

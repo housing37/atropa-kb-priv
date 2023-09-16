@@ -6,15 +6,17 @@
 ## minting code design
     - need
         - calc USD value for minting token 'x'
-            input: 
+            input vars:
+                - token address to mint
                 - total alt token count
                 - each alt token address
                     - alt token symbol
                     - alt token vol requirement
-                    
-             
-
-
+            functions:
+                - get current USD value for each alt token address
+                    - calc combined USD vals for final output
+            output result:
+                - total USD value for all alt tokens combined (required to mint token 'x')
 
 ## FOUND PUBLIC MINT
 address constant Bullion8Contract = address(0x2959221675bdF0e59D0cC3dE834a998FA5fFb9F4);    // ⑧

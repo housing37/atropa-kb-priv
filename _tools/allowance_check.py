@@ -56,8 +56,8 @@ contract_abi = [
   {"inputs":[{"internalType":"address","name":"sender","type":"address"},{"internalType":"address","name":"recipient","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"transferFrom","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"}
 ]
 contract_address = '0x4C1518286E1b8D5669Fe965EF174B8B4Ae2f017B' # Annabelle: The Profit ㉶ (BEL)
-sender_address = '0x18872b59aD8616026423dD6e446Ed0b9EbAEaDba' # new random # *WARNING* DO NOT COMMIT
-sender_secret = 'b495ff964afb78ca36ec6933a3dbd31b9befd170d2ba8406c6cda42308b672c7' # *WARNING* DO NOT COMMIT
+sender_address = "0xYourSenderAddress"
+sender_secret = "sender_address_private_key"
 
 def get_allowance():
     print('go # connect to pulse chain')
