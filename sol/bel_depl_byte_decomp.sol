@@ -30,6 +30,10 @@ function name() public payable {
     return v1;
 }
 
+// house_091323
+//  ref: https://eips.ethereum.org/EIPS/eip-20#methods
+// function approve(address _spender, uint256 _value) public returns (bool success)
+//  0xa3d(varg1, varg0, msg.sender);
 function approve(address varg0, uint256 varg1) public payable {
     require(4 + (msg.data.length - 4) - 4 >= 64);
     require(varg0 == varg0);
@@ -56,6 +60,8 @@ function _SafeAdd(uint256 varg0, uint256 varg1) private {
     return varg0 + varg1;
 }
 
+// house_091323
+// v1, /* bool */ v2 = stor_6_0_19.transferFrom(msg.sender, address(this), v0).gas(msg.gas);
 function transferFrom(address varg0, address varg1, uint256 varg2) public payable {
     require(4 + (msg.data.length - 4) - 4 >= 96);
     require(varg0 == varg0);
@@ -251,6 +257,16 @@ function 0x619() private {
     }
 }
 
+// house_091323
+// v1, /* bool */ v2 = stor_6_0_19.transferFrom(msg.sender, address(this), v0).gas(msg.gas);
+// function transferFrom(address varg0, address varg1, uint256 varg2) public payable {
+//  0xc00(varg2, msg.sender, varg0);
+// function 0xc00(uint256 varg0, uint256 varg1, uint256 varg2) private {
+//      - OR -
+// ref: https://eips.ethereum.org/EIPS/eip-20#methods
+//  function approve(address _spender, uint256 _value) public returns (bool success)
+// function approve(address varg0, uint256 varg1) public payable {
+//  0xa3d(varg1, varg0, msg.sender);
 function 0xa3d(uint256 varg0, address varg1, address varg2) private {
     require(varg2 - address(0x0), Error('ERC20: approve from the zero address'));
     require(varg1 - address(0x0), Error('ERC20: approve to the zero address'));
@@ -259,6 +275,12 @@ function 0xa3d(uint256 varg0, address varg1, address varg2) private {
     return ;
 }
 
+// house_091323: public mint?
+// function 0xaed6f78e() public payable {
+//  v0 = _SafeExp(10, uint8(18), uint256.max);
+//  v1, /* bool */ v2 = stor_6_0_19.transferFrom(msg.sender, address(this), v0).gas(msg.gas);
+// function transferFrom(address varg0, address varg1, uint256 varg2) public payable {
+//  0xc00(varg2, msg.sender, varg0);
 function 0xc00(uint256 varg0, uint256 varg1, uint256 varg2) private {
     v0 = _allowance[address(varg2)][address(varg1)];
     if (v0 != uint256.max) {
