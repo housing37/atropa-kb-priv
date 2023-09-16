@@ -176,6 +176,7 @@ function renounceOwnership() public payable {
     emit OwnershipTransferred(_owner, address(0x0));
 }
 
+// house_091523: public mint start?
 function 0x72adb869() public payable {
     v0 = 0x1c71(10, 18);
     v1 = _SafeMul(100, v0);

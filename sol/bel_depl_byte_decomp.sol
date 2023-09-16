@@ -181,7 +181,7 @@ function transfer(address varg0, uint256 varg1) public payable {
     return bool(1);
 }
 
-// house_091323: public mint?
+// house_091323: public mint start?
 function 0xaed6f78e() public payable {
     v0 = _SafeExp(10, uint8(18), uint256.max);
     require(!0x1 | (v0 == v0), Panic(17)); // arithmetic overflow or underflow
@@ -275,7 +275,7 @@ function 0xa3d(uint256 varg0, address varg1, address varg2) private {
     return ;
 }
 
-// house_091323: public mint?
+// house_091323
 // function 0xaed6f78e() public payable {
 //  v0 = _SafeExp(10, uint8(18), uint256.max);
 //  v1, /* bool */ v2 = stor_6_0_19.transferFrom(msg.sender, address(this), v0).gas(msg.gas);
