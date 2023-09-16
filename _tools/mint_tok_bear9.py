@@ -1,4 +1,4 @@
-__fname = 'mint_token_bear9'
+__fname = 'mint_tok_bear9'
 __filename = __fname + '.py'
 cStrDivider = '#================================================================#'
 print('', cStrDivider, f'START _ {__filename}', cStrDivider, sep='\n')
