@@ -13,8 +13,8 @@
             
         short-hand:
             $ python3 -m pip install web3
-            $ python3 -m pip install web3
-            $ python3 mint_tok_mv.py
+            $ python3 -m pip install requests
+            $ python3 calc_return_bear9.py
             
         *WARNING* _ ref: https://docs.dexscreener.com/api/reference
             max runtime for this code = 300x per minute
