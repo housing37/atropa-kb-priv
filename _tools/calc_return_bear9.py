@@ -69,6 +69,8 @@ alt_tok_vol_1 = 500
 alt_tok_vol_2 = 9
 alt_tok_vol_3 = 1
 alt_tok_vol_4 = 1111111111 # 1,111,111,111 (1B, 111M, 111Th, 111)
+lst_alt_tok_addr = [alt_tok_addr_0, alt_tok_addr_1, alt_tok_addr_2, alt_tok_addr_3, alt_tok_addr_4]
+lst_alt_tok_vol = [alt_tok_vol_0, alt_tok_vol_1, alt_tok_vol_2, alt_tok_vol_3, alt_tok_vol_4]
 
 #------------------------------------------------------------#
 #   FUNCTION SUPPORT
@@ -165,28 +167,31 @@ def go_main():
         print('', cStrDivider, f'# *** ERROR *** _ {__filename} _ invalid args\n ... exiting   {get_time_now()}', cStrDivider, sep='\n')
         exit(1)
 
-    # execute procedural support
+    ## execute procedural support ##
+    # get meta data required for all alts
     lst_return = []
-    # return {'cost':,'addr':,'symb':,'name':,'cnt':,'price':}
-    lst_return.append(get_usd_val_for_tok_cnt(alt_tok_addr_0, alt_tok_vol_0))
-    lst_return.append(get_usd_val_for_tok_cnt(alt_tok_addr_1, alt_tok_vol_1))
-    lst_return.append(get_usd_val_for_tok_cnt(alt_tok_addr_2, alt_tok_vol_2))
-    lst_return.append(get_usd_val_for_tok_cnt(alt_tok_addr_3, alt_tok_vol_3))
-    lst_return.append(get_usd_val_for_tok_cnt(alt_tok_addr_4, alt_tok_vol_4))
-
+    for i in range(0, len(lst_alt_tok_addr)):
+        # return {'cost':,'addr':,'symb':,'name':,'cnt':,'price':}
+        lst_return.append(get_usd_val_for_tok_cnt(lst_alt_tok_addr[i], lst_alt_tok_vol[i]))
+            
+    # calc total alt tok mint cost (USD)
     usd_total_cost_to_mint = 0.0
     for v in range(0,len(lst_return)):
         d = lst_return[v]
         usd_total_cost_to_mint += d['cost']
 
-    # get meta for token address to mint
+    # get & organize meta for token address to mint
     d_mint = get_usd_val_for_tok_cnt(contract_address, 1)
-    str_print = ''
+    str_print = str_print_one = ''
     for i in range(0, len(lst_return)):
         d = lst_return[i]
-        str_print += f"\n mint {d['symb']} ({d['name']}) _ x{d['cnt']}      = ${d['cost']:,.2f}"
-    str_tot_usd = f"${usd_total_cost_to_mint:,.2f}"
-    print('\n',cStrDivider, f"TOKEN TOTALS: {d_mint['symb']}({d_mint['addr']})\n{str_print}\n\n TOTAL cost to mint ({d_mint['symb']}) = {str_tot_usd}\n USD price to buy = {d_mint['price']}", cStrDivider, sep='\n')
+        str_print_one += f"\n mint {d['symb']} ({d['name']}) _ x1 = ${float(d['price']):.8f}"
+        str_print += f"\n mint {d['symb']} ({d['name']}) _ x{d['cnt']} = ${d['cost']:,.3f}"
+        
+    # finalize output & print
+    str_tot_mint_usd = f"${usd_total_cost_to_mint:,.2f}"
+    str_tot_buy_usd = f"{float(d_mint['price']):,.2f}"
+    print('\n',cStrDivider, f"TOKEN TOTALS: {d_mint['symb']}({d_mint['addr']})\n{str_print_one}\n{str_print}\n\n TOTAL cost to mint ({d_mint['symb']}) = {str_tot_mint_usd}\n USD price to buy = {str_tot_buy_usd}", cStrDivider, sep='\n')
 
     # end
     print(f'\n\nRUN_TIME_START: {run_time_start}\nRUN_TIME_END:   {get_time_now()}\n')
