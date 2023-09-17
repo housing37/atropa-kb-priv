@@ -9,18 +9,18 @@
         3) set variables below
             <none>
         4) run the script from CLI
-            $ python3 calc_return_write.py
+            $ python3 calc_return_bond.py
             
         short-hand:
             $ python3 -m pip install web3
             $ python3 -m pip install requests
-            $ python3 calc_return_write.py
+            $ python3 calc_return_bond.py
             
         *WARNING* _ ref: https://docs.dexscreener.com/api/reference
             max runtime for this code = 300x per minute
              (and then your IP address will get rate-limited by dexscreener)
 '''
-__fname = 'calc_return_write'
+__fname = 'calc_return_bond'
 __filename = __fname + '.py'
 cStrDivider = '#================================================================#'
 print('', cStrDivider, f'START _ {__filename}', cStrDivider, sep='\n')
@@ -48,38 +48,29 @@ from web3 import Web3
 #   GLOBALS
 #------------------------------------------------------------#
 # contract address & sender keys
-contract_address = '0x26D5906c4Cdf8C9F09CBd94049f99deaa874fB0b' # ހް (ޖޮޔިސްދޭވޯހީ) _ writing
-contract_symbol = 'ހް (ޖޮޔިސްދޭވޯހީ) _ writing'
+contract_address = '0x25d53961a27791B9D8b2d74FB3e937c8EAEadc38'
+contract_symbol = '⑦ _ BOND'
 #sender_address = "0xYourSenderAddress"
 #sender_secret = "sender_address_private_key"
 
-#alt_tok_cnt = 12
-alt_tok_addr_0 = '0x25d53961a27791B9D8b2d74FB3e937c8EAEadc38' # ⑦
-alt_tok_addr_1 = '0xDf6A16689A893095C721542e5d3CE55bBcc23aC6' # ㉣
-alt_tok_addr_2 = '0x36d4Ac3DF7Bf8aa3843Ad40C8b3eB67e3d18b4e1' # มิติ
-alt_tok_addr_3 = '0x52a4682880E990ebed5309764C7BD29c4aE22deB' # 유
-alt_tok_addr_4 = '0x2959221675bdF0e59D0cC3dE834a998FA5fFb9F4' # ⑧
-alt_tok_addr_5 = '0xA63F8061A67ecdbf147Cd1B60f91Cf95464E868D' # 'ލ'
-alt_tok_addr_6 = '0x2556F7f8d82EbcdD7b821b0981C38D9dA9439CdD' # dOWN
-alt_tok_addr_7 = '0x347BC40503E0CE23fE0F5587F232Cd2D07D4Eb89' # 第作
-alt_tok_addr_8 = '0xf69e9f943674027Cedf05564A8D5A01041d07c62' # পঁদাে়নুিং
-alt_tok_addr_9 = '0x1b8F9E19360D1dc94295D984b7Ca7eA9b810D9ee' # '㉾ '
-alt_tok_addr_10 = '0x0b1307dc5D90a0B60Be18D2634843343eBc098AF' # LEGAL
-alt_tok_addr_11 = '0x557F7e30aA6D909Cfe8a229A4CB178ab186EC622' # 'ʁ'
+#alt_tok_cnt = 7
+alt_tok_addr_0 = '0x0b1307dc5D90a0B60Be18D2634843343eBc098AF' # LEGAL
+alt_tok_addr_1 = '0xFa4d9C6E012d946853386113ACbF166deC5465Bb' # ㈝
+alt_tok_addr_2 = '0x271197EFe41073681577CdbBFD6Ee1DA259BAa3c' # 籯
+alt_tok_addr_3 = '0xA63F8061A67ecdbf147Cd1B60f91Cf95464E868D' # ލ
+alt_tok_addr_4 = '0xCc78A0acDF847A2C1714D2A925bB4477df5d48a6' # ATROPA
+alt_tok_addr_5 = '0x463413c579D29c26D59a65312657DFCe30D545A1' # TreasuryBill
+alt_tok_addr_6 = '???' # â§
+
 alt_tok_vol_0 = 1
-alt_tok_vol_1 = 2000000 # 2,000,000
-alt_tok_vol_2 = 40400404 # 40,400,404
-alt_tok_vol_3 = 100000 # 100,000
-alt_tok_vol_4 = 2600
-alt_tok_vol_5 = 3000000 # 3,000,000
-alt_tok_vol_6 = 12000000 # 12,000,000
-alt_tok_vol_7 = 1
-alt_tok_vol_8 = 200000 # 200,000
-alt_tok_vol_9 = 3135
-alt_tok_vol_10 = 3135
-alt_tok_vol_11 = 7
-lst_alt_tok_addr = [alt_tok_addr_0,alt_tok_addr_1,alt_tok_addr_2,alt_tok_addr_3,alt_tok_addr_4,alt_tok_addr_5,alt_tok_addr_6,alt_tok_addr_7,alt_tok_addr_8,alt_tok_addr_9,alt_tok_addr_10,alt_tok_addr_11]
-lst_alt_tok_vol = [alt_tok_vol_0,alt_tok_vol_1,alt_tok_vol_2,alt_tok_vol_3,alt_tok_vol_4,alt_tok_vol_5,alt_tok_vol_6,alt_tok_vol_7,alt_tok_vol_8,alt_tok_vol_9,alt_tok_vol_10,alt_tok_vol_11]
+alt_tok_vol_1 = 500
+alt_tok_vol_2 = 900
+alt_tok_vol_3 = 999
+alt_tok_vol_4 = 313
+alt_tok_vol_5 = 100000
+alt_tok_vol_6 = 131.1
+lst_alt_tok_addr = [alt_tok_addr_0,alt_tok_addr_1,alt_tok_addr_2,alt_tok_addr_3,alt_tok_addr_4,alt_tok_addr_5]
+lst_alt_tok_vol = [alt_tok_vol_0,alt_tok_vol_1,alt_tok_vol_2,alt_tok_vol_3,alt_tok_vol_4,alt_tok_vol_5]
 
 #------------------------------------------------------------#
 #   FUNCTION SUPPORT
