@@ -53,12 +53,7 @@ contract_symbol = '⑨ (テディベア) - TeddyBear9'
 #sender_address = "0xYourSenderAddress"
 #sender_secret = "sender_address_private_key"
 
-alt_tok_cnt = 5 # 籯	 유 	⑧	ʁ	BEAR
-#alt_tok_symb_0 = '籯'
-#alt_tok_symb_1 = '유'
-#alt_tok_symb_2 = '⑧'
-#alt_tok_symb_3 = 'ʁ'
-#alt_tok_symb_4 = 'BEAR (OG)'
+#alt_tok_cnt = 5
 alt_tok_addr_0 = '0x271197EFe41073681577CdbBFD6Ee1DA259BAa3c' # 籯
 alt_tok_addr_1 = '0x52a4682880E990ebed5309764C7BD29c4aE22deB' # 유
 alt_tok_addr_2 = '0x2959221675bdF0e59D0cC3dE834a998FA5fFb9F4' # ⑧
