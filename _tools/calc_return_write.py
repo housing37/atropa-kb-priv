@@ -12,7 +12,7 @@
             $ python3 calc_return_write.py
             
         short-hand:
-            $ python3 -m pip install web3
+            $ python3 -m pip install requests
             $ python3 -m pip install web3
             $ python3 mint_tok_mv.py
             
