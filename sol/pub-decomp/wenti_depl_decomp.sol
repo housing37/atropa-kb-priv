@@ -158,7 +158,7 @@ function renounceOwnership() public payable {
 
 function 0x76fade90() public payable {
     v0 = 0x1978(10, 18);
-    v1 = _SafeMul(0x1e8480, v0); // house_091623: 0x1e8480 = 1976576
+    v1 = _SafeMul(0x1e8480, v0); // house_091723: 0x1e8480 = 2000000
     v2, /* bool */ v3 = stor_7_0_19.transferFrom(msg.sender, address(this), v1).gas(msg.gas);
     require(bool(v2), 0, RETURNDATASIZE()); // checks call status, propagates error data on error
     MEM[64] = MEM[64] + (RETURNDATASIZE() + 31 & ~0x1f);

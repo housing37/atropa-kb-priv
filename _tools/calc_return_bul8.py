@@ -54,10 +54,11 @@ contract_symbol = '⑧ (BULLION ⑧)'
 #sender_secret = "sender_address_private_key"
 
 #alt_tok_cnt = 1
-alt_tok_addr_0 = '???' # require(v1, Error(20079));
+alt_tok_addr_0 = '???' #
 alt_tok_vol_0 = '???'
     # require(!varg0 | (0x423a35c7 == varg0 * 0x423a35c7 / varg0), Panic(17)); // arithmetic overflow or underflow
-    #  "0x423a35c7" = 1,109,483,811.00
+    #  "0x423a35c7" = 1,111,111,111
+    # require(v1, Error(20079)); -> error response, ie. no 'Need Approved <vol> <symb>'
     #  note: might be able to pass '0' to this function and return success
     #      (w/ trading 0 for minting 0)
     

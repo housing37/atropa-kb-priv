@@ -53,7 +53,7 @@ contract_symbol = '问题 (问题) _ wenti'
 #sender_address = "0xYourSenderAddress"
 #sender_secret = "sender_address_private_key"
 
-#alt_tok_cnt = 1
+#alt_tok_cnt = 2
 #alt_tok_addr_0 = '0x52a4682880E990ebed5309764C7BD29c4aE22deB' # 유 (유) - why this address?
 #alt_tok_vol_0 = 2000000 # 2,000,000
 #    # require(v3, Error(0x4e65656420417070726f76656420322c3030302c30303020ec9ca0));

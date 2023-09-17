@@ -53,9 +53,9 @@ contract_symbol = 'Annabelle: The Profit ㉶ _ (BEL ㉶)'
 #sender_address = "0xYourSenderAddress"
 #sender_secret = "sender_address_private_key"
 
-#alt_tok_cnt = 7
-alt_tok_addr_0 = '???' # Need Approved 1 ç±¯
-alt_tok_vol_0 = 1
+#alt_tok_cnt = 1
+alt_tok_addr_0 = ''
+alt_tok_vol_0 = 1 # _ '_SafeExp(10,' _ 'Need Approved 1 ç±¯' (ç±¯ = E7B1AF)
 lst_alt_tok_addr = [alt_tok_addr_0]
 lst_alt_tok_vol = [alt_tok_vol_0]
 
