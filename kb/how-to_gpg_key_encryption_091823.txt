@@ -205,7 +205,7 @@ uid                  houseg (houseg is the man) <houseg@houseg.com>
 sub   1024g/E58B39A2 2012-12-02
 
 pub   3072R/5F7EDEED 2012-08-31
-uid                  Direct2You <Tommytor@tormail.org>
+uid                  Direct2You <testtor@tormail.org>
 sub   3072R/C195E130 2012-08-31
 
 pub   1024R/4F1BBD6F 2013-02-01
@@ -259,7 +259,7 @@ house@house-linux:$
 house@house-linux:$
 house@house-linux:$
 house@house-linux:$ gpg --import pkey
-gpg: key 65AB1855: public key "TommyTor (LPTPGW) <tommytor@tormail.org>" imported
+gpg: key 65AB1855: public key "testtor (LPTPGW) <testtor@tormail.org>" imported
 gpg: Total number processed: 1
 gpg:               imported: 1  (RSA: 1)
 house@house-linux:$
@@ -268,7 +268,7 @@ house@house-linux:$ gpg --list-keys
 /home/house/.gnupg/pubring.gpg
 -----------------------------
 pub   2048R/65AB1855 2012-12-12
-uid                  TommyTor (LPTPGW) <tommytor@tormail.org>
+uid                  testtor (LPTPGW) <testtor@tormail.org>
 sub   2048R/67AC4C1F 2012-12-12
 
 house@house-linux:$
@@ -284,10 +284,10 @@ You did not specify a user ID. (you may use "-r")
 
 Current recipients:
 
-Enter the user ID.  End with an empty line: tommytor@tormail.org
+Enter the user ID.  End with an empty line: testtor@tormail.org
 gpg: 67AC4C1F: There is no assurance this key belongs to the named user
 
-pub  2048R/67AC4C1F 2012-12-12 TommyTor (LPTPGW) <tommytor@tormail.org>
+pub  2048R/67AC4C1F 2012-12-12 testtor (LPTPGW) <testtor@tormail.org>
  Primary key fingerprint: F341 1E76 B02D C485 46F4  1CD3 92B1 15C2 65AB 1855
       Subkey fingerprint: 05F5 7630 7431 DA09 FF3C  4A79 A227 2292 67AC 4C1F
 
@@ -298,7 +298,7 @@ you may answer the next question with yes.
 Use this key anyway? (y/N) y
 
 Current recipients:
-2048R/67AC4C1F 2012-12-12 "TommyTor (LPTPGW) <tommytor@tormail.org>"
+2048R/67AC4C1F 2012-12-12 "testtor (LPTPGW) <testtor@tormail.org>"
 
 Enter the user ID.  End with an empty line: 
 house@house-linux:$ more testmsg.txt.asc
