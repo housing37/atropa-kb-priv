@@ -5,41 +5,31 @@ print('', cStrDivider, f'START _ {__filename}', cStrDivider, sep='\n')
 print(f'GO {__filename} -> starting IMPORTs and globals decleration')
 
 #------------------------------------------------------------#
-#   IMPORTS (default)                                        #
-#------------------------------------------------------------#
-import sys, json
-from datetime import datetime
-#import requests
-#import inspect # this_funcname = inspect.stack()[0].function
-
-# support import from parent dir
-#   add parent dir of this file to sys.path
-#parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-#sys.path.append(parent_dir)
-
-#------------------------------------------------------------#
 #   IMPORTS                                                  #
 #------------------------------------------------------------#
+import sys, os
+from datetime import datetime
 from web3 import Web3
+#import inspect # this_funcname = inspect.stack()[0].function
+#parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+#sys.path.append(parent_dir) # import from parent dir of this file
 
 #------------------------------------------------------------#
 #   GLOBALS
 #------------------------------------------------------------#
-READ_ME = f'''
-    *EXAMPLE EXECUTION*
-        $ python3 {__filename} -<nil> <nil>
-        $ python3 {__filename}
-        
-    *NOTE* INPUT PARAMS...
-        nil
-'''
+# set caller keys & gas params
+sender_address = "0xYourSenderAddress"
+sender_secret = "sender_address_private_key"
 
-# URL w/ RPC endpoint to connect to public Ethereum node (or local test node)
-#w3 = Web3(Web3.HTTPProvider('http://localhost:8545'))
-#w3 = Web3(Web3.HTTPProvider('https://mainnet.infura.io/v3/YOUR_INFURA_PROJECT_ID'))
+# ** COMMENT FOR COMMIT **
+#from read_env import read_env #ref: https://github.com/sloria/read_env
+#try: read_env() # recursively traverse up dir tree looking for '.env' file
+#except: print(" ERROR: no .env files found ")
+#sender_address = os.environ['PUBLIC_KEY_1']
+#sender_secret = os.environ['PRIVATE_KEY_1']
 
-# Replace with your contract address and ABI (Application Binary Interface)
-#contract_address = '0xYourContractAddress' # MV
+# contract address & ABI (Application Binary Interface)
+contract_address = '0x4C1518286E1b8D5669Fe965EF174B8B4Ae2f017B' # Annabelle: The Profit ㉶ (BEL)
 contract_abi = [
   {"inputs":[],"stateMutability":"nonpayable","type":"constructor"},
   {"anonymous":False,"inputs":[{"indexed":True,"internalType":"address","name":"owner","type":"address"},{"indexed":True,"internalType":"address","name":"spender","type":"address"},{"indexed":False,"internalType":"uint256","name":"value","type":"uint256"}],"name":"Approval","type":"event"},
@@ -62,15 +52,13 @@ contract_abi = [
   {"inputs":[{"internalType":"address","name":"recipient","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"transfer","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},
   {"inputs":[{"internalType":"address","name":"sender","type":"address"},{"internalType":"address","name":"recipient","type":"address"},{"internalType":"uint256","name":"amount","type":"uint256"}],"name":"transferFrom","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"}
 ]
-contract_address = '0x4C1518286E1b8D5669Fe965EF174B8B4Ae2f017B' # Annabelle: The Profit ㉶ (BEL)
 
 tok_allow_addr = '0x271197EFe41073681577CdbBFD6Ee1DA259BAa3c' # 1 籯 (YingContract) _ (ç±¯ = E7B1AF)
 tok_allow_abi = [{"inputs":[{"internalType":"uint256","name":"initialSupply","type":"uint256"}],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":False,"inputs":[{"indexed":True,"internalType":"address","name":"owner","type":"address"},{"indexed":True,"internalType":"address","name":"spender","type":"address"},{"indexed":False,"internalType":"uint256","name":"value","type":"uint256"}],"name":"Approval","type":"event"},{"anonymous":False,"inputs":[{"indexed":True,"internalType":"address","name":"previousOwner","type":"address"},{"indexed":True,"internalType":"address","name":"newOwner","type":"address"}],"name":"OwnershipTransferred","type":"event"},{"anonymous":False,"inputs":[{"indexed":True,"internalType":"address","name":"from","type":"address"},{"indexed":True,"internalType":"address","name":"to","type":"address"},{"indexed":False,"internalType":"uint256","name":"value","type":"uint256"}],"name":"Transfer","type":"event"},{"inputs":[{"internalType":"address","name":"","type":"address"},{"internalType":"address","name":"","type":"address"}],"name":"allowance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"value","type":"uint256"}],"name":"approve","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"value","type":"uint256"}],"name":"burn","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"decimals","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"subtractedValue","type":"uint256"}],"name":"decreaseAllowance","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"addedValue","type":"uint256"}],"name":"increaseAllowance","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"name","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"renounceOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"symbol","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"totalSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"value","type":"uint256"}],"name":"transfer","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"value","type":"uint256"}],"name":"transferFrom","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"newOwner","type":"address"}],"name":"transferOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"}]
 
-# set caller keys & gas params
-#sender_address = "0xYourSenderAddress"
-#sender_secret = "sender_address_private_key"
-
+#------------------------------------------------------------#
+#   FUNCTION SUPPORT
+#------------------------------------------------------------#
 def go_test_mint():
     print('ENTER - go_test_mint')
     # Call the 0xa4566950 function on the contract
@@ -197,6 +185,14 @@ def update_allowance(type='increase', amnt=-1):
 #------------------------------------------------------------#
 #   DEFAULT SUPPORT                                          #
 #------------------------------------------------------------#
+READ_ME = f'''
+    *EXAMPLE EXECUTION*
+        $ python3 {__filename} -<nil> <nil>
+        $ python3 {__filename}
+        
+    *NOTE* INPUT PARAMS...
+        nil
+'''
 def wait_sleep(wait_sec : int, b_print=True): # sleep 'wait_sec'
     print(f'waiting... {wait_sec} sec')
     for s in range(wait_sec, 0, -1):
@@ -250,17 +246,7 @@ if __name__ == "__main__":
 print('', cStrDivider, f'# END _ {__filename}', cStrDivider, sep='\n')
 
 
-
-
 '''
-    known addresses minting MV
-
-    - 0x55115786b6e8Dadd7417c1975314edfCFb86B8e3
-    - 0x845f9ba19E7eAB5e57081194557795634FF9b0ff
-    - 0x9978b32A2fa90Df78C8B5Fb27d1b91d64Ef45399
-    - 0xcA2D833d7777186dB7457C10f07602104C2c97be
-    - 0x8B7369921D672f1b26Cd58674e3a434899A73816
-    - 0x90AC232c9d55dF367b66A33aBE3aE3534AbD8F0d
-
-    - 0x9abf7504162e5ca517d504a16e8addcb10115aab
+    known addresses minting BEL
+    - ?
 '''
