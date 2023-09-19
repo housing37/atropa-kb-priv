@@ -64,11 +64,12 @@ contract_abi = [
 ]
 contract_address = '0x4C1518286E1b8D5669Fe965EF174B8B4Ae2f017B' # Annabelle: The Profit ㉶ (BEL)
 
+tok_allow_addr = '0x271197EFe41073681577CdbBFD6Ee1DA259BAa3c' # 1 籯 (YingContract) _ (ç±¯ = E7B1AF)
+tok_allow_abi = [{"inputs":[{"internalType":"uint256","name":"initialSupply","type":"uint256"}],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":False,"inputs":[{"indexed":True,"internalType":"address","name":"owner","type":"address"},{"indexed":True,"internalType":"address","name":"spender","type":"address"},{"indexed":False,"internalType":"uint256","name":"value","type":"uint256"}],"name":"Approval","type":"event"},{"anonymous":False,"inputs":[{"indexed":True,"internalType":"address","name":"previousOwner","type":"address"},{"indexed":True,"internalType":"address","name":"newOwner","type":"address"}],"name":"OwnershipTransferred","type":"event"},{"anonymous":False,"inputs":[{"indexed":True,"internalType":"address","name":"from","type":"address"},{"indexed":True,"internalType":"address","name":"to","type":"address"},{"indexed":False,"internalType":"uint256","name":"value","type":"uint256"}],"name":"Transfer","type":"event"},{"inputs":[{"internalType":"address","name":"","type":"address"},{"internalType":"address","name":"","type":"address"}],"name":"allowance","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"value","type":"uint256"}],"name":"approve","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"","type":"address"}],"name":"balanceOf","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"value","type":"uint256"}],"name":"burn","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"decimals","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"subtractedValue","type":"uint256"}],"name":"decreaseAllowance","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"spender","type":"address"},{"internalType":"uint256","name":"addedValue","type":"uint256"}],"name":"increaseAllowance","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"name","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"owner","outputs":[{"internalType":"address","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"renounceOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"symbol","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"totalSupply","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"value","type":"uint256"}],"name":"transfer","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"from","type":"address"},{"internalType":"address","name":"to","type":"address"},{"internalType":"uint256","name":"value","type":"uint256"}],"name":"transferFrom","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"newOwner","type":"address"}],"name":"transferOwnership","outputs":[],"stateMutability":"nonpayable","type":"function"}]
+
 # set caller keys & gas params
 #sender_address = "0xYourSenderAddress"
-#private_key = "0xYourPrivateKey"
-#gas_price = w3.toWei("10", "gwei")  # Replace with your desired gas price
-#gas_limit = 200000  # Replace with your desired gas limit
+#sender_secret = "sender_address_private_key"
 
 def go_test_mint():
     print('ENTER - go_test_mint')
@@ -87,10 +88,14 @@ def go_test_mint():
 
         print('go # get the contract w/ address & abi')
         # get the contract w/ address & abi
-        contract = w3.eth.contract(address=contract_address, abi=contract_abi)
+#        contract = w3.eth.contract(address=tok_allow_addr, abi=tok_allow_abi)
+#        allow_num_alt_tok = contract.functions.allowance(sender_address, tok_allow_addr).call()
+#        print(cStrDivider, f'Function "allowance" executed successfully...\n sender_address: {sender_address}\n tok_allow_addr: {tok_allow_addr}\n allowance: {allow_num_alt_tok}', cStrDivider, sep='\n')
         
-        allow_num = contract.functions.allowance(sender_address, contract_address).call()
-        print(cStrDivider, f'Function "allowance" executed successfully...\n sender_address: {sender_address}\n contract_address: {contract_address}\n allowance: {allow_num}', cStrDivider, sep='\n')
+        contract = w3.eth.contract(address=contract_address, abi=contract_abi)
+        allow_num = contract.functions.allowance(sender_address, tok_allow_addr).call()
+        print(cStrDivider, f'Function "allowance" executed successfully...\n sender_address: {sender_address}\n contract_address: {contract_address}\n tok_allow_addr: {tok_allow_addr}\n allowance: {allow_num}', cStrDivider, sep='\n')
+
         
         print('go # Prepare the transaction data')
         # Prepare the transaction data
@@ -109,7 +114,7 @@ def go_test_mint():
 #            "gas": 25200,  # Adjust the gas limit as needed
             "gas": 20000000,  # Adjust the gas limit as needed
             "gasPrice": w3.toWei("4000000", "gwei"),  # Adjust the gas price as needed
-            "value": w3.toWei(1, "ether")  # Specify the value you want to send with the transaction
+#            "value": w3.toWei(1, "ether"),  # Specify the value you want to send with the transaction
             "chainId": 369 # 369 = pulsechain Mainnet... required for replay-protection (EIP-155)
         }
 
@@ -145,16 +150,17 @@ def update_allowance(type='increase', amnt=-1):
     print('go # get the contract w/ address & abi')
     # Create a contract instance
     contract = w3.eth.contract(address=contract_address, abi=contract_abi)
-
-    allow_num = contract.functions.allowance(sender_address, contract_address).call()
-    print(cStrDivider, f'Function "allowance" executed successfully...\n sender_address: {sender_address}\n contract_address: {contract_address}\n allowance: {allow_num}', cStrDivider, sep='\n')
+    
+    allow_num = contract.functions.allowance(sender_address, tok_allow_addr).call()
+#    print(cStrDivider, f'Function "allowance" executed successfully...\n sender_address: {sender_address}\n tok_allow_addr: {tok_allow_addr}\n allowance: {allow_num}', cStrDivider, sep='\n')
+    print(cStrDivider, f'Function "allowance" executed successfully...\n sender_address: {sender_address}\n contract_address: {contract_address}\n tok_allow_addr: {tok_allow_addr}\n allowance: {allow_num}', cStrDivider, sep='\n')
     
     print('go # Prepare the transaction data')
     # Function arguments
     #varg0 = '0xRecipientAddress'  # Replace with the recipient's address
     #varg1 = 1000000000000000000  # Replace with the desired allowance in wei
     #varg1 = 20000000000000 # 20000000000000 = 20k PLS
-    varg0 = contract_address
+    varg0 = tok_allow_addr
     varg1 = amnt # 20000000000000 = 20k PLS
     d_tx_data = {
             'chainId': 369,  # Replace with the appropriate chain ID (Mainnet)
@@ -184,8 +190,9 @@ def update_allowance(type='increase', amnt=-1):
 
     print(f'Function "increaseAllowance" executed successfully...\n tx_hash: {tx_hash.hex()}\n Transaction receipt: {tx_receipt}')
     
-    allow_num = contract.functions.allowance(sender_address, contract_address).call()
-    print(cStrDivider, f'Function "allowance" executed successfully...\n sender_address: {sender_address}\n contract_address: {contract_address}\n allowance: {allow_num}', cStrDivider, sep='\n')
+    allow_num = contract.functions.allowance(sender_address, tok_allow_addr).call()
+#    print(cStrDivider, f'Function "allowance" executed successfully...\n sender_address: {sender_address}\n tok_allow_addr: {tok_allow_addr}\n allowance: {allow_num}', cStrDivider, sep='\n')
+    print(cStrDivider, f'Function "allowance" executed successfully...\n sender_address: {sender_address}\n contract_address: {contract_address}\n tok_allow_addr: {tok_allow_addr}\n allowance: {allow_num}', cStrDivider, sep='\n')
 
 #------------------------------------------------------------#
 #   DEFAULT SUPPORT                                          #
@@ -222,8 +229,9 @@ def go_main():
     if b_allowance:
         print("__ update_allowance() __")
 #        amnt = 115792089237316195423570985008687907853269984665640564039457584007913129639935 # uint256.max
-        amnt = 1000000000000000000 # v0 = _SafeExp(10, uint8(18), uint256.max); == 1B PLS ?
-        amnt = 20000000000000 # v0 = _SafeExp(10, uint8(18), uint256.max);
+#        amnt = 1000000000000000000 # v0 = _SafeExp(10, uint8(18), uint256.max); == 1B PLS ?
+#        amnt = 20000000000000 # v0 = _SafeExp(10, uint8(18), uint256.max);
+        amnt = 1000000000 # _ '_SafeExp(10,' _ 'Need Approved 1 ç±¯' (ç±¯ = E7B1AF) _ 1 籯 (YingContract) _ (ç±¯ = E7B1AF)
         update_allowance(type='approve', amnt=amnt) # 20000000000000 = 20k PLS
 #        update_allowance(type='increase', amnt=amnt) # 20000000000000 = 20k PLS
 #        update_allowance(type='decrease', amnt=amnt) # 20000000000000 = 20k PLS
