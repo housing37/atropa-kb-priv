@@ -1,4 +1,4 @@
-#Commands were run on 20 sep 2023-
+#Commands were executed on 20 sep 2023-
 #Command 1 ran against domain twee.se list of services in use screenshot
 #Command 2 ran on -whois  (relevant details taken in pic screenshot)
 
