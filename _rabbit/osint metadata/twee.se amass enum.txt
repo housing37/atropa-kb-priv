@@ -1,3 +1,7 @@
+#Cimmands were run on 20 sep 2023-
+#Command 1 ran against domain twee.se list of services in use screenshot
+#Command 2 ran on -whois  (relevant details taken in pic screenshot)
+
 ┌──(whiterabbit0x0㉿)-[~]
 └─$ amass enum -passive -d twee.se
 twee.se (FQDN) --> mx_record --> mx1.mailchannels.net (FQDN)
@@ -33,3 +37,15 @@ _autodiscover._tcp.twee.se (FQDN) --> srv_record --> autoconfig.dreamhost.com (F
 
 The enumeration has finished
 
+//////////////////////////////////////////////////////////////////////////////////
+─$ amass intel -d twee.se -whois
+consumethisfirst.com
+daysa.mx
+hatch.org
+hollywoodtattler.com
+mysaab900.com
+njahof.org
+ouroborus.org
+tulipan.mx
+twilightdesert.com
+wonderfulpessimist.com
