@@ -59,10 +59,12 @@ def go_test_mint():
 #        allow_num_alt_tok = contract.functions.allowance(sender_address, tok_allow_addr).call()
 #        print(cStrDivider, f'Function "allowance" executed successfully...\n sender_address: {sender_address}\n tok_allow_addr: {tok_allow_addr}\n allowance: {allow_num_alt_tok}', cStrDivider, sep='\n')
         
+        contract_alt = w3.eth.contract(address=tok_allow_addr, abi=tok_allow_abi)
         contract = w3.eth.contract(address=contract_address, abi=contract_abi)
-        allow_num = contract.functions.allowance(sender_address, tok_allow_addr).call()
+#        allow_num = contract.functions.allowance(sender_address, tok_allow_addr).call()
+        # get allowance for 'contract_address' to spend 'sender_address' tokens, inside contract 'tok_allow_addr'
+        allow_num = contract_alt.functions.allowance(sender_address, contract_address).call()
         print(cStrDivider, f'Function "allowance" executed successfully...\n sender_address: {sender_address}\n contract_address: {contract_address}\n tok_allow_addr: {tok_allow_addr}\n allowance: {allow_num}', cStrDivider, sep='\n')
-
         
         print('go # Prepare the transaction data')
         # Prepare the transaction data
@@ -115,10 +117,16 @@ def update_allowance(type='increase', amnt=-1):
         print("Failed to connect to PulseChain mainnet")
 
     print('go # get the contract w/ address & abi')
+#        contract = w3.eth.contract(address=tok_allow_addr, abi=tok_allow_abi)
+#        allow_num_alt_tok = contract.functions.allowance(sender_address, tok_allow_addr).call()
+#        print(cStrDivider, f'Function "allowance" executed successfully...\n sender_address: {sender_address}\n tok_allow_addr: {tok_allow_addr}\n allowance: {allow_num_alt_tok}', cStrDivider, sep='\n')
     # Create a contract instance
+    contract_alt = w3.eth.contract(address=tok_allow_addr, abi=tok_allow_abi)
     contract = w3.eth.contract(address=contract_address, abi=contract_abi)
     
-    allow_num = contract.functions.allowance(sender_address, tok_allow_addr).call()
+#    allow_num = contract.functions.allowance(sender_address, tok_allow_addr).call()
+    # get allowance for 'contract_address' to spend 'sender_address' tokens, inside contract 'tok_allow_addr'
+    allow_num = contract_alt.functions.allowance(sender_address, contract_address).call()
 #    print(cStrDivider, f'Function "allowance" executed successfully...\n sender_address: {sender_address}\n tok_allow_addr: {tok_allow_addr}\n allowance: {allow_num}', cStrDivider, sep='\n')
     print(cStrDivider, f'Function "allowance" executed successfully...\n sender_address: {sender_address}\n contract_address: {contract_address}\n tok_allow_addr: {tok_allow_addr}\n allowance: {allow_num}', cStrDivider, sep='\n')
     
@@ -136,12 +144,19 @@ def update_allowance(type='increase', amnt=-1):
             'nonce': w3.eth.getTransactionCount(sender_address),
         }
     # Build the transaction
+    func_type = 'nil_fun_call'
     if type == 'approve':
-        tx_data = contract.functions.approve(varg0, varg1).buildTransaction(d_tx_data)
+#        tx_data = contract.functions.approve(varg0, varg1).buildTransaction(d_tx_data)
+        tx_data = contract_alt.functions.approve(contract_address, amnt).buildTransaction(d_tx_data)
+        func_type = 'approve'
     elif type == 'increase':
-        tx_data = contract.functions.increaseAllowance(varg0, varg1).buildTransaction(d_tx_data)
+#        tx_data = contract.functions.increaseAllowance(varg0, varg1).buildTransaction(d_tx_data)
+        tx_data = contract_alt.functions.increaseAllowance(contract_address, amnt).buildTransaction(d_tx_data)
+        func_type = 'increaseAllowance'
     else:
-        tx_data = contract.functions.decreaseAllowance(varg0, varg1).buildTransaction(d_tx_data)
+#        tx_data = contract.functions.decreaseAllowance(varg0, varg1).buildTransaction(d_tx_data)
+        tx_data = contract_alt.functions.decreaseAllowance(contract_address, amnt).buildTransaction(d_tx_data)
+        func_type = 'decreaseAllowance'
 
     print(f'go # Create a signed transaction _ tx_data: {tx_data}')
     # Sign the transaction
@@ -155,9 +170,11 @@ def update_allowance(type='increase', amnt=-1):
     # wait for mined receipt
     tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
 
-    print(f'Function "increaseAllowance" executed successfully...\n tx_hash: {tx_hash.hex()}\n Transaction receipt: {tx_receipt}')
+    print(f'Function "{func_type}" executed successfully...\n tx_hash: {tx_hash.hex()}\n Transaction receipt: {tx_receipt}')
     
-    allow_num = contract.functions.allowance(sender_address, tok_allow_addr).call()
+#    allow_num = contract.functions.allowance(sender_address, tok_allow_addr).call()
+    # get allowance for 'contract_address' to spend 'sender_address' tokens, inside contract 'tok_allow_addr'
+    allow_num = contract_alt.functions.allowance(sender_address, contract_address).call()
 #    print(cStrDivider, f'Function "allowance" executed successfully...\n sender_address: {sender_address}\n tok_allow_addr: {tok_allow_addr}\n allowance: {allow_num}', cStrDivider, sep='\n')
     print(cStrDivider, f'Function "allowance" executed successfully...\n sender_address: {sender_address}\n contract_address: {contract_address}\n tok_allow_addr: {tok_allow_addr}\n allowance: {allow_num}', cStrDivider, sep='\n')
 
@@ -206,7 +223,9 @@ def go_main():
 #        amnt = 115792089237316195423570985008687907853269984665640564039457584007913129639935 # uint256.max
 #        amnt = 1000000000000000000 # v0 = _SafeExp(10, uint8(18), uint256.max); == 1B PLS ?
 #        amnt = 20000000000000 # v0 = _SafeExp(10, uint8(18), uint256.max);
-        amnt = 1000000000 # _ '_SafeExp(10,' _ 'Need Approved 1 ç±¯' (ç±¯ = E7B1AF) _ 1 籯 (YingContract) _ (ç±¯ = E7B1AF)
+#        amnt = 1000000000 # _ '_SafeExp(10,' _ 'Need Approved 1 ç±¯' (ç±¯ = E7B1AF) _ 1 籯 (YingContract) _ (ç±¯ = E7B1AF)
+#        amnt = 5 # _ '_SafeExp(10,' _ 'Need Approved 1 ç±¯' (ç±¯ = E7B1AF) _ 1 籯 (YingContract) _ (ç±¯ = E7B1AF)
+        amnt = 1000000000000000000 # _ '_SafeExp(10,' _ 'Need Approved 1 ç±¯' (ç±¯ = E7B1AF) _ 1 籯 (YingContract) _ (ç±¯ = E7B1AF)
         update_allowance(type='approve', amnt=amnt) # 20000000000000 = 20k PLS
 #        update_allowance(type='increase', amnt=amnt) # 20000000000000 = 20k PLS
 #        update_allowance(type='decrease', amnt=amnt) # 20000000000000 = 20k PLS
