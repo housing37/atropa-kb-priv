@@ -1,0 +1,143 @@
+#================================================================#
+START _ calc_return_bear9.py
+#================================================================#
+GO calc_return_bear9.py -> starting IMPORTs and globals decleration
+
+
+RUN_TIME_START: 12:37:06.92
+
+    *EXAMPLE EXECUTION*
+        $ python3 calc_return_bear9.py -<nil> <nil>
+        $ python3 calc_return_bear9.py
+        
+    *NOTE* INPUT PARAMS...
+        nil
+
+
+read_cli_args...
+ # of args: 1
+ argv lst: ['calc_return_bear9.py']
+ argv[0]: calc_return_bear9.py
+read_cli_args _ DONE
+
+
+... found 3 pairs w/ key "liquidity" (and 18 pairs w/o) ...
+#================================================================#
+FOUND highest liquidity usd price for token... 0x271197EFe41073681577CdbBFD6Ee1DA259BAa3c _ cnt: 100
+ base_token: 籯 (籯)
+ base_tok_addr: 0x271197EFe41073681577CdbBFD6Ee1DA259BAa3c
+ price_usd: 0.00004582
+ liquidity_usd: 754.93
+ quote_tok: WPLS (Wrapped Pulse)
+ quote_tok_addr: 0xA1077a294dDE1B09bB078844df40758a5D0f9a27
+ chain_id: pulsechain
+ dex_id: pulsechain
+
+ usd_cost_to_mint: 0.004582
+#================================================================#
+
+... found 8 pairs w/ key "liquidity" (and 22 pairs w/o) ...
+#================================================================#
+FOUND highest liquidity usd price for token... 0x52a4682880E990ebed5309764C7BD29c4aE22deB _ cnt: 500
+ base_token: 유 (유)
+ base_tok_addr: 0x52a4682880E990ebed5309764C7BD29c4aE22deB
+ price_usd: 0.00003978
+ liquidity_usd: 2628.77
+ quote_tok: WBTC (Wrapped BTC)
+ quote_tok_addr: 0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599
+ chain_id: pulsechain
+ dex_id: pulsechain
+
+ usd_cost_to_mint: 0.01989
+#================================================================#
+
+... found 7 pairs w/ key "liquidity" (and 22 pairs w/o) ...
+#================================================================#
+FOUND highest liquidity usd price for token... 0x2959221675bdF0e59D0cC3dE834a998FA5fFb9F4 _ cnt: 9
+ base_token: BULLION ⑧ (⑧)
+ base_tok_addr: 0x2959221675bdF0e59D0cC3dE834a998FA5fFb9F4
+ price_usd: 0.7141
+ liquidity_usd: 122205.31
+ quote_tok: TEDDY BEAR ㉾ (BEAR)
+ quote_tok_addr: 0xd6c31bA0754C4383A41c0e9DF042C62b5e918f6d
+ chain_id: pulsechain
+ dex_id: pulsechain
+
+ usd_cost_to_mint: 6.4269
+#================================================================#
+
+... found 13 pairs w/ key "liquidity" (and 17 pairs w/o) ...
+#================================================================#
+FOUND highest liquidity usd price for token... 0x557F7e30aA6D909Cfe8a229A4CB178ab186EC622 _ cnt: 1
+ base_token: ʁ ㉭ (ʁ)
+ base_tok_addr: 0x557F7e30aA6D909Cfe8a229A4CB178ab186EC622
+ price_usd: 35247.80
+ liquidity_usd: 79217.81
+ quote_tok: 清导 (清导)
+ quote_tok_addr: 0xE63191967735C52f5de78CE2471759a9963Ce118
+ chain_id: pulsechain
+ dex_id: pulsechain
+
+ usd_cost_to_mint: 35247.8
+#================================================================#
+
+... found 30 pairs w/ key "liquidity" (and 0 pairs w/o) ...
+#================================================================#
+FOUND highest liquidity usd price for token... 0xd6c31bA0754C4383A41c0e9DF042C62b5e918f6d _ cnt: 1111111111
+ base_token: TEDDY BEAR ㉾ (BEAR)
+ base_tok_addr: 0xd6c31bA0754C4383A41c0e9DF042C62b5e918f6d
+ price_usd: 0.00000001307
+ liquidity_usd: 462690.42
+ quote_tok: ATROPA (Atropa)
+ quote_tok_addr: 0xCc78A0acDF847A2C1714D2A925bB4477df5d48a6
+ chain_id: pulsechain
+ dex_id: pulsechain
+
+ usd_cost_to_mint: 14.52222222077
+#================================================================#
+
+... found 9 pairs w/ key "liquidity" (and 17 pairs w/o) ...
+#================================================================#
+FOUND highest liquidity usd price for token... 0x1f737F7994811fE994Fe72957C374e5cD5D5418A _ cnt: 1
+ base_token: テディベア (⑨)
+ base_tok_addr: 0x1f737F7994811fE994Fe72957C374e5cD5D5418A
+ price_usd: 19131.73
+ liquidity_usd: 26914.44
+ quote_tok: WBTC (Wrapped BTC)
+ quote_tok_addr: 0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599
+ chain_id: pulsechain
+ dex_id: pulsechain
+
+ usd_cost_to_mint: 19131.73
+#================================================================#
+
+
+#================================================================#
+TOKEN TOTALS: テディベア(0x1f737F7994811fE994Fe72957C374e5cD5D5418A)
+
+USD values...
+ mint 籯 (籯) _ x1 = $0.00004582
+ mint 유 (유) _ x1 = $0.00003978
+ mint BULLION ⑧ (⑧) _ x1 = $0.71410000
+ mint ʁ ㉭ (ʁ) _ x1 = $35247.80000000
+ mint TEDDY BEAR ㉾ (BEAR) _ x1 = $0.00000001
+
+MINTING requirements...
+ mint 籯 (籯) _ x100 = $0.005
+ mint 유 (유) _ x500 = $0.020
+ mint BULLION ⑧ (⑧) _ x9 = $6.427
+ mint ʁ ㉭ (ʁ) _ x1 = $35,247.800
+ mint TEDDY BEAR ㉾ (BEAR) _ x1111111111 = $14.522
+
+TOTAL cost to mint (テディベア) = $35,268.77
+ USD price to buy (テディベア) = $19,131.73
+#================================================================#
+
+
+RUN_TIME_START: 12:37:06.92
+RUN_TIME_END:   12:37:16.35
+
+
+#================================================================#
+# END _ calc_return_bear9.py
+#================================================================#
