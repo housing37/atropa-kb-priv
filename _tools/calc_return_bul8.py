@@ -111,6 +111,7 @@ def get_usd_val_for_tok_cnt(tok_addr='nil_tok_addr', tok_cnt=-1):
     #url = "https://api.dexscreener.io/latest/dex/tokens/0x271197EFe41073681577CdbBFD6Ee1DA259BAa3c"
     url = f"https://api.dexscreener.io/latest/dex/tokens/{tok_addr}"
 
+    print(f'\nGetting pairs for tok_addr: {tok_addr}')
     try:
         # Send the GET request
         response = requests.get(url)
@@ -123,34 +124,49 @@ def get_usd_val_for_tok_cnt(tok_addr='nil_tok_addr', tok_cnt=-1):
             chain_id = dex_id = price_usd = 'nil'
             base_tok = base_tok_addr = base_tok_symb = base_tok_name = 'nil'
             quote_tok = quote_tok_addr = quote_tok_symb = quote_tok_name = 'nil'
-            pair_find_cnt = pair_skip_cnt = 0
+            pair_find_cnt = pair_skip_cnt = pair_skip_bsae_cnt = 0
             liq_usd_curr_hi = 0.0
+            
             # loop through pairs recieved, looking for highest liquidity in USD
             for k,v in enumerate(data['pairs']):
                 d = dict(v)
                 if 'liquidity' not in d:
                     #print('liquidity not found in dict, moving on... ')
                     pair_skip_cnt += 1
-                    pass
-                else:
-                    pair_find_cnt += 1
+                    continue
+
+                # BUG_FIX_092623 (rabbit found):
+                #   - 'tok_addr' needs to be the 'baseToken' in order to consider for calculation
+                #   - endpoint: https://api.dexscreener.io/latest/dex/tokens/{tok_addr}
+                #       will return 'ALL' pairs with tok_addr in it (as either baseToken or quoteToken
+                #       priceUsd will be diff for 'tok_addr', depending if its a baseToken or quoteToken
+                #       only want 'priceUsd' if 'tok_addr' is 'baseToken'
+                if v['baseToken']['address'] != tok_addr:
+                    pair_skip_bsae_cnt += 1
+                    print(f' ... found baseToken.address != {tok_addr} ... continue {pair_skip_bsae_cnt}')
+                    continue
+                    
+                if float(d['liquidity']['usd']) > liq_usd_curr_hi:
                     #print('found usd_liquidity in dict: ' +str(d['liquidity']['usd']))
-                    if float(d['liquidity']['usd']) > liq_usd_curr_hi:
-                        liq_usd_curr_hi = float(v['liquidity']['usd'])
-                        chain_id = v['chainId']
-                        dex_id = v['chainId']
-                        price_usd = v['priceUsd']
+                    liq_usd_curr_hi = float(v['liquidity']['usd'])
+                    chain_id = v['chainId']
+                    dex_id = v['chainId']
+                    price_usd = v['priceUsd']
+                    
+                    base_tok = v['baseToken']
+                    base_tok_addr = base_tok['address']
+                    base_tok_symb = base_tok['symbol']
+                    base_tok_name = base_tok['name']
+                    
+                    quote_tok = v['quoteToken']
+                    quote_tok_addr = quote_tok['address']
+                    quote_tok_symb = quote_tok['symbol']
+                    quote_tok_name = quote_tok['name']
+                    
+                    pair_find_cnt += 1
+                    continue
                         
-                        base_tok = v['baseToken']
-                        base_tok_addr = base_tok['address']
-                        base_tok_symb = base_tok['symbol']
-                        base_tok_name = base_tok['name']
-                        
-                        quote_tok = v['quoteToken']
-                        quote_tok_addr = quote_tok['address']
-                        quote_tok_symb = quote_tok['symbol']
-                        quote_tok_name = quote_tok['name']
-            print(f'\n... found {pair_find_cnt} pairs w/ key "liquidity" (and {pair_skip_cnt} pairs w/o) ...')
+            print(f' ... found {pair_find_cnt} pairs w/ key "liquidity"; {pair_skip_cnt} pairs w/o; {pair_skip_bsae_cnt} pairs w/ wrong "baseToken" ...')
 #            usd_cost_to_mint = float(price_usd) * float(tok_cnt) * i_yeah
             usd_cost_to_mint = float(price_usd) * float(tok_cnt)
             print(cStrDivider, f'FOUND highest liquidity usd price for token... {tok_addr} _ cnt: {tok_cnt}\n base_token: {base_tok_symb} ({base_tok_name})\n base_tok_addr: {base_tok_addr}\n price_usd: {price_usd}\n liquidity_usd: {liq_usd_curr_hi}\n quote_tok: {quote_tok_symb} ({quote_tok_name})\n quote_tok_addr: {quote_tok_addr}\n chain_id: {chain_id}\n dex_id: {dex_id}\n\n usd_cost_to_mint: {usd_cost_to_mint}', cStrDivider, sep='\n')
