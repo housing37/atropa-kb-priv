@@ -123,8 +123,26 @@ def get_usd_val_for_tok_cnt(tok_addr='nil_tok_addr', tok_cnt=-1):
                     pair_skip_cnt += 1
                     pass
                 else:
+#                    if tok_addr == '0xCc78A0acDF847A2C1714D2A925bB4477df5d48a6':
+#                        print(json.dumps(d, indent=2))
+#                        print("continue\n\n")
+#                        continue
+#                        print("exit()")
+#                        exit()
+
                     pair_find_cnt += 1
                     #print('found usd_liquidity in dict: ' +str(d['liquidity']['usd']))
+                    
+                    # QUICK_FIX_092623 (rabbit):
+                    #   - 'tok_addr' needs to be the 'baseToken' in order to consider for calculation
+                    #   - endpoint: https://api.dexscreener.io/latest/dex/tokens/{tok_addr}
+                    #       will return 'ALL' pairs with tok_addr in it (as either baseToken or quoteToken
+                    #       priceUsd will be diff for 'tok_addr', depending if its a baseToken or quoteToken
+                    #       only want 'priceUsd' if 'tok_addr' is 'baseToken'
+                    if v['baseToken']['address'] != tok_addr:
+                        print(f"baseToken.address != tok_addr: {tok_addr}\n ...continue")
+                        continue
+                        
                     if float(d['liquidity']['usd']) > liq_usd_curr_hi:
                         liq_usd_curr_hi = float(v['liquidity']['usd'])
                         chain_id = v['chainId']
