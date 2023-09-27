@@ -217,7 +217,8 @@ def go_main():
         usd_total_cost_to_mint += d['cost']
 
     # get & organize meta for token address to mint
-    d_mint = get_usd_val_for_tok_cnt(contract_address, 1)
+    mint_cnt = 1
+    d_mint = get_usd_val_for_tok_cnt(contract_address, mint_cnt)
     str_print_one = '\nUSD values...'
     str_print = '\nMINTING requirements...'
     for i in range(0, len(lst_return)):
@@ -227,8 +228,8 @@ def go_main():
         
     # finalize output & print
     str_tot_mint_usd = f"${usd_total_cost_to_mint:,.2f}"
-    str_tot_buy_usd = f"${float(d_mint['price']):,.2f}"
-    print('\n',cStrDivider, f"TOKEN TOTALS: {d_mint['symb']}({d_mint['addr']})\n{str_print_one}\n{str_print}\n\nTOTAL cost to mint ({d_mint['symb']}) = {str_tot_mint_usd}\n USD price to buy ({d_mint['symb']}) = {str_tot_buy_usd}", cStrDivider, sep='\n')
+    str_tot_buy_usd = f"${float(d_mint['price'])*mint_cnt:,.2f}"
+    print('\n',cStrDivider, f"TOKEN TOTALS: {d_mint['symb']}({d_mint['addr']})\n{str_print_one}\n{str_print}\n\nTOTAL USD cost to mint ({d_mint['symb']}) x{mint_cnt} = {str_tot_mint_usd}\n CURR USD price to buy/sell ({d_mint['symb']}) x{mint_cnt} = {str_tot_buy_usd}        _ liq: {d_mint['liquid']}", cStrDivider, sep='\n')
 
     # end
     print(f'\n\nRUN_TIME_START: {run_time_start}\nRUN_TIME_END:   {get_time_now()}\n')
