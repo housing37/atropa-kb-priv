@@ -50,6 +50,7 @@ lst_alt_tok_vol = []
 mint_cnt = -1
 wpls_addr = '0xA1077a294dDE1B09bB078844df40758a5D0f9a27'
 tok_name = 'nil_name'
+lst_argv_OG = []
 
 #------------------------------------------------------------#
 #   FUNCTION SUPPORT
@@ -193,18 +194,19 @@ def read_cli_args():
     print('read_cli_args _ DONE\n')
     return sys.argv, len(sys.argv)
 
-def go_main():
-    global contract_address, contract_symbol, lst_alt_tok_addr, lst_alt_tok_vol, mint_cnt, tok_name
-    run_time_start = get_time_now()
-    print(f'\n\nRUN_TIME_START: {run_time_start}\n'+READ_ME)
-    lst_argv, argv_cnt = read_cli_args()
+def go_main(tok_name, argv_cnt, go_print=False):
+    global contract_address, contract_symbol, lst_alt_tok_addr, lst_alt_tok_vol, mint_cnt
+#    global contract_address, contract_symbol, lst_alt_tok_addr, lst_alt_tok_vol, mint_cnt, tok_name
+#    run_time_start = get_time_now()
+#    print(f'\n\nRUN_TIME_START: {run_time_start}\n'+READ_ME)
+#    lst_argv, argv_cnt = read_cli_args()
 
     # validate args
     if argv_cnt != 2:
         print('', cStrDivider, f'# *** ERROR *** _ {__filename} _ invalid arg count: {argv_cnt}\n ... exiting   {get_time_now()}', cStrDivider, '', sep='\n')
         exit(1)
     else:
-        tok_name = lst_argv[-1]
+#        tok_name = lst_argv[-1]
         if tok_name == 'bear9':
             contract_address = req_bear9.contract_address
             contract_symbol = req_bear9.contract_symbol
@@ -256,7 +258,7 @@ def go_main():
     lst_return = []
     for i in range(0, len(lst_alt_tok_addr)):
         # return {'cost':,'addr':,'symb':,'name':,'cnt':,'price':,'liquid':}
-        lst_return.append(get_usd_val_for_tok_cnt(lst_alt_tok_addr[i], lst_alt_tok_vol[i], d_print=False))
+        lst_return.append(get_usd_val_for_tok_cnt(lst_alt_tok_addr[i], lst_alt_tok_vol[i], go_print))
             
     # calc total alt tok mint cost (USD)
     usd_total_cost_to_mint = 0.0
@@ -265,7 +267,7 @@ def go_main():
         usd_total_cost_to_mint += d['cost']
 
     # get & organize meta for token address to mint
-    d_mint = get_usd_val_for_tok_cnt(contract_address, mint_cnt, d_print=True)
+    d_mint = get_usd_val_for_tok_cnt(contract_address, mint_cnt, go_print)
     str_print_one = '\nUSD values...'
     str_print = '\nMINTING requirements...'
     for i in range(0, len(lst_return)):
@@ -310,11 +312,26 @@ def go_main():
     #req_prof_mint_cnt = usd_prof_goal / usd_gross_ret
     #print(f'USD profit goal: {str_usd_prof_goal}\n MINT COUNT required: {req_prof_mint_cnt:.2f}\n MAX ratio drop (in profit): {max_ratio_sell_off}\n MAX % drop (in profit): {max_perc_sell_off}' , cStrDivider, cStrDivider, sep='\n')
     
-    # end
-    print(f'\n\nRUN_TIME_START: {run_time_start}\nRUN_TIME_END:   {get_time_now()}\n')
+#    # end
+#    print(f'\n\nRUN_TIME_START: {run_time_start}\nRUN_TIME_END:   {get_time_now()}\n')
     
 if __name__ == "__main__":
-    go_main()
+    # start
+    run_time_start = get_time_now()
+    print(f'\n\nRUN_TIME_START: {run_time_start}\n'+READ_ME)
+    lst_argv_OG, argv_cnt = read_cli_args()
+    
+    # exe
+    go_print = False # set default (no debug printing)
+    lst_argv = list(lst_argv_OG) # create new list (maintain OG)
+    if '-p' in lst_argv:
+        go_print = True
+        lst_argv.remove('-p')
+    tok_name = lst_argv[-1]
+    go_main(tok_name, len(lst_argv), go_print)
+    
+    # end
+    print(f'\n\nRUN_TIME_START: {run_time_start}\nRUN_TIME_END:   {get_time_now()}\n')
 
-print('', cStrDivider, f'# END _ $ python3 {__filename} {tok_name}', cStrDivider, sep='\n')
+print('', cStrDivider, f'# END _ $ python3 {__filename} {lst_argv_OG}', cStrDivider, sep='\n')
 
