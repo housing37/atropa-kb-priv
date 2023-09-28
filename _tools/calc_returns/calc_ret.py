@@ -273,7 +273,7 @@ def go_main():
             str_print_one += f"\n mint {d['symb']} ({d['name']}) _ x1 = ${float(d['price']):.8f}        _ liq: ${d['liquid']:,.2f}"
             str_print += f"\n mint {d['symb']} ({d['name']}) _ x{d['cnt']} = ${d['cost']:,.8f}"
         else:
-            str_print_one += f"\n mint {d['symb']} ({d['name']}) _ x1 = ${float(d['price']):.8f}        _ liq: ${d['liquid']:,.2f}"
+            str_print_one += f"\n mint {d['symb']} ({d['name']}) _ x1 = ${float(d['price']):.12f}        _ liq: ${d['liquid']:,.2f}"
             str_print += f"\n mint {d['symb']} ({d['name']}) _ x{d['cnt']} = ${d['cost']:,.8f}"
         
     # finalize output & print
@@ -294,12 +294,12 @@ def go_main():
         str_gross_ret_perc = f"{perc_gross_ret:,.2f}%"
     
     # print string totals
-    print('\n',cStrDivider, f"TOKEN TOTALS: {d_mint['symb']}({d_mint['addr']})\n{str_print_one}\n{str_print}\n\nTOTAL USD cost to mint ({d_mint['symb']}) x{mint_cnt} = {str_tot_mint_usd}\n CURR USD price to buy/sell ({d_mint['symb']}) x{mint_cnt} = {str_tot_buy_usd}        _ liq: ${d_mint['liquid']:,.2f}\n\nTOTAL USD gross return (if execute) = {str_gross_ret_usd}\n TOTAL % gross return (if execute) = {str_gross_ret_perc}", cStrDivider, sep='\n')
+    print('\n', cStrDivider, cStrDivider, f"TOKEN TOTALS: {d_mint['symb']}({d_mint['addr']})\n{str_print_one}\n{str_print}\n\nTOTAL USD cost to mint ({d_mint['symb']}) x{mint_cnt} = {str_tot_mint_usd}\n CURR USD price to buy/sell ({d_mint['symb']}) x{mint_cnt} = {str_tot_buy_usd}        _ liq: ${d_mint['liquid']:,.2f}\n\nTOTAL USD gross return (if execute) = {str_gross_ret_usd}\n TOTAL % gross return (if execute) = {str_gross_ret_perc}", '', sep='\n')
 
     # calculate returns
     usd_prof_goal = 300000
     req_prof_mint_cnt = usd_prof_goal / usd_gross_ret
-    print('\n',cStrDivider,f'USD profit goal: ${usd_prof_goal:,.2f}\n MINT COUNT required: {req_prof_mint_cnt:.2f}' , cStrDivider, sep='\n')
+    print(f'USD profit goal: ${usd_prof_goal:,.2f}\n MINT COUNT required: {req_prof_mint_cnt:.2f}' , cStrDivider, cStrDivider, sep='\n')
     
     # end
     print(f'\n\nRUN_TIME_START: {run_time_start}\nRUN_TIME_END:   {get_time_now()}\n')
