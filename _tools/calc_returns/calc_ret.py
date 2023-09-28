@@ -89,7 +89,7 @@ def get_usd_val_for_tok_cnt(tok_addr='nil_tok_addr', tok_cnt=-1):
                 if st_pair_cond_0 or st_pair_cond_1:
                     st_addr = base_tok_addr_0 if st_pair_cond_0 else quote_tok_addr_0
                     tok_typ = 'btok' if st_pair_cond_0 else 'qtok'
-                    print(f' ... found pair w/ STn_{tok_typ}: {st_addr} _ pAddr: {pair_addr_0} ({labels_0}) _ liq_usd: ${liq_0:,.2f} ...')
+                    print(f' ... found pair w/ STn_{tok_typ}: {st_addr} _ pAddr: {pair_addr_0} ({labels_0}) _ liq: ${liq_0:,.2f} ...')
                     pair_st_cnt += 1
                     
                 # check if 'liquidity' is logged in dexscreener return
@@ -247,10 +247,10 @@ def go_main():
     for i in range(0, len(lst_return)):
         d = lst_return[i]
         if tok_name == 'bel':
-            str_print_one += f"\n mint {d['symb']} ({d['name']}) _ x1 = ${float(d['price']):.8f}        _ liq: {d['liquid']}"
+            str_print_one += f"\n mint {d['symb']} ({d['name']}) _ x1 = ${float(d['price']):.8f}        _ liq: ${d['liquid']:,.2f}"
             str_print += f"\n mint {d['symb']} ({d['name']}) _ x{d['cnt']} = ${d['cost']:,.8f}"
         else:
-            str_print_one += f"\n mint {d['symb']} ({d['name']}) _ x1 = ${float(d['price']):.8f}        _ liq: {d['liquid']}"
+            str_print_one += f"\n mint {d['symb']} ({d['name']}) _ x1 = ${float(d['price']):.8f}        _ liq: ${d['liquid']:,.2f}"
             str_print += f"\n mint {d['symb']} ({d['name']}) _ x{d['cnt']} = ${d['cost']:,.8f}"
         
     # finalize output & print
@@ -271,7 +271,7 @@ def go_main():
         str_gross_ret_perc = f"{perc_gross_ret:,.2f}%"
     
     # print string totals
-    print('\n',cStrDivider, f"TOKEN TOTALS: {d_mint['symb']}({d_mint['addr']})\n{str_print_one}\n{str_print}\n\nTOTAL USD cost to mint ({d_mint['symb']}) x{mint_cnt} = {str_tot_mint_usd}\n CURR USD price to buy/sell ({d_mint['symb']}) x{mint_cnt} = {str_tot_buy_usd}        _ liq: {d_mint['liquid']}\n\nTOTAL USD gross return (if execute) = {str_gross_ret_usd}\n TOTAL % gross return (if execute) = {str_gross_ret_perc}", cStrDivider, sep='\n')
+    print('\n',cStrDivider, f"TOKEN TOTALS: {d_mint['symb']}({d_mint['addr']})\n{str_print_one}\n{str_print}\n\nTOTAL USD cost to mint ({d_mint['symb']}) x{mint_cnt} = {str_tot_mint_usd}\n CURR USD price to buy/sell ({d_mint['symb']}) x{mint_cnt} = {str_tot_buy_usd}        _ liq: ${d_mint['liquid']:,.2f}\n\nTOTAL USD gross return (if execute) = {str_gross_ret_usd}\n TOTAL % gross return (if execute) = {str_gross_ret_perc}", cStrDivider, sep='\n')
 
     # calculate returns
     usd_prof_goal = 300000
