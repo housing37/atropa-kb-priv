@@ -71,12 +71,26 @@ def get_usd_val_for_tok_cnt(tok_addr='nil_tok_addr', tok_cnt=-1):
             chain_id = dex_id = price_usd = 'nil'
             base_tok = base_tok_addr = base_tok_symb = base_tok_name = 'nil'
             quote_tok = quote_tok_addr = quote_tok_symb = quote_tok_name = 'nil'
-            pair_find_cnt = pair_skip_cnt = pair_skip_bsae_cnt = 0
+            pair_find_cnt = pair_skip_cnt = pair_skip_bsae_cnt = pair_st_cnt =  0
             liq_usd_curr_hi = 0.0
             
             # loop through pairs recieved, looking for highest liquidity in USD
             for k,v in enumerate(data['pairs']):
                 d = dict(v)
+                
+                # check if pair has address from STn in 'lst_alt_tok_addr'
+                labels_0 = v['labels']
+                pair_addr_0 = v['pairAddress']
+                base_tok_addr_0 = v['baseToken']['address']
+                quote_tok_addr_0 = v['quoteToken']['address']
+                st_pair_cond_0 = base_tok_addr_0 in lst_alt_tok_addr and base_tok_addr_0 != tok_addr
+                st_pair_cond_1 = quote_tok_addr_0 in lst_alt_tok_addr and quote_tok_addr_0 != tok_addr
+                if st_pair_cond_0 or st_pair_cond_1:
+                    st_addr = base_tok_addr_0 if st_pair_cond_0 else quote_tok_addr_0
+                    print(f' ... found pair w/ STn: {st_addr} _ pairAddress: {pair_addr_0} ({labels_0}) ...')
+                    pair_st_cnt += 1
+                    
+                # check if 'liquidity' is logged in dexscreener return
                 if 'liquidity' not in d:
                     #print('liquidity not found in dict, moving on... ')
                     pair_skip_cnt += 1
@@ -92,12 +106,15 @@ def get_usd_val_for_tok_cnt(tok_addr='nil_tok_addr', tok_cnt=-1):
                     pair_skip_bsae_cnt += 1
                     print(f' ... found baseToken.address != {tok_addr} ... continue {pair_skip_bsae_cnt}')
                     continue
-                    
+                
+                # track highest USD liquidity to log
                 if float(d['liquidity']['usd']) > liq_usd_curr_hi:
                     #print('found usd_liquidity in dict: ' +str(d['liquidity']['usd']))
                     liq_usd_curr_hi = float(v['liquidity']['usd'])
+                    pair_addr = v['pairAddress']
                     chain_id = v['chainId']
-                    dex_id = v['chainId']
+                    dex_id = v['dexId']
+                    labels = v['labels']
                     price_usd = v['priceUsd']
                     
                     base_tok = v['baseToken']
@@ -113,9 +130,9 @@ def get_usd_val_for_tok_cnt(tok_addr='nil_tok_addr', tok_cnt=-1):
                     pair_find_cnt += 1
                     continue
                         
-            print(f' ... found {pair_find_cnt} pairs w/ key "liquidity"; {pair_skip_cnt} pairs w/o; {pair_skip_bsae_cnt} pairs w/ wrong "baseToken" ...')
+            print(f' ... found {pair_find_cnt} pairs w/ key "liquidity"; {pair_skip_cnt} pairs w/o; {pair_skip_bsae_cnt} pairs w/ wrong "baseToken"; {pair_st_cnt} pairs w/ STn from lst_alt_tok_addr ...')
             usd_cost_to_mint = float(price_usd) * float(tok_cnt)
-            print(cStrDivider, f'FOUND highest liquidity usd price for token... {tok_addr} _ cnt: {tok_cnt}\n base_token: {base_tok_symb} ({base_tok_name})\n base_tok_addr: {base_tok_addr}\n price_usd: {price_usd}\n liquidity_usd: {liq_usd_curr_hi}\n quote_tok: {quote_tok_symb} ({quote_tok_name})\n quote_tok_addr: {quote_tok_addr}\n chain_id: {chain_id}\n dex_id: {dex_id}\n\n usd_cost_to_mint: {usd_cost_to_mint}', cStrDivider, sep='\n')
+            print(cStrDivider, f'FOUND highest liquidity usd price for token... {tok_addr} _ cnt: {tok_cnt}\n pair_addr: {pair_addr}\n base_token: {base_tok_symb} ({base_tok_name})\n base_tok_addr: {base_tok_addr}\n price_usd: {price_usd}\n liquidity_usd: {liq_usd_curr_hi}\n quote_tok: {quote_tok_symb} ({quote_tok_name})\n quote_tok_addr: {quote_tok_addr}\n chain_id: {chain_id}\n dex_id: {dex_id} {labels}\n\n usd_cost_to_mint: {usd_cost_to_mint}\n pair_st_cnt: {pair_st_cnt}', cStrDivider, sep='\n')
             return {'cost':usd_cost_to_mint, 'addr':base_tok_addr, 'symb':base_tok_symb, 'name':base_tok_name, 'cnt':tok_cnt, 'price':price_usd, 'liquid':liq_usd_curr_hi}
         else:
             print(f"Request failed with status code {response.status_code}")
@@ -152,6 +169,7 @@ def read_cli_args():
     return sys.argv, len(sys.argv)
 
 def go_main():
+    global contract_address, contract_symbol, lst_alt_tok_addr, lst_alt_tok_vol, mint_cnt
     run_time_start = get_time_now()
     print(f'\n\nRUN_TIME_START: {run_time_start}\n'+READ_ME)
     lst_argv, argv_cnt = read_cli_args()
