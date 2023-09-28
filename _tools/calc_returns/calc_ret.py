@@ -81,12 +81,14 @@ def get_usd_val_for_tok_cnt(tok_addr='nil_tok_addr', tok_cnt=-1):
             for k,v in enumerate(data['pairs']):
                 d = dict(v)
                 
-                # check if pair has address from STn in 'lst_alt_tok_addr'
+                # required keys for pair / address check
                 labels_0 = v['labels']
                 pair_addr_0 = v['pairAddress']
                 liq_0 = -1 if 'liquidity' not in v else v['liquidity']['usd']
                 base_tok_addr_0 = v['baseToken']['address']
                 quote_tok_addr_0 = v['quoteToken']['address']
+                
+                # check if pair has address from STn in 'lst_alt_tok_addr'
                 st_pair_cond_0 = base_tok_addr_0 in lst_alt_tok_addr and base_tok_addr_0 != tok_addr
                 st_pair_cond_1 = quote_tok_addr_0 in lst_alt_tok_addr and quote_tok_addr_0 != tok_addr
                 if st_pair_cond_0 or st_pair_cond_1:
@@ -95,6 +97,7 @@ def get_usd_val_for_tok_cnt(tok_addr='nil_tok_addr', tok_cnt=-1):
                     print(f' ... found pair w/ STn_{tok_typ}: {st_addr} _ pAddr: {pair_addr_0} ({labels_0}) _ liq: ${liq_0:,.2f} ...')
                     pair_st_cnt += 1
                     
+                # check if pair has WPLS address
                 st_pair_cond_2 = base_tok_addr_0 == wpls_addr and base_tok_addr_0 != tok_addr
                 st_pair_cond_3 = quote_tok_addr_0 == wpls_addr and quote_tok_addr_0 != tok_addr
                 if st_pair_cond_2 or st_pair_cond_3:
@@ -103,12 +106,7 @@ def get_usd_val_for_tok_cnt(tok_addr='nil_tok_addr', tok_cnt=-1):
                     print(f' ... found pair w/ WPLS_{tok_typ}: {st_addr} _ pAddr: {pair_addr_0} ({labels_0}) _ liq: ${liq_0:,.2f} ...')
                     pair_wpls_cnt += 1
 
-                # BUG_FIX_092623 (rabbit found):
-                #   - 'tok_addr' needs to be the 'baseToken' in order to consider for calculation
-                #   - endpoint: https://api.dexscreener.io/latest/dex/tokens/{tok_addr}
-                #       will return 'ALL' pairs with tok_addr in it (as either baseToken or quoteToken
-                #       priceUsd will be diff for 'tok_addr', depending if its a baseToken or quoteToken
-                #       only want 'priceUsd' if 'tok_addr' is 'baseToken'
+                # ignore pairs where 'tok_addr' is the baseToken
                 if v['baseToken']['address'] != tok_addr:
                     pair_skip_bsae_cnt += 1
                     print(f' ... found baseToken.address != {tok_addr} ... continue {pair_skip_bsae_cnt}')
@@ -120,7 +118,7 @@ def get_usd_val_for_tok_cnt(tok_addr='nil_tok_addr', tok_cnt=-1):
                     price_usd_lp_low_pAddr = pair_addr_0
                     price_usd_lp_low_liq = liq_0
                     
-                # check if 'liquidity' is logged in dexscreener return (if baseToken is correct)
+                # ignore pair if 'liquidity' is NOT logged in dexscreener return (if baseToken is correct)
                 if 'liquidity' not in d:
                     #print('liquidity not found in dict, moving on... ')
                     pair_skip_cnt += 1
@@ -148,7 +146,6 @@ def get_usd_val_for_tok_cnt(tok_addr='nil_tok_addr', tok_cnt=-1):
                     
                     pair_find_cnt += 1
                     continue
-                        
             
             # calc cost to mint (using price_usd from pair w/ highest USD liquidity)
             usd_cost_to_mint = float(price_usd) * float(tok_cnt)
