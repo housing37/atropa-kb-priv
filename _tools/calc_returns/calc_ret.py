@@ -267,7 +267,7 @@ def go_main():
         str_tot_mint_usd = f"${usd_total_cost_to_mint:,.2f}"
         str_tot_buy_usd = f"${usd_total_cost_to_buy:,.2f}"
         str_gross_ret_usd = f"${usd_gross_ret:,.2f}"
-        str_gross_ret_perc = f"%{perc_gross_ret:,.2f}"
+        str_gross_ret_perc = f"{perc_gross_ret:,.2f}%"
     
     # print string totals
     print('\n',cStrDivider, f"TOKEN TOTALS: {d_mint['symb']}({d_mint['addr']})\n{str_print_one}\n{str_print}\n\nTOTAL USD cost to mint ({d_mint['symb']}) x{mint_cnt} = {str_tot_mint_usd}\n CURR USD price to buy/sell ({d_mint['symb']}) x{mint_cnt} = {str_tot_buy_usd}        _ liq: {d_mint['liquid']}\n\nTOTAL USD gross return (if execute) = {str_gross_ret_usd}\n TOTAL % gross return (if execute) = {str_gross_ret_perc}", cStrDivider, sep='\n')
