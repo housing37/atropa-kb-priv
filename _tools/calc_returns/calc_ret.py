@@ -49,6 +49,7 @@ lst_alt_tok_addr = []
 lst_alt_tok_vol = []
 mint_cnt = -1
 wpls_addr = '0xA1077a294dDE1B09bB078844df40758a5D0f9a27'
+tok_name = 'nil_name'
 
 #------------------------------------------------------------#
 #   FUNCTION SUPPORT
@@ -192,7 +193,7 @@ def read_cli_args():
     return sys.argv, len(sys.argv)
 
 def go_main():
-    global contract_address, contract_symbol, lst_alt_tok_addr, lst_alt_tok_vol, mint_cnt
+    global contract_address, contract_symbol, lst_alt_tok_addr, lst_alt_tok_vol, mint_cnt, tok_name
     run_time_start = get_time_now()
     print(f'\n\nRUN_TIME_START: {run_time_start}\n'+READ_ME)
     lst_argv, argv_cnt = read_cli_args()
@@ -306,5 +307,5 @@ def go_main():
 if __name__ == "__main__":
     go_main()
 
-print('', cStrDivider, f'# END _ {__filename}', cStrDivider, sep='\n')
+print('', cStrDivider, f'# END _ $ python3 {__filename} {tok_name}', cStrDivider, sep='\n')
 
