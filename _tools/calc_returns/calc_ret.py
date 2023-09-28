@@ -48,6 +48,7 @@ contract_symbol = 'nil_symbol'
 lst_alt_tok_addr = []
 lst_alt_tok_vol = []
 mint_cnt = -1
+wpls_addr = '0xA1077a294dDE1B09bB078844df40758a5D0f9a27'
 
 #------------------------------------------------------------#
 #   FUNCTION SUPPORT
@@ -71,7 +72,7 @@ def get_usd_val_for_tok_cnt(tok_addr='nil_tok_addr', tok_cnt=-1):
             chain_id = dex_id = price_usd = 'nil'
             base_tok = base_tok_addr = base_tok_symb = base_tok_name = 'nil'
             quote_tok = quote_tok_addr = quote_tok_symb = quote_tok_name = 'nil'
-            pair_find_cnt = pair_skip_cnt = pair_skip_bsae_cnt = pair_st_cnt =  0
+            pair_find_cnt = pair_skip_cnt = pair_skip_bsae_cnt = pair_st_cnt = pair_wpls_cnt = 0
             liq_usd_curr_hi = 0.0
             price_usd_lp_low = 99999999999999.0
             price_usd_lp_low_pAddr = 'nil_addr'
@@ -93,6 +94,14 @@ def get_usd_val_for_tok_cnt(tok_addr='nil_tok_addr', tok_cnt=-1):
                     tok_typ = 'btok' if st_pair_cond_0 else 'qtok'
                     print(f' ... found pair w/ STn_{tok_typ}: {st_addr} _ pAddr: {pair_addr_0} ({labels_0}) _ liq: ${liq_0:,.2f} ...')
                     pair_st_cnt += 1
+                    
+                st_pair_cond_2 = base_tok_addr_0 == wpls_addr and base_tok_addr_0 != tok_addr
+                st_pair_cond_3 = quote_tok_addr_0 == wpls_addr and quote_tok_addr_0 != tok_addr
+                if st_pair_cond_2 or st_pair_cond_3:
+                    st_addr = base_tok_addr_0 if st_pair_cond_2 else quote_tok_addr_0
+                    tok_typ = 'btok' if st_pair_cond_0 else 'qtok'
+                    print(f' ... found pair w/ WPLS_{tok_typ}: {st_addr} _ pAddr: {pair_addr_0} ({labels_0}) _ liq: ${liq_0:,.2f} ...')
+                    pair_wpls_cnt += 1
 
                 # BUG_FIX_092623 (rabbit found):
                 #   - 'tok_addr' needs to be the 'baseToken' in order to consider for calculation
@@ -140,9 +149,15 @@ def get_usd_val_for_tok_cnt(tok_addr='nil_tok_addr', tok_cnt=-1):
                     pair_find_cnt += 1
                     continue
                         
-            print(f' ... found {pair_find_cnt} pairs w/ key "liquidity"; {pair_skip_cnt} pairs w/o; {pair_skip_bsae_cnt} pairs w/ wrong "baseToken"; {pair_st_cnt} pairs w/ STn from lst_alt_tok_addr ...')
+            
+            # calc cost to mint (using price_usd from pair w/ highest USD liquidity)
             usd_cost_to_mint = float(price_usd) * float(tok_cnt)
-            print('', f'FOUND pair w/ highest liquidity USD price for token... {tok_addr} _ cnt: {tok_cnt}\n pair_addr: {pair_addr}\n base_token: {base_tok_symb} ({base_tok_name})\n base_tok_addr: {base_tok_addr}\n price_usd: {price_usd}\n liquidity_usd: {liq_usd_curr_hi}\n quote_tok: {quote_tok_symb} ({quote_tok_name})\n quote_tok_addr: {quote_tok_addr}\n chain_id: {chain_id}\n dex_id: {dex_id} {labels}\n\n usd_cost_to_mint: {usd_cost_to_mint}\n pair_st_cnt: {pair_st_cnt}\n\n price_usd_lp_low: {price_usd_lp_low}\n  pAddr: {price_usd_lp_low_pAddr}\n  liq_usd: {price_usd_lp_low_liq}', cStrDivider, '', sep='\n')
+            
+            # print output analysis
+            print(f' ... found {pair_st_cnt} pair(s) w/ STn & {pair_wpls_cnt} pair(s) w/ WPLS _ from lst_alt_tok_addr ...')
+            print(f' ... found {pair_find_cnt} pair(s) w/ key "liquidity" & {pair_skip_cnt} pair(s) w/o ...')
+            print(f' ... found {pair_skip_bsae_cnt} pair(s) w/ wrong "baseToken" ...')
+            print('', f'FOUND pair w/ highest liquidity USD price for token... {tok_addr} _ cnt: {tok_cnt}\n pair_addr: {pair_addr}\n base_token: {base_tok_symb} ({base_tok_name})\n base_tok_addr: {base_tok_addr}\n price_usd: {price_usd}\n liquidity_usd: {liq_usd_curr_hi}\n quote_tok: {quote_tok_symb} ({quote_tok_name})\n quote_tok_addr: {quote_tok_addr}\n chain_id: {chain_id}\n dex_id: {dex_id} {labels}\n\n usd_cost_to_mint: {usd_cost_to_mint}\n pair_st_cnt: {pair_st_cnt}\n pair_wpls_cnt: {pair_wpls_cnt}\n\n price_usd_lp_low: {price_usd_lp_low}\n  pAddr: {price_usd_lp_low_pAddr}\n  liq_usd: {price_usd_lp_low_liq}', cStrDivider, '', sep='\n')
             return {'cost':usd_cost_to_mint, 'addr':base_tok_addr, 'symb':base_tok_symb, 'name':base_tok_name, 'cnt':tok_cnt, 'price':price_usd, 'liquid':liq_usd_curr_hi}
         else:
             print(f"Request failed with status code {response.status_code}")
@@ -160,6 +175,8 @@ READ_ME = f'''
             
     *EXAMPLE EXECUTION*
         $ python3 {__filename} <tok_name>
+        $ python3 {__filename} bear9
+        $ python3 {__filename} bel
 '''
 def wait_sleep(wait_sec : int, b_print=True): # sleep 'wait_sec'
     print(f'waiting... {wait_sec} sec')
