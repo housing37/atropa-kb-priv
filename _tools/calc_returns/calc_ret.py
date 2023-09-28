@@ -172,11 +172,16 @@ READ_ME = f'''
     *NOTE* INPUT PARAMS...
         token names (tok_name)...
             bear9, bel, bond, bul8, wenti, write
-            
+        flags...
+            -p          = include debug logging
+            -st <num>   = set STn for calculations
+
     *EXAMPLE EXECUTION*
-        $ python3 {__filename} <tok_name>
+        $ python3 {__filename} <tok_name> -p -st <num>
         $ python3 {__filename} bear9
-        $ python3 {__filename} bel
+        $ python3 {__filename} bear9 -p
+        $ python3 {__filename} bear9 -p -st 1
+        $ python3 {__filename} bear9 -st 1
 '''
 def wait_sleep(wait_sec : int, b_print=True): # sleep 'wait_sec'
     print(f'waiting... {wait_sec} sec')
@@ -194,16 +199,16 @@ def read_cli_args():
     print('read_cli_args _ DONE\n')
     return sys.argv, len(sys.argv)
 
-def go_main(tok_name, argv_cnt, go_print=False):
-    global contract_address, contract_symbol, lst_alt_tok_addr, lst_alt_tok_vol, mint_cnt
+def go_main(tok_name, argv_cnt, st_idx=-37, go_print=False):
+    global contract_address, contract_symbol, lst_alt_tok_addr, lst_alt_tok_vol, mint_cnt, lst_argv_OG
 #    global contract_address, contract_symbol, lst_alt_tok_addr, lst_alt_tok_vol, mint_cnt, tok_name
 #    run_time_start = get_time_now()
 #    print(f'\n\nRUN_TIME_START: {run_time_start}\n'+READ_ME)
 #    lst_argv, argv_cnt = read_cli_args()
 
-    # validate args
+    # validate args: all flags were cleared & only 'calc_ret.py <tok_name>' remain
     if argv_cnt != 2:
-        print('', cStrDivider, f'# *** ERROR *** _ {__filename} _ invalid arg count: {argv_cnt}\n ... exiting   {get_time_now()}', cStrDivider, '', sep='\n')
+        print('', cStrDivider, f'# *** ERROR *** _ {__filename} _ invalid arg count: {argv_cnt}...\n {lst_argv_OG}\n ... exiting   {get_time_now()}', cStrDivider, '', sep='\n')
         exit(1)
     else:
 #        tok_name = lst_argv[-1]
@@ -250,9 +255,15 @@ def go_main(tok_name, argv_cnt, go_print=False):
             mint_cnt = req_write.mint_cnt
             print('', cStrDivider, f'# * FOUND argv: write *', cStrDivider, sep='\n')
         else:
-            print('', cStrDivider, f'# *** ERROR *** _ {__filename} _ invalid args found...\n {lst_argv}\n ... exiting   {get_time_now()}', cStrDivider, '', sep='\n')
+            print('', cStrDivider, f'# *** ERROR *** _ {__filename} _ invalid args found...\n {lst_argv_OG}\n ... exiting   {get_time_now()}', cStrDivider, '', sep='\n')
             exit(1)
-
+            
+    # validate args: '-st' flag's value is inside -+ bound of len(lst_alt_tok_addr)
+    valid_st_idx = (-len(lst_alt_tok_addr) <= st_idx < len(lst_alt_tok_addr)) or st_idx == -37
+    if not valid_st_idx:
+        print('', cStrDivider, f"# *** ERROR *** _ {__filename} _ found flag: '-st' w/ 'st_idx' ({st_idx}) outside -+bound of len(lst_alt_tok_addr) ...\n {lst_argv_OG}\n ... exiting   {get_time_now()}", cStrDivider, '', sep='\n')
+        exit(1)
+        
     ## execute procedural support ##
     # get meta data required for all alts
     lst_return = []
@@ -301,8 +312,9 @@ def go_main(tok_name, argv_cnt, go_print=False):
 
     # calculate returns
     #usd_prof_goal = 300000
-    usd_prof_goal = float(lst_return[-1]['liquid']) # set w/ 'lst_alt_tok_addr' idx of ST to acquire (-1 = last idx)
-    str_usd_prof_goal = f"${usd_prof_goal:,.2f}"
+    # check for valid valid_st_idx: 'lst_alt_tok_addr' idx of ST to acquire (-1 = last idx, -37 = default pass)
+    usd_prof_goal = -1 if not valid_st_idx or st_idx == -37 else float(lst_return[st_idx]['liquid'])
+    str_usd_prof_goal = 'nil_st_idx' if not valid_st_idx else f"${usd_prof_goal:,.2f}"
     max_ratio_sell_off = 1 - (usd_total_cost_to_mint / usd_total_cost_to_buy)
     max_perc_sell_off = f'{max_ratio_sell_off*100:.2f}%'
     print(f'USD profit goal: {str_usd_prof_goal}\n MAX ratio drop (in profit): {max_ratio_sell_off}\n MAX % drop (in profit): {max_perc_sell_off}' , cStrDivider, cStrDivider, sep='\n')
@@ -316,21 +328,40 @@ def go_main(tok_name, argv_cnt, go_print=False):
 #    print(f'\n\nRUN_TIME_START: {run_time_start}\nRUN_TIME_END:   {get_time_now()}\n')
     
 if __name__ == "__main__":
-    # start
+    ## start ##
     run_time_start = get_time_now()
     print(f'\n\nRUN_TIME_START: {run_time_start}\n'+READ_ME)
     lst_argv_OG, argv_cnt = read_cli_args()
     
-    # exe
+    ## exe ##
     go_print = False # set default (no debug printing)
     lst_argv = list(lst_argv_OG) # create new list (maintain OG)
+    
+    # check/check flag: -p
     if '-p' in lst_argv:
         go_print = True
         lst_argv.remove('-p')
+        
+    # check/clean flag: -st
+    idx_st = -37
+    if '-st' in lst_argv:
+        idx_flag = lst_argv.index('-st')
+        idx_val = idx_flag+1
+        
+        # validate '-st' is followed by another argv (checks if -+ int is passed)
+        if len(lst_argv) > idx_val and lst_argv[idx_val].lstrip('-').isdigit():
+            idx_st = int(lst_argv[idx_val])
+        else:
+            print('', cStrDivider, f"# *** ERROR *** _ {__filename} _ found flag: '-st' w/ missing or invalid idx_val after...\n {lst_argv_OG}\n ... exiting   {get_time_now()}", cStrDivider, '', sep='\n')
+            exit(1)
+        del lst_argv[idx_val] # this del must occur 1st
+        del lst_argv[idx_flag] # this del must occur 2nd
+
+    # note: -1 should be idx of token name argv (after cleaning out flags above)
     tok_name = lst_argv[-1]
-    go_main(tok_name, len(lst_argv), go_print)
+    go_main(tok_name, len(lst_argv), idx_st, go_print)
     
-    # end
+    ## end ##
     print(f'\n\nRUN_TIME_START: {run_time_start}\nRUN_TIME_END:   {get_time_now()}\n')
 
 print('', cStrDivider, f'# END _ $ python3 {__filename} {lst_argv_OG}', cStrDivider, sep='\n')
