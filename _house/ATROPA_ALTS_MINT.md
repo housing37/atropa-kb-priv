@@ -33,8 +33,8 @@
                         
         *OPTION_RABBIT* ->
             - take initial seed money and create PLPs: X/atropa, X/sc1,2...n
-            - take initial seed money and buy s-coin requirements, into token X/atropa PLP contract
-            - loop:
+            - take initial seed money and buy s-coin requirements, and add to X/atropa PLP contract
+            - LP mint loop:
                 - use token X contract (w/ current s-coins held by X/atropa PLP), to mint more token X into X/atropa PLP
                 - use some of that profit ratio to add token X to X/SC1,2...n PLPs
                 - repeat loop with the rest of that profit ratio (mint more token X into X/atropa PLP)
