@@ -279,27 +279,35 @@ def go_main():
     # finalize output & print
     usd_total_cost_to_buy = float(d_mint['price'])*mint_cnt
     usd_gross_ret = usd_total_cost_to_buy - usd_total_cost_to_mint
-    perc_gross_ret = usd_total_cost_to_buy / usd_total_cost_to_mint
+    x_gross_ret = usd_total_cost_to_buy / usd_total_cost_to_mint
     
     # generate string totals (consider edge case for 'bel')
     if tok_name == 'bel':
         str_tot_mint_usd = f"${usd_total_cost_to_mint:,.8f}"
         str_tot_buy_usd = f"${usd_total_cost_to_buy:,.18f}"
         str_gross_ret_usd = f"${usd_gross_ret:,.8f}"
-        str_gross_ret_perc = f"%{perc_gross_ret:,.18f}"
+        str_gross_ret_x = f"{x_gross_ret:,.18f}x"
     else:
         str_tot_mint_usd = f"${usd_total_cost_to_mint:,.2f}"
         str_tot_buy_usd = f"${usd_total_cost_to_buy:,.2f}"
         str_gross_ret_usd = f"${usd_gross_ret:,.2f}"
-        str_gross_ret_perc = f"{perc_gross_ret:,.2f}%"
+        str_gross_ret_x = f"{x_gross_ret:,.2f}x"
     
     # print string totals
-    print('\n', cStrDivider, cStrDivider, f"TOKEN TOTALS: {d_mint['symb']}({d_mint['addr']})\n{str_print_one}\n{str_print}\n\nTOTAL USD cost to mint ({d_mint['symb']}) x{mint_cnt} = {str_tot_mint_usd}\n CURR USD price to buy/sell ({d_mint['symb']}) x{mint_cnt} = {str_tot_buy_usd}        _ liq: ${d_mint['liquid']:,.2f}\n\nTOTAL USD gross return (if execute) = {str_gross_ret_usd}\n TOTAL % gross return (if execute) = {str_gross_ret_perc}", '', sep='\n')
+    print('\n', cStrDivider, cStrDivider, f"TOKEN TOTALS: {d_mint['symb']}({d_mint['addr']})\n{str_print_one}\n{str_print}\n\nTOTAL USD cost to mint ({d_mint['symb']}) x{mint_cnt} = {str_tot_mint_usd}\n CURR USD price to buy/sell ({d_mint['symb']}) x{mint_cnt} = {str_tot_buy_usd}        _ liq: ${d_mint['liquid']:,.2f}\n\nTOTAL USD gross return (if execute) = {str_gross_ret_usd}\n RATIO gross return (if execute) = {str_gross_ret_x}", '', sep='\n')
 
     # calculate returns
-    usd_prof_goal = 300000
-    req_prof_mint_cnt = usd_prof_goal / usd_gross_ret
-    print(f'USD profit goal: ${usd_prof_goal:,.2f}\n MINT COUNT required: {req_prof_mint_cnt:.2f}' , cStrDivider, cStrDivider, sep='\n')
+    #usd_prof_goal = 300000
+    usd_prof_goal = float(lst_return[-1]['liquid']) # set w/ 'lst_alt_tok_addr' idx of ST to acquire (-1 = last idx)
+    str_usd_prof_goal = f"${usd_prof_goal:,.2f}"
+    max_ratio_sell_off = 1 - (usd_total_cost_to_mint / usd_total_cost_to_buy)
+    max_perc_sell_off = f'{max_ratio_sell_off*100:.2f}%'
+    print(f'USD profit goal: {str_usd_prof_goal}\n MAX ratio drop (in profit): {max_ratio_sell_off}\n MAX % drop (in profit): {max_perc_sell_off}' , cStrDivider, cStrDivider, sep='\n')
+    
+    # calc mint cnt needed to acquire 'usd_prof_goal' in PT
+    #   but PT likely doesn't have liquidity required to profit
+    #req_prof_mint_cnt = usd_prof_goal / usd_gross_ret
+    #print(f'USD profit goal: {str_usd_prof_goal}\n MINT COUNT required: {req_prof_mint_cnt:.2f}\n MAX ratio drop (in profit): {max_ratio_sell_off}\n MAX % drop (in profit): {max_perc_sell_off}' , cStrDivider, cStrDivider, sep='\n')
     
     # end
     print(f'\n\nRUN_TIME_START: {run_time_start}\nRUN_TIME_END:   {get_time_now()}\n')
