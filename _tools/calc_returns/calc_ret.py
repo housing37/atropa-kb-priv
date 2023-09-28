@@ -81,13 +81,15 @@ def get_usd_val_for_tok_cnt(tok_addr='nil_tok_addr', tok_cnt=-1):
                 # check if pair has address from STn in 'lst_alt_tok_addr'
                 labels_0 = v['labels']
                 pair_addr_0 = v['pairAddress']
+                liq_0 = -1 if 'liquidity' not in v else v['liquidity']['usd']
                 base_tok_addr_0 = v['baseToken']['address']
                 quote_tok_addr_0 = v['quoteToken']['address']
                 st_pair_cond_0 = base_tok_addr_0 in lst_alt_tok_addr and base_tok_addr_0 != tok_addr
                 st_pair_cond_1 = quote_tok_addr_0 in lst_alt_tok_addr and quote_tok_addr_0 != tok_addr
                 if st_pair_cond_0 or st_pair_cond_1:
                     st_addr = base_tok_addr_0 if st_pair_cond_0 else quote_tok_addr_0
-                    print(f' ... found pair w/ STn: {st_addr} _ pairAddress: {pair_addr_0} ({labels_0}) ...')
+                    tok_typ = 'btok' if st_pair_cond_0 else 'qtok'
+                    print(f' ... found pair w/ STn_{tok_typ}: {st_addr} _ pAddr: {pair_addr_0} ({labels_0}) _ liq_usd: ${liq_0:,.2f} ...')
                     pair_st_cnt += 1
                     
                 # check if 'liquidity' is logged in dexscreener return
@@ -150,7 +152,6 @@ READ_ME = f'''
             
     *EXAMPLE EXECUTION*
         $ python3 {__filename} <tok_name>
-
 '''
 def wait_sleep(wait_sec : int, b_print=True): # sleep 'wait_sec'
     print(f'waiting... {wait_sec} sec')
