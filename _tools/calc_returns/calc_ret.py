@@ -54,13 +54,13 @@ tok_name = 'nil_name'
 #------------------------------------------------------------#
 #   FUNCTION SUPPORT
 #------------------------------------------------------------#
-def get_usd_val_for_tok_cnt(tok_addr='nil_tok_addr', tok_cnt=-1):
+def get_usd_val_for_tok_cnt(tok_addr='nil_tok_addr', tok_cnt=-1, d_print=False):
     # Define the URL with the two token addresses
     #url = "https://api.dexscreener.io/latest/dex/tokens/0x2170Ed0880ac9A755fd29B2688956BD959F933F8,0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c"
     #url = "https://api.dexscreener.io/latest/dex/tokens/0x271197EFe41073681577CdbBFD6Ee1DA259BAa3c"
     url = f"https://api.dexscreener.io/latest/dex/tokens/{tok_addr}"
 
-    print('', cStrDivider, f'Getting pairs for tok_addr: {tok_addr}', sep='\n')
+    if d_print: print('', cStrDivider, f'Getting pairs for tok_addr: {tok_addr}', sep='\n')
     try:
         # Send the GET request
         response = requests.get(url)
@@ -95,7 +95,7 @@ def get_usd_val_for_tok_cnt(tok_addr='nil_tok_addr', tok_cnt=-1):
                 if st_pair_cond_0 or st_pair_cond_1:
                     st_addr = base_tok_addr_0 if st_pair_cond_0 else quote_tok_addr_0
                     tok_typ = 'btok' if st_pair_cond_0 else 'qtok'
-                    print(f' ... found pair w/ STn_{tok_typ}: {st_addr} _ pAddr: {pair_addr_0} ({labels_0}) _ liq: ${liq_0:,.2f} ...')
+                    if d_print: print(f' ... found pair w/ STn_{tok_typ}: {st_addr} _ pAddr: {pair_addr_0} ({labels_0}) _ liq: ${liq_0:,.2f} ...')
                     pair_st_cnt += 1
                     
                 # check if pair has WPLS address
@@ -104,13 +104,13 @@ def get_usd_val_for_tok_cnt(tok_addr='nil_tok_addr', tok_cnt=-1):
                 if st_pair_cond_2 or st_pair_cond_3:
                     st_addr = base_tok_addr_0 if st_pair_cond_2 else quote_tok_addr_0
                     tok_typ = 'btok' if st_pair_cond_0 else 'qtok'
-                    print(f' ... found pair w/ WPLS_{tok_typ}: {st_addr} _ pAddr: {pair_addr_0} ({labels_0}) _ liq: ${liq_0:,.2f} ...')
+                    if d_print: print(f' ... found pair w/ WPLS_{tok_typ}: {st_addr} _ pAddr: {pair_addr_0} ({labels_0}) _ liq: ${liq_0:,.2f} ...')
                     pair_wpls_cnt += 1
 
                 # ignore pairs where 'tok_addr' is the baseToken
                 if v['baseToken']['address'] != tok_addr:
                     pair_skip_bsae_cnt += 1
-                    print(f' ... found baseToken.address != {tok_addr} ... continue {pair_skip_bsae_cnt}')
+                    if d_print: print(f' ... found baseToken.address != {tok_addr} ... continue {pair_skip_bsae_cnt}')
                     continue
                 
                 # track lowest USD price (if baseToken is correct)
@@ -151,11 +151,12 @@ def get_usd_val_for_tok_cnt(tok_addr='nil_tok_addr', tok_cnt=-1):
             # calc cost to mint (using price_usd from pair w/ highest USD liquidity)
             usd_cost_to_mint = float(price_usd) * float(tok_cnt)
             
-            # print output analysis
-            print(f' ... found {pair_st_cnt} pair(s) w/ STn & {pair_wpls_cnt} pair(s) w/ WPLS _ from lst_alt_tok_addr ...')
-            print(f' ... found {pair_find_cnt} pair(s) w/ key "liquidity" & {pair_skip_cnt} pair(s) w/o ...')
-            print(f' ... found {pair_skip_bsae_cnt} pair(s) w/ wrong "baseToken" ...')
-            print('', f'FOUND pair w/ highest liquidity USD price for token... {tok_addr} _ cnt: {tok_cnt}\n pair_addr: {pair_addr}\n base_token: {base_tok_symb} ({base_tok_name})\n base_tok_addr: {base_tok_addr}\n price_usd: {price_usd}\n liquidity_usd: {liq_usd_curr_hi}\n quote_tok: {quote_tok_symb} ({quote_tok_name})\n quote_tok_addr: {quote_tok_addr}\n chain_id: {chain_id}\n dex_id: {dex_id} {labels}\n\n usd_cost_to_mint: {usd_cost_to_mint}\n pair_st_cnt: {pair_st_cnt}\n pair_wpls_cnt: {pair_wpls_cnt}\n\n price_usd_lp_low: {price_usd_lp_low}\n  pAddr: {price_usd_lp_low_pAddr}\n  liq_usd: {price_usd_lp_low_liq}', cStrDivider, '', sep='\n')
+            if d_print:
+                # print output analysis
+                print(f' ... found {pair_st_cnt} pair(s) w/ STn & {pair_wpls_cnt} pair(s) w/ WPLS _ from lst_alt_tok_addr ...')
+                print(f' ... found {pair_find_cnt} pair(s) w/ key "liquidity" & {pair_skip_cnt} pair(s) w/o ...')
+                print(f' ... found {pair_skip_bsae_cnt} pair(s) w/ wrong "baseToken" ...')
+                print('', f'FOUND pair w/ highest liquidity USD price for token... {tok_addr} _ cnt: {tok_cnt}\n pair_addr: {pair_addr}\n base_token: {base_tok_symb} ({base_tok_name})\n base_tok_addr: {base_tok_addr}\n price_usd: {price_usd}\n liquidity_usd: {liq_usd_curr_hi}\n quote_tok: {quote_tok_symb} ({quote_tok_name})\n quote_tok_addr: {quote_tok_addr}\n chain_id: {chain_id}\n dex_id: {dex_id} {labels}\n\n usd_cost_to_mint: {usd_cost_to_mint}\n pair_st_cnt: {pair_st_cnt}\n pair_wpls_cnt: {pair_wpls_cnt}\n\n price_usd_lp_low: {price_usd_lp_low}\n  pAddr: {price_usd_lp_low_pAddr}\n  liq_usd: {price_usd_lp_low_liq}', cStrDivider, '', sep='\n')
             return {'cost':usd_cost_to_mint, 'addr':base_tok_addr, 'symb':base_tok_symb, 'name':base_tok_name, 'cnt':tok_cnt, 'price':price_usd, 'liquid':liq_usd_curr_hi}
         else:
             print(f"Request failed with status code {response.status_code}")
@@ -255,7 +256,7 @@ def go_main():
     lst_return = []
     for i in range(0, len(lst_alt_tok_addr)):
         # return {'cost':,'addr':,'symb':,'name':,'cnt':,'price':,'liquid':}
-        lst_return.append(get_usd_val_for_tok_cnt(lst_alt_tok_addr[i], lst_alt_tok_vol[i]))
+        lst_return.append(get_usd_val_for_tok_cnt(lst_alt_tok_addr[i], lst_alt_tok_vol[i], d_print=False))
             
     # calc total alt tok mint cost (USD)
     usd_total_cost_to_mint = 0.0
@@ -264,7 +265,7 @@ def go_main():
         usd_total_cost_to_mint += d['cost']
 
     # get & organize meta for token address to mint
-    d_mint = get_usd_val_for_tok_cnt(contract_address, mint_cnt)
+    d_mint = get_usd_val_for_tok_cnt(contract_address, mint_cnt, d_print=True)
     str_print_one = '\nUSD values...'
     str_print = '\nMINTING requirements...'
     for i in range(0, len(lst_return)):
