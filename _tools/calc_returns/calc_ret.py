@@ -58,7 +58,7 @@ def get_usd_val_for_tok_cnt(tok_addr='nil_tok_addr', tok_cnt=-1):
     #url = "https://api.dexscreener.io/latest/dex/tokens/0x271197EFe41073681577CdbBFD6Ee1DA259BAa3c"
     url = f"https://api.dexscreener.io/latest/dex/tokens/{tok_addr}"
 
-    print(f'\nGetting pairs for tok_addr: {tok_addr}')
+    print('', cStrDivider, f'Getting pairs for tok_addr: {tok_addr}', sep='\n')
     try:
         # Send the GET request
         response = requests.get(url)
@@ -132,7 +132,7 @@ def get_usd_val_for_tok_cnt(tok_addr='nil_tok_addr', tok_cnt=-1):
                         
             print(f' ... found {pair_find_cnt} pairs w/ key "liquidity"; {pair_skip_cnt} pairs w/o; {pair_skip_bsae_cnt} pairs w/ wrong "baseToken"; {pair_st_cnt} pairs w/ STn from lst_alt_tok_addr ...')
             usd_cost_to_mint = float(price_usd) * float(tok_cnt)
-            print(cStrDivider, f'FOUND highest liquidity usd price for token... {tok_addr} _ cnt: {tok_cnt}\n pair_addr: {pair_addr}\n base_token: {base_tok_symb} ({base_tok_name})\n base_tok_addr: {base_tok_addr}\n price_usd: {price_usd}\n liquidity_usd: {liq_usd_curr_hi}\n quote_tok: {quote_tok_symb} ({quote_tok_name})\n quote_tok_addr: {quote_tok_addr}\n chain_id: {chain_id}\n dex_id: {dex_id} {labels}\n\n usd_cost_to_mint: {usd_cost_to_mint}\n pair_st_cnt: {pair_st_cnt}', cStrDivider, sep='\n')
+            print('', f'FOUND pair w/ highest liquidity USD price for token... {tok_addr} _ cnt: {tok_cnt}\n pair_addr: {pair_addr}\n base_token: {base_tok_symb} ({base_tok_name})\n base_tok_addr: {base_tok_addr}\n price_usd: {price_usd}\n liquidity_usd: {liq_usd_curr_hi}\n quote_tok: {quote_tok_symb} ({quote_tok_name})\n quote_tok_addr: {quote_tok_addr}\n chain_id: {chain_id}\n dex_id: {dex_id} {labels}\n\n usd_cost_to_mint: {usd_cost_to_mint}\n pair_st_cnt: {pair_st_cnt}', cStrDivider, '', sep='\n')
             return {'cost':usd_cost_to_mint, 'addr':base_tok_addr, 'symb':base_tok_symb, 'name':base_tok_name, 'cnt':tok_cnt, 'price':price_usd, 'liquid':liq_usd_curr_hi}
         else:
             print(f"Request failed with status code {response.status_code}")
