@@ -22,11 +22,11 @@ sender_address = "0xYourSenderAddress"
 sender_secret = "sender_address_private_key"
 
 # ** COMMENT BEFORE COMMIT **
-from read_env import read_env #ref: https://github.com/sloria/read_env
-try: read_env() # recursively traverse up dir tree looking for '.env' file
-except: print(" ERROR: no .env files found ")
-sender_address = os.environ['PUBLIC_KEY_2']
-sender_secret = os.environ['PRIVATE_KEY_2']
+#from read_env import read_env #ref: https://github.com/sloria/read_env
+#try: read_env() # recursively traverse up dir tree looking for '.env' file
+#except: print(" ERROR: no .env files found ")
+#sender_address = os.environ['PUBLIC_KEY_2']
+#sender_secret = os.environ['PRIVATE_KEY_2']
 
 # contract address & ABI (Application Binary Interface)
 contract_address = '0x2959221675bdF0e59D0cC3dE834a998FA5fFb9F4' # ⑧ (BULLION ⑧)
