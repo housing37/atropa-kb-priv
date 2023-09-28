@@ -201,17 +201,12 @@ def read_cli_args():
 
 def go_main(tok_name, argv_cnt, st_idx=-37, go_print=False):
     global contract_address, contract_symbol, lst_alt_tok_addr, lst_alt_tok_vol, mint_cnt, lst_argv_OG
-#    global contract_address, contract_symbol, lst_alt_tok_addr, lst_alt_tok_vol, mint_cnt, tok_name
-#    run_time_start = get_time_now()
-#    print(f'\n\nRUN_TIME_START: {run_time_start}\n'+READ_ME)
-#    lst_argv, argv_cnt = read_cli_args()
 
     # validate args: all flags were cleared & only 'calc_ret.py <tok_name>' remain
     if argv_cnt != 2:
         print('', cStrDivider, f'# *** ERROR *** _ {__filename} _ invalid arg count: {argv_cnt}...\n {lst_argv_OG}\n ... exiting   {get_time_now()}', cStrDivider, '', sep='\n')
         exit(1)
     else:
-#        tok_name = lst_argv[-1]
         if tok_name == 'bear9':
             contract_address = req_bear9.contract_address
             contract_symbol = req_bear9.contract_symbol
@@ -323,9 +318,6 @@ def go_main(tok_name, argv_cnt, st_idx=-37, go_print=False):
     #   but PT likely doesn't have liquidity required to profit
     #req_prof_mint_cnt = usd_prof_goal / usd_gross_ret
     #print(f'USD profit goal: {str_usd_prof_goal}\n MINT COUNT required: {req_prof_mint_cnt:.2f}\n MAX ratio drop (in profit): {max_ratio_sell_off}\n MAX % drop (in profit): {max_perc_sell_off}' , cStrDivider, cStrDivider, sep='\n')
-    
-#    # end
-#    print(f'\n\nRUN_TIME_START: {run_time_start}\nRUN_TIME_END:   {get_time_now()}\n')
     
 if __name__ == "__main__":
     ## start ##
