@@ -199,7 +199,7 @@ def read_cli_args():
     print('read_cli_args _ DONE\n')
     return sys.argv, len(sys.argv)
 
-def go_main(tok_name, argv_cnt, st_idx=-37, go_print=False):
+def go_calc(tok_name, argv_cnt, st_idx=-37, go_print=False):
     global contract_address, contract_symbol, lst_alt_tok_addr, lst_alt_tok_vol, mint_cnt, lst_argv_OG
 
     # validate args: all flags were cleared & only 'calc_ret.py <tok_name>' remain
@@ -351,7 +351,7 @@ if __name__ == "__main__":
 
     # note: -1 should be idx of token name argv (after cleaning out flags above)
     tok_name = lst_argv[-1]
-    go_main(tok_name, len(lst_argv), idx_st, go_print)
+    go_calc(tok_name, len(lst_argv), idx_st, go_print)
     
     ## end ##
     print(f'\n\nRUN_TIME_START: {run_time_start}\nRUN_TIME_END:   {get_time_now()}\n')
