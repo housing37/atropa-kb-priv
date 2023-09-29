@@ -158,7 +158,7 @@ def get_usd_val_for_tok_cnt(tok_addr='nil_tok_addr', tok_cnt=-1, d_print=False):
                 print(f' ... found {pair_find_cnt} pair(s) w/ key "liquidity" & {pair_skip_cnt} pair(s) w/o ...')
                 print(f' ... found {pair_skip_bsae_cnt} pair(s) w/ wrong "baseToken" ...')
                 print('', f'FOUND pair w/ highest liquidity USD price for token... {tok_addr} _ cnt: {tok_cnt}\n pair_addr: {pair_addr}\n base_token: {base_tok_symb} ({base_tok_name})\n base_tok_addr: {base_tok_addr}\n price_usd: {price_usd}\n liquidity_usd: {liq_usd_curr_hi}\n quote_tok: {quote_tok_symb} ({quote_tok_name})\n quote_tok_addr: {quote_tok_addr}\n chain_id: {chain_id}\n dex_id: {dex_id} {labels}\n\n usd_cost_to_mint: {usd_cost_to_mint}\n pair_st_cnt: {pair_st_cnt}\n pair_wpls_cnt: {pair_wpls_cnt}\n\n price_usd_lp_low: {price_usd_lp_low}\n  pAddr: {price_usd_lp_low_pAddr}\n  liq_usd: {price_usd_lp_low_liq}', cStrDivider, '', sep='\n')
-            return {'cost':usd_cost_to_mint, 'addr':base_tok_addr, 'symb':base_tok_symb, 'name':base_tok_name, 'cnt':tok_cnt, 'price':price_usd, 'liquid':liq_usd_curr_hi}
+            return {'cost':usd_cost_to_mint, 'addr':base_tok_addr, 'symb':base_tok_symb, 'name':base_tok_name, 'cnt':tok_cnt, 'price':price_usd, 'liquid':liq_usd_curr_hi, 'q_addr':quote_tok_addr, 'q_symb':quote_tok_symb, 'q_name':quote_tok_name}
         else:
             print(f"Request failed with status code {response.status_code}")
     except requests.exceptions.RequestException as e:
@@ -263,7 +263,7 @@ def go_calc(tok_name, argv_cnt, st_idx=-37, go_print=False):
     # get meta data required for all alts
     lst_return = []
     for i in range(0, len(lst_alt_tok_addr)):
-        # return {'cost':,'addr':,'symb':,'name':,'cnt':,'price':,'liquid':}
+        # return {'cost':,'addr':,'symb':,'name':,'cnt':,'price':,'liquid':, 'q_addr':, 'q_symb':, 'q_name':}
         lst_return.append(get_usd_val_for_tok_cnt(lst_alt_tok_addr[i], lst_alt_tok_vol[i], go_print))
             
     # calc total alt tok mint cost (USD)
@@ -279,10 +279,10 @@ def go_calc(tok_name, argv_cnt, st_idx=-37, go_print=False):
     for i in range(0, len(lst_return)):
         d = lst_return[i]
         if tok_name == 'bel':
-            str_print_one += f"\n mint {d['symb']} ({d['name']}) _ x1 = ${float(d['price']):.8f}        _ liq: ${d['liquid']:,.2f}"
+            str_print_one += f"\n mint {d['symb']} ({d['name']}) _ x1 = ${float(d['price']):.8f}        _ liq: ${d['liquid']:,.2f} ({d['q_name']})"
             str_print += f"\n mint {d['symb']} ({d['name']}) _ x{d['cnt']} = ${d['cost']:,.8f}"
         else:
-            str_print_one += f"\n mint {d['symb']} ({d['name']}) _ x1 = ${float(d['price']):.12f}        _ liq: ${d['liquid']:,.2f}"
+            str_print_one += f"\n mint {d['symb']} ({d['name']}) _ x1 = ${float(d['price']):.12f}        _ liq: ${d['liquid']:,.2f} ({d['q_name']})"
             str_print += f"\n mint {d['symb']} ({d['name']}) _ x{d['cnt']} = ${d['cost']:,.8f}"
         
     # finalize output & print
@@ -312,7 +312,8 @@ def go_calc(tok_name, argv_cnt, st_idx=-37, go_print=False):
     str_usd_prof_goal = 'nil_st_idx' if not valid_st_idx else f"${usd_prof_goal:,.2f}"
     max_ratio_sell_off = 1 - (usd_total_cost_to_mint / usd_total_cost_to_buy)
     max_perc_sell_off = f'{max_ratio_sell_off*100:.2f}%'
-    print(f'USD profit goal: {str_usd_prof_goal}\n MAX ratio drop (in profit): {max_ratio_sell_off}\n MAX % drop (in profit): {max_perc_sell_off}' , cStrDivider, cStrDivider, sep='\n')
+    req_prof_mint_cnt = usd_prof_goal / usd_gross_ret
+    print(f'USD profit goal: {str_usd_prof_goal}\n MIN required mint cnt: {req_prof_mint_cnt:,.2f}\n MAX ratio drop (in profit): {max_ratio_sell_off}\n MAX % drop (in profit): {max_perc_sell_off}' , cStrDivider, cStrDivider, sep='\n')
     
     # calc mint cnt needed to acquire 'usd_prof_goal' in PT
     #   but PT likely doesn't have liquidity required to profit
