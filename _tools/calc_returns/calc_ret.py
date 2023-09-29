@@ -78,7 +78,7 @@ def get_usd_val_for_tok_cnt(tok_addr='nil_tok_addr', tok_cnt=-1, d_print=False):
             chain_id = dex_id = price_usd = 'nil'
             base_tok = base_tok_addr = base_tok_symb = base_tok_name = 'nil'
             quote_tok = quote_tok_addr = quote_tok_symb = quote_tok_name = 'nil'
-            pair_find_cnt = pair_skip_cnt = pair_skip_bsae_cnt = pair_st_cnt = pair_wpls_cnt = 0
+            pair_find_cnt = pair_skip_cnt = pair_skip_base_cnt = pair_st_cnt = pair_wpls_cnt = 0
             liq_usd_curr_hi = 0.0
             price_usd_lp_low = 99999999999999.0
             price_usd_lp_low_pAddr = 'nil_addr'
@@ -112,10 +112,10 @@ def get_usd_val_for_tok_cnt(tok_addr='nil_tok_addr', tok_cnt=-1, d_print=False):
                     if d_print: print(f' ... found pair w/ WPLS_{tok_typ}: {st_addr} _ pAddr: {pair_addr_0} ({labels_0}) _ liq: ${liq_0:,.2f} ...')
                     pair_wpls_cnt += 1
 
-                # ignore pairs where 'tok_addr' is the baseToken
+                # ignore pairs where 'tok_addr' is not the baseToken
                 if v['baseToken']['address'] != tok_addr:
-                    pair_skip_bsae_cnt += 1
-                    if d_print: print(f' ... found baseToken.address != {tok_addr} ... continue {pair_skip_bsae_cnt}')
+                    pair_skip_base_cnt += 1
+                    if d_print: print(f' ... found baseToken.address != {tok_addr} ... continue {pair_skip_base_cnt}')
                     continue
                 
                 # track lowest USD price (if baseToken is correct)
@@ -160,7 +160,7 @@ def get_usd_val_for_tok_cnt(tok_addr='nil_tok_addr', tok_cnt=-1, d_print=False):
                 # print output analysis
                 print(f' ... found {pair_st_cnt} pair(s) w/ STn & {pair_wpls_cnt} pair(s) w/ WPLS _ from lst_alt_tok_addr ...')
                 print(f' ... found {pair_find_cnt} pair(s) w/ key "liquidity" & {pair_skip_cnt} pair(s) w/o ...')
-                print(f' ... found {pair_skip_bsae_cnt} pair(s) w/ wrong "baseToken" ...')
+                print(f' ... found {pair_skip_base_cnt} pair(s) w/ wrong "baseToken" ...')
                 print('', f'FOUND pair w/ highest liquidity USD price for token... {tok_addr} _ cnt: {tok_cnt}\n pair_addr: {pair_addr}\n base_token: {base_tok_symb} ({base_tok_name})\n base_tok_addr: {base_tok_addr}\n price_usd: {price_usd}\n liquidity_usd: {liq_usd_curr_hi}\n quote_tok: {quote_tok_symb} ({quote_tok_name})\n quote_tok_addr: {quote_tok_addr}\n chain_id: {chain_id}\n dex_id: {dex_id} {labels}\n\n usd_cost_to_mint: {usd_cost_to_mint}\n pair_st_cnt: {pair_st_cnt}\n pair_wpls_cnt: {pair_wpls_cnt}\n\n price_usd_lp_low: {price_usd_lp_low}\n  pAddr: {price_usd_lp_low_pAddr}\n  liq_usd: {price_usd_lp_low_liq}', cStrDivider, '', sep='\n')
             return {'cost':usd_cost_to_mint, 'addr':base_tok_addr, 'symb':base_tok_symb, 'name':base_tok_name, 'cnt':tok_cnt, 'price':price_usd, 'liquid':liq_usd_curr_hi, 'q_addr':quote_tok_addr, 'q_symb':quote_tok_symb, 'q_name':quote_tok_name}
         else:
