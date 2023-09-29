@@ -18,8 +18,8 @@ st2_addr = '0x271197EFe41073681577CdbBFD6Ee1DA259BAa3c' # 900 Ying (YingContract
 st3_addr = '0xA63F8061A67ecdbf147Cd1B60f91Cf95464E868D' # 999 LOL (LOLContract) _ (Þ = DE8D)
 st4_addr = '0xCc78A0acDF847A2C1714D2A925bB4477df5d48a6' # 313 Atropa (AtropaContract) _ 'ATROPA'
 st5_addr = '0x463413c579D29c26D59a65312657DFCe30D545A1' # 100,000 Treasury (TreasuryBillContract) _ 'TREASURY BILL'
-st6_addr = '0x77Bed67181CeF592472bcb7F97736c560340E006' # 131.1 Bullion (Bullion5Contract) _ (â§ = E291A7)
-st6b_addr = '0x2959221675bdF0e59D0cC3dE834a998FA5fFb9F4' # 131.1 Bullion (Bullion5Contract) _ (â§ = E291A7)
+#st6_addr = '0x77Bed67181CeF592472bcb7F97736c560340E006' # 131.1 Bullion (Bullion5Contract) _ (â§ = E291A7)
+st6_addr = '0x2959221675bdF0e59D0cC3dE834a998FA5fFb9F4' # 131.1 Bullion (Bullion8Contract) _ (â§ = E291A7)
 
 st0_vol = 1 # '_SafeMul(1,' _ 'Need Approved 1 LEGAL'
 st1_vol = 500 # '_SafeMul(500,' _ 'Need Approved 500 ã' (ã = E3889D)
