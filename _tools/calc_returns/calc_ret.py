@@ -56,9 +56,13 @@ lst_argv_OG = []
 #   FUNCTION SUPPORT
 #------------------------------------------------------------#
 def get_usd_val_for_tok_cnt(tok_addr='nil_tok_addr', tok_cnt=-1, d_print=False):
-    # Define the URL with the two token addresses
-    #url = "https://api.dexscreener.io/latest/dex/tokens/0x2170Ed0880ac9A755fd29B2688956BD959F933F8,0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c"
-    #url = "https://api.dexscreener.io/latest/dex/tokens/0x271197EFe41073681577CdbBFD6Ee1DA259BAa3c"
+    # ref: https://docs.dexscreener.com/api/reference
+    #  1) Get one or multiple pairs by chain and pair address
+    #  2) Get one or multiple pairs by token address
+    #  3) Search for pairs matching query (Query may include pair address, token address, token name or token symbol)
+    #url1 = "https://api.dexscreener.io/latest/dex/tokens/0x2170Ed0880ac9A755fd29B2688956BD959F933F8,0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c"
+    #url2 = "https://api.dexscreener.io/latest/dex/tokens/0x271197EFe41073681577CdbBFD6Ee1DA259BAa3c"
+    #url3 = https://api.dexscreener.com/latest/dex/search?q=WBNB%20USDC
     url = f"https://api.dexscreener.io/latest/dex/tokens/{tok_addr}"
 
     if d_print: print('', cStrDivider, f'Getting pairs for tok_addr: {tok_addr}', sep='\n')
