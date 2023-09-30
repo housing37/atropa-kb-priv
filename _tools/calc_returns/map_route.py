@@ -20,107 +20,107 @@ import requests, json
 #------------------------------------------------------------#
 
         
-def map_route(pt_tok_addr='nil_pt_addr', st_tok_addr='nil_st_addr', d_print=True):
-    # ref: https://docs.dexscreener.com/api/reference
-    #  1) Get one or multiple pairs by chain and pair address
-    #  2) Get one or multiple pairs by token address
-    #  3) Search for pairs matching query (Query may include pair address, token address, token name or token symbol)
-    #url1 = "https://api.dexscreener.io/latest/dex/tokens/0x2170Ed0880ac9A755fd29B2688956BD959F933F8,0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c"
-    #url2 = "https://api.dexscreener.io/latest/dex/tokens/0x271197EFe41073681577CdbBFD6Ee1DA259BAa3c"
-    #url3 = https://api.dexscreener.com/latest/dex/search?q=WBNB%20USDC
-    
-    pt_url = f"https://api.dexscreener.io/latest/dex/tokens/{pt_tok_addr}"
-    st_url = f"https://api.dexscreener.io/latest/dex/tokens/{st_tok_addr}"
-    lst_pt_pair_addr = []
-    lst_st_pair_addr = []
-
-    try:
-        # exe request and check for success status code 200
-        if d_print: print('', cStrDivider, f'Getting pairs for pt_tok_addr: {pt_tok_addr}', sep='\n')
-        response = requests.get(pt_url)
-        if response.status_code == 200:
-            data = response.json()
-            #print(data)
-            for k,v in enumerate(data['pairs']):
-                lst_pt_pair_addr.append(v['pairAddress'])
-                base_tok_addr = v['baseToken']['address']
-                quote_tok_addr = v['quoteToken']['address']
-        else:
-            print(f"Request failed with status code {response.status_code}")
-
-        # exe request and check for success status code 200
-        if d_print: print('', cStrDivider, f'Getting pairs for st_tok_addr: {st_tok_addr}', sep='\n')
-        response = requests.get(st_url)
-        if response.status_code == 200:
-            data = response.json()
-            #print(data)
-            for k,v in enumerate(data['pairs']):
-                lst_st_pair_addr.append(v['pairAddress'])
-        else:
-            print(f"Request failed with status code {response.status_code}")
-            
-        # get common pairs and print
-        lst_comm_pairs = [v for v in lst_pt_pair_addr if v in lst_st_pair_addr]
-        print(f'\nlst_pt_pair_addr: {lst_pt_pair_addr}')
-        print(f'\nlst_st_pair_addr: {lst_st_pair_addr}')
-        print(f'\nlst_comm_pairs: {lst_comm_pairs}')
-        
-
-        
-    except requests.exceptions.RequestException as e:
-        # Handle request exceptions
-        print(f"Request error: {e};\n returning -1")
+#def map_route(pt_tok_addr='nil_pt_addr', st_tok_addr='nil_st_addr', d_print=True):
+#    # ref: https://docs.dexscreener.com/api/reference
+#    #  1) Get one or multiple pairs by chain and pair address
+#    #  2) Get one or multiple pairs by token address
+#    #  3) Search for pairs matching query (Query may include pair address, token address, token name or token symbol)
+#    #url1 = "https://api.dexscreener.io/latest/dex/tokens/0x2170Ed0880ac9A755fd29B2688956BD959F933F8,0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c"
+#    #url2 = "https://api.dexscreener.io/latest/dex/tokens/0x271197EFe41073681577CdbBFD6Ee1DA259BAa3c"
+#    #url3 = https://api.dexscreener.com/latest/dex/search?q=WBNB%20USDC
+#
+#    pt_url = f"https://api.dexscreener.io/latest/dex/tokens/{pt_tok_addr}"
+#    st_url = f"https://api.dexscreener.io/latest/dex/tokens/{st_tok_addr}"
+#    lst_pt_pair_addr = []
+#    lst_st_pair_addr = []
+#
+#    try:
+#        # exe request and check for success status code 200
+#        if d_print: print('', cStrDivider, f'Getting pairs for pt_tok_addr: {pt_tok_addr}', sep='\n')
+#        response = requests.get(pt_url)
+#        if response.status_code == 200:
+#            data = response.json()
+#            #print(data)
+#            for k,v in enumerate(data['pairs']):
+#                lst_pt_pair_addr.append(v['pairAddress'])
+#                base_tok_addr = v['baseToken']['address']
+#                quote_tok_addr = v['quoteToken']['address']
+#        else:
+#            print(f"Request failed with status code {response.status_code}")
+#
+#        # exe request and check for success status code 200
+#        if d_print: print('', cStrDivider, f'Getting pairs for st_tok_addr: {st_tok_addr}', sep='\n')
+#        response = requests.get(st_url)
+#        if response.status_code == 200:
+#            data = response.json()
+#            #print(data)
+#            for k,v in enumerate(data['pairs']):
+#                lst_st_pair_addr.append(v['pairAddress'])
+#        else:
+#            print(f"Request failed with status code {response.status_code}")
+#
+#        # get common pairs and print
+#        lst_comm_pairs = [v for v in lst_pt_pair_addr if v in lst_st_pair_addr]
+#        print(f'\nlst_pt_pair_addr: {lst_pt_pair_addr}')
+#        print(f'\nlst_st_pair_addr: {lst_st_pair_addr}')
+#        print(f'\nlst_comm_pairs: {lst_comm_pairs}')
+#
+#
+#
+#    except requests.exceptions.RequestException as e:
+#        # Handle request exceptions
+#        print(f"Request error: {e};\n returning -1")
 
 #------------------------------------------------------------#
 #   DEFAULT SUPPORT                                          #
 #------------------------------------------------------------#
-call_cnt = 0
-#matrix_route = [
-#    ['','','']
-#]
-lst_checked_addr = []
-def create_routes(matrix_route=[], tok_addr='nil_tok_addr', targ_addr='nil_targ_addr', last_pair_addr='0x00', lst_route=[]):
-    global call_cnt, lst_checked_addr
-    time.sleep(0.5)
-    
-    call_cnt += 1
-    url = f"https://api.dexscreener.io/latest/dex/tokens/{tok_addr}"
-    print('', cStrDivider, f'#{call_cnt} Getting pairs for tok_addr: {tok_addr} _ {get_time_now()}', sep='\n')
-    
-    # append tok_addr to current route 'lst_route'
-    lst_route.append(tok_addr)
-    print(f'... curr route: {lst_route}')
-    
-    response = requests.get(url)
-    if response.status_code == 200:
-        data = response.json()
-        for k,v in enumerate(data['pairs']):
-            pair_addr = v['pairAddress']
-            if str(last_pair_addr) == str(pair_addr):
-                print(f'... found common pair_addr _ continue')
-                continue
-                
-            base_tok_addr = v['baseToken']['address']
-            quote_tok_addr = v['quoteToken']['address']
-            
-            # check if found targ_addr, append this route to matrix
-            #   append 'lst_route' to 'matrix_route'
-            if base_tok_addr == targ_addr or quote_tok_addr == targ_addr:
-                print(f' FINISHED ROUTE (appending to matrix): {lst_route}')
-                matrix_route.append(lst_route)
-                continue
-                
-            # tok_addr should be either 'base_tok_addr' or 'quote_tok_addr'
-            if str(base_tok_addr) != str(tok_addr) and str(base_tok_addr) not in lst_route:
-                print(f'... found base_tok_addr route to follow _ {base_tok_addr}')
-                create_routes(matrix_route, str(base_tok_addr), str(pair_addr), str(targ_addr), lst_route)
-                continue
-            if str(quote_tok_addr) != str(tok_addr) and str(quote_tok_addr) not in lst_route:
-                print(f'... found quote_tok_addr route to follow _ {quote_tok_addr}')
-                create_routes(matrix_route, str(quote_tok_addr), str(pair_addr), str(targ_addr), lst_route)
-                continue
-    else:
-        print(f"Request failed with status code {response.status_code}")
+#call_cnt = 0
+##matrix_route = [
+##    ['','','']
+##]
+#lst_checked_addr = []
+#def create_routes(matrix_route=[], tok_addr='nil_tok_addr', targ_addr='nil_targ_addr', last_pair_addr='0x00', lst_route=[]):
+#    global call_cnt, lst_checked_addr
+#    time.sleep(0.5)
+#
+#    call_cnt += 1
+#    url = f"https://api.dexscreener.io/latest/dex/tokens/{tok_addr}"
+#    print('', cStrDivider, f'#{call_cnt} Getting pairs for tok_addr: {tok_addr} _ {get_time_now()}', sep='\n')
+#
+#    # append tok_addr to current route 'lst_route'
+#    lst_route.append(tok_addr)
+#    print(f'... curr route: {lst_route}')
+#
+#    response = requests.get(url)
+#    if response.status_code == 200:
+#        data = response.json()
+#        for k,v in enumerate(data['pairs']):
+#            pair_addr = v['pairAddress']
+#            if str(last_pair_addr) == str(pair_addr):
+#                print(f'... found common pair_addr _ continue')
+#                continue
+#
+#            base_tok_addr = v['baseToken']['address']
+#            quote_tok_addr = v['quoteToken']['address']
+#
+#            # check if found targ_addr, append this route to matrix
+#            #   append 'lst_route' to 'matrix_route'
+#            if base_tok_addr == targ_addr or quote_tok_addr == targ_addr:
+#                print(f' FINISHED ROUTE (appending to matrix): {lst_route}')
+#                matrix_route.append(lst_route)
+#                continue
+#
+#            # tok_addr should be either 'base_tok_addr' or 'quote_tok_addr'
+#            if str(base_tok_addr) != str(tok_addr) and str(base_tok_addr) not in lst_route:
+#                print(f'... found base_tok_addr route to follow _ {base_tok_addr}')
+#                create_routes(matrix_route, str(base_tok_addr), str(pair_addr), str(targ_addr), lst_route)
+#                continue
+#            if str(quote_tok_addr) != str(tok_addr) and str(quote_tok_addr) not in lst_route:
+#                print(f'... found quote_tok_addr route to follow _ {quote_tok_addr}')
+#                create_routes(matrix_route, str(quote_tok_addr), str(pair_addr), str(targ_addr), lst_route)
+#                continue
+#    else:
+#        print(f"Request failed with status code {response.status_code}")
         
 def find_comm_toks_lvl_1(pt_addr='nil_', pt_symb='nil_', pt_name='nil_', st_addr='nil_', st_symb='nil_', st_name='nil_', d_print=True):
 
@@ -185,11 +185,11 @@ def find_comm_toks_lvl_1(pt_addr='nil_', pt_symb='nil_', pt_name='nil_', st_addr
         print(f"Request failed with status code {response.status_code}")
         
         
-    if d_print: print('', cStrDivider, f'Print pairs for pt_addr: {pt_addr} _ {get_time_now()}', cStrDivider, sep='\n')
+    if d_print: print('', cStrDivider, f'Print pairs for {pt_symb}: {pt_addr} _ {get_time_now()}', cStrDivider, sep='\n')
 #    print(f'\nlst_pt_pair_toks:\n {lst_pt_pair_toks}')
     if d_print: [print(d) for d in lst_pt_pair_toks]
     
-    if d_print: print('', cStrDivider, f'Print pairs for st_addr: {st_addr} _ {get_time_now()}', cStrDivider, sep='\n')
+    if d_print: print('', cStrDivider, f'Print pairs for {st_symb}: {st_addr} _ {get_time_now()}', cStrDivider, sep='\n')
 #    print(f'\nlst_st_pair_toks:\n {lst_st_pair_toks}')
     if d_print: [print(d) for d in lst_st_pair_toks]
     
@@ -253,7 +253,6 @@ def go_main():
     st5_addr = '0x463413c579D29c26D59a65312657DFCe30D545A1' # 100,000 Treasury (TreasuryBillContract) _ 'TREASURY BILL'
     st6_addr = '0x2959221675bdF0e59D0cC3dE834a998FA5fFb9F4' # 131.1 Bullion (Bullion8Contract) _ (â§ = E291A7)
     
-
     find_comm_toks_lvl_1(pt_addr=addr_bond,
                             pt_symb='BOND',
                             st_addr=addr_wpls,
