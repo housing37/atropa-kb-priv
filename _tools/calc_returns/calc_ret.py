@@ -317,7 +317,7 @@ def go_calc(tok_name, argv_cnt, st_idx=-37, go_print=False):
     max_ratio_sell_off = 1 - (usd_total_cost_to_mint / usd_total_cost_to_buy)
     max_perc_sell_off = f'{max_ratio_sell_off*100:.2f}%'
     req_prof_mint_cnt = usd_prof_goal / usd_gross_ret
-    print(f'USD profit goal: {str_usd_prof_goal}\n MIN required mint cnt: {req_prof_mint_cnt:,.2f}\n MAX ratio drop (in profit): {max_ratio_sell_off}\n MAX % drop (in profit): {max_perc_sell_off}' , cStrDivider, cStrDivider, sep='\n')
+    print(f'USD profit goal: {str_usd_prof_goal}\n MIN required mint cnt: {req_prof_mint_cnt:,.2f}\n MAX ratio drop (in profit): {max_ratio_sell_off}\n MAX % drop (in profit): {max_perc_sell_off}', cStrDivider, cStrDivider, sep='\n')
     
     # calc mint cnt needed to acquire 'usd_prof_goal' in PT
     #   but PT likely doesn't have liquidity required to profit
