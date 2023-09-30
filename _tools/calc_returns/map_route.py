@@ -128,16 +128,16 @@ def go_main():
     st0_addr = '0x52a4682880E990ebed5309764C7BD29c4aE22deB' # 2,000,000 유 (YuContract) _ (ì = EC9CA0)
     st1_addr = '0x347BC40503E0CE23fE0F5587F232Cd2D07D4Eb89' # 1 Di (DiContract) _ (ç¬¬ä½ = E7ACACE4BD9C)
     liq_tok = '0xE63191967735C52f5de78CE2471759a9963Ce118' # 清导
-    find_comm_toks_lvl_1(pt_addr=addr_wenti,
-                            pt_symb='问题 (问题) _ wenti',
-                            st_addr=liq_tok,
-                            st_symb='清导',
-                            d_print=True)
-    find_comm_toks_lvl_1(pt_addr=liq_tok,
-                            pt_symb='清导',
-                            st_addr=addr_wpls,
-                            st_symb='WPLS',
-                            d_print=True)
+#    find_comm_toks_lvl_1(pt_addr=addr_wenti,
+#                            pt_symb='问题 (问题) _ wenti',
+#                            st_addr=liq_tok,
+#                            st_symb='清导',
+#                            d_print=True)
+#    find_comm_toks_lvl_1(pt_addr=liq_tok,
+#                            pt_symb='清导',
+#                            st_addr=addr_wpls,
+#                            st_symb='WPLS',
+#                            d_print=True)
                             
     addr_bond = '0x25d53961a27791B9D8b2d74FB3e937c8EAEadc38'
     st0_addr = '0x0b1307dc5D90a0B60Be18D2634843343eBc098AF' # 1 LEGAL (LegalContract) _ 'LEGAL'
@@ -148,11 +148,11 @@ def go_main():
     st5_addr = '0x463413c579D29c26D59a65312657DFCe30D545A1' # 100,000 Treasury (TreasuryBillContract) _ 'TREASURY BILL'
     st6_addr = '0x2959221675bdF0e59D0cC3dE834a998FA5fFb9F4' # 131.1 Bullion (Bullion8Contract) _ (â§ = E291A7)
 
-#    find_comm_toks_lvl_1(pt_addr=addr_bond,
-#                            pt_symb='BOND',
-#                            st_addr=addr_wpls,
-#                            st_symb='WPLS',
-#                            d_print=True)
+    find_comm_toks_lvl_1(pt_addr=addr_bond,
+                            pt_symb='BOND',
+                            st_addr=addr_wpls,
+                            st_symb='WPLS',
+                            d_print=True)
                             
 #    find_comm_toks_lvl_1(pt_addr=addr_bond,
 #                            pt_symb='BOND',
