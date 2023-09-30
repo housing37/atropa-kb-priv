@@ -120,55 +120,85 @@ def read_cli_args():
     print('read_cli_args _ DONE\n')
     return sys.argv, len(sys.argv)
 
-def go_main():
+def go_main(run_default=True):
     addr_wpls = '0xA1077a294dDE1B09bB078844df40758a5D0f9a27' # '问题 (问题) _ wenti'
+    addr_bear = '0xd6c31bA0754C4383A41c0e9DF042C62b5e918f6d'
     #========================================================#
     
-    addr_wenti = '0xA537d6F4c1c8F8C41f1004cc34C00e7Db40179Cc'
-    st0_addr = '0x52a4682880E990ebed5309764C7BD29c4aE22deB' # 2,000,000 유 (YuContract) _ (ì = EC9CA0)
-    st1_addr = '0x347BC40503E0CE23fE0F5587F232Cd2D07D4Eb89' # 1 Di (DiContract) _ (ç¬¬ä½ = E7ACACE4BD9C)
-    liq_tok = '0xE63191967735C52f5de78CE2471759a9963Ce118' # 清导
-#    find_comm_toks_lvl_1(pt_addr=addr_wenti,
-#                            pt_symb='问题 (问题) _ wenti',
-#                            st_addr=liq_tok,
-#                            st_symb='清导',
-#                            d_print=True)
-#    find_comm_toks_lvl_1(pt_addr=liq_tok,
-#                            pt_symb='清导',
-#                            st_addr=addr_wpls,
-#                            st_symb='WPLS',
-#                            d_print=True)
-                            
-    addr_bond = '0x25d53961a27791B9D8b2d74FB3e937c8EAEadc38'
-    st0_addr = '0x0b1307dc5D90a0B60Be18D2634843343eBc098AF' # 1 LEGAL (LegalContract) _ 'LEGAL'
-    st1_addr = '0xFa4d9C6E012d946853386113ACbF166deC5465Bb' # 500 ã (OjeonContract) _ (ã = E3889D)
-    st2_addr = '0x271197EFe41073681577CdbBFD6Ee1DA259BAa3c' # 900 Ying (YingContract) _ (ç±¯ = E7B1AF)
-    st3_addr = '0xA63F8061A67ecdbf147Cd1B60f91Cf95464E868D' # 999 LOL (LOLContract) _ (Þ = DE8D)
-    st4_addr = '0xCc78A0acDF847A2C1714D2A925bB4477df5d48a6' # 313 Atropa (AtropaContract) _ 'ATROPA'
-    st5_addr = '0x463413c579D29c26D59a65312657DFCe30D545A1' # 100,000 Treasury (TreasuryBillContract) _ 'TREASURY BILL'
-    st6_addr = '0x2959221675bdF0e59D0cC3dE834a998FA5fFb9F4' # 131.1 Bullion (Bullion8Contract) _ (â§ = E291A7)
+    if not run_default:
+        addr_wenti = '0xA537d6F4c1c8F8C41f1004cc34C00e7Db40179Cc'
+        st0_addr = '0x52a4682880E990ebed5309764C7BD29c4aE22deB' # 2,000,000 유 (YuContract) _ (ì = EC9CA0)
+        st1_addr = '0x347BC40503E0CE23fE0F5587F232Cd2D07D4Eb89' # 1 Di (DiContract) _ (ç¬¬ä½ = E7ACACE4BD9C)
+        liq_tok = '0xE63191967735C52f5de78CE2471759a9963Ce118' # 清导
+        find_comm_toks_lvl_1(pt_addr=addr_wenti,
+                                pt_symb='问题 (问题) _ wenti',
+                                st_addr=liq_tok,
+                                st_symb='清导',
+                                d_print=True)
+        find_comm_toks_lvl_1(pt_addr=liq_tok,
+                                pt_symb='清导',
+                                st_addr=addr_wpls,
+                                st_symb='WPLS',
+                                d_print=True)
+    
+    else:
+        addr_bond = '0x25d53961a27791B9D8b2d74FB3e937c8EAEadc38'
+        st0_addr = '0x0b1307dc5D90a0B60Be18D2634843343eBc098AF' # 1 LEGAL (LegalContract) _ 'LEGAL'
+        st1_addr = '0xFa4d9C6E012d946853386113ACbF166deC5465Bb' # 500 ã (OjeonContract) _ (ã = E3889D)
+        st2_addr = '0x271197EFe41073681577CdbBFD6Ee1DA259BAa3c' # 900 Ying (YingContract) _ (ç±¯ = E7B1AF)
+        st3_addr = '0xA63F8061A67ecdbf147Cd1B60f91Cf95464E868D' # 999 LOL (LOLContract) _ (Þ = DE8D)
+        st4_addr = '0xCc78A0acDF847A2C1714D2A925bB4477df5d48a6' # 313 Atropa (AtropaContract) _ 'ATROPA'
+        st5_addr = '0x463413c579D29c26D59a65312657DFCe30D545A1' # 100,000 Treasury (TreasuryBillContract) _ 'TREASURY BILL'
+        st6_addr = '0x2959221675bdF0e59D0cC3dE834a998FA5fFb9F4' # 131.1 Bullion (Bullion8Contract) _ (â§ = E291A7)
 
-    find_comm_toks_lvl_1(pt_addr=addr_bond,
-                            pt_symb='BOND',
-                            st_addr=addr_wpls,
-                            st_symb='WPLS',
-                            d_print=True)
-                            
-#    find_comm_toks_lvl_1(pt_addr=addr_bond,
-#                            pt_symb='BOND',
-#                            st_addr=st0_addr,
-#                            st_symb='LEGAL',
-#                            d_print=True)
-#    find_comm_toks_lvl_1(pt_addr=addr_bond,
-#                            pt_symb='BOND',
-#                            st_addr='0xd6c31bA0754C4383A41c0e9DF042C62b5e918f6d',
-#                            st_symb='BEAR',
-#                            d_print=False)
-#    find_comm_toks_lvl_1(pt_addr='0xd6c31bA0754C4383A41c0e9DF042C62b5e918f6d',
-#                            pt_symb='BEAR',
-#                            st_addr=st0_addr,
-#                            st_symb='LEGAL',
-#                            d_print=False)
+        w_sec = 0
+        find_comm_toks_lvl_1(pt_addr=addr_bond,
+                                pt_symb='BOND',
+                                st_addr=addr_wpls,
+                                st_symb='WPLS',
+                                d_print=True)
+        time.sleep(w_sec)
+        find_comm_toks_lvl_1(pt_addr=addr_bond,
+                                pt_symb='BOND',
+                                st_addr=st0_addr,
+                                st_symb='LEGAL',
+                                d_print=True)
+        time.sleep(w_sec)
+        find_comm_toks_lvl_1(pt_addr=addr_bond,
+                                pt_symb='BOND',
+                                st_addr=st1_addr,
+                                st_symb=' ã',
+                                d_print=True)
+        time.sleep(w_sec)
+        find_comm_toks_lvl_1(pt_addr=addr_bond,
+                                pt_symb='BOND',
+                                st_addr=st2_addr,
+                                st_symb='YING',
+                                d_print=True)
+        time.sleep(w_sec)
+        find_comm_toks_lvl_1(pt_addr=addr_bond,
+                                pt_symb='BOND',
+                                st_addr=st3_addr,
+                                st_symb='LOL',
+                                d_print=True)
+        time.sleep(w_sec)
+        find_comm_toks_lvl_1(pt_addr=addr_bond,
+                                pt_symb='BOND',
+                                st_addr=st4_addr,
+                                st_symb='ATROPA',
+                                d_print=True)
+        time.sleep(w_sec)
+        find_comm_toks_lvl_1(pt_addr=addr_bond,
+                                pt_symb='BOND',
+                                st_addr=st5_addr,
+                                st_symb='TREAS',
+                                d_print=True)
+        time.sleep(w_sec)
+        find_comm_toks_lvl_1(pt_addr=addr_bond,
+                                pt_symb='BOND',
+                                st_addr=st6_addr,
+                                st_symb='BUL8',
+                                d_print=True)
         
 if __name__ == "__main__":
     ## start ##
@@ -177,7 +207,7 @@ if __name__ == "__main__":
     lst_argv_OG, argv_cnt = read_cli_args()
     
     ## exe ##
-    go_main()
+    go_main(run_default=True)
     
     ## end ##
     print(f'\n\nRUN_TIME_START: {run_time_start}\nRUN_TIME_END:   {get_time_now()}\n')
