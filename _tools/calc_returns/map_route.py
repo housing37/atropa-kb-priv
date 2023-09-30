@@ -123,6 +123,8 @@ def read_cli_args():
 def go_main(run_default=True):
     addr_wpls = '0xA1077a294dDE1B09bB078844df40758a5D0f9a27' # '问题 (问题) _ wenti'
     addr_bear = '0xd6c31bA0754C4383A41c0e9DF042C62b5e918f6d'
+    addr_a1a = '0x697fc467720B2a8e1b2F7F665d0e3f28793E65e8'
+    addr_ying = '0x271197EFe41073681577CdbBFD6Ee1DA259BAa3c'
     #========================================================#
     
     if not run_default:
@@ -152,11 +154,24 @@ def go_main(run_default=True):
         st6_addr = '0x2959221675bdF0e59D0cC3dE834a998FA5fFb9F4' # 131.1 Bullion (Bullion8Contract) _ (â§ = E291A7)
 
         w_sec = 0
+        find_comm_toks_lvl_1(pt_addr=addr_ying,
+                                pt_symb='YING',
+                                st_addr=addr_wpls,
+                                st_symb='WPLS',
+                                d_print=True)
+                                
         find_comm_toks_lvl_1(pt_addr=addr_bond,
                                 pt_symb='BOND',
                                 st_addr=addr_wpls,
                                 st_symb='WPLS',
                                 d_print=True)
+                                
+        find_comm_toks_lvl_1(pt_addr=addr_a1a,
+                                pt_symb='AIA',
+                                st_addr=addr_wpls,
+                                st_symb='WPLS',
+                                d_print=True)
+                                
         time.sleep(w_sec)
         find_comm_toks_lvl_1(pt_addr=addr_bond,
                                 pt_symb='BOND',
