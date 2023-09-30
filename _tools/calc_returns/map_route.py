@@ -167,7 +167,7 @@ def go_main(run_default=True):
         find_comm_toks_lvl_1(pt_addr=addr_bond,
                                 pt_symb='BOND',
                                 st_addr=st1_addr,
-                                st_symb=' ã',
+                                st_symb='Ojeon',
                                 d_print=True)
         time.sleep(w_sec)
         find_comm_toks_lvl_1(pt_addr=addr_bond,
