@@ -19,7 +19,7 @@ st3_addr = '0xA63F8061A67ecdbf147Cd1B60f91Cf95464E868D' # 999 LOL (LOLContract) 
 st4_addr = '0xCc78A0acDF847A2C1714D2A925bB4477df5d48a6' # 313 Atropa (AtropaContract) _ 'ATROPA'
 st5_addr = '0x463413c579D29c26D59a65312657DFCe30D545A1' # 100,000 Treasury (TreasuryBillContract) _ 'TREASURY BILL'
 #st6_addr = '0x77Bed67181CeF592472bcb7F97736c560340E006' # 131.1 Bullion (Bullion5Contract) _ (â§ = E291A7)
-st6_addr = '0x2959221675bdF0e59D0cC3dE834a998FA5fFb9F4' # 131.1 Bullion (Bullion8Contract) _ (â§ = E291A7)
+st6_addr = '0x2959221675bdF0e59D0cC3dE834a998FA5fFb9F4' # (1311 * 9**18) / 10**18 Bullion (Bullion8Contract) _ (â§ = E291A7)
 
 st0_vol = 1 # '_SafeMul(1,' _ 'Need Approved 1 LEGAL'
 st1_vol = 500 # '_SafeMul(500,' _ 'Need Approved 500 ã' (ã = E3889D)
@@ -27,7 +27,7 @@ st2_vol = 900 # '_SafeMul(900,' _ 'Need Approved 900 ç±¯' (ç±¯ = E7B1AF)
 st3_vol = 999 # '_SafeMul(999,' _ 'Need Approved 999 Þ' (Þ = DE8D)
 st4_vol = 313 # '_SafeMul(313,' _ 'Need Approved 313 ATROPA'
 st5_vol = 100000 # '100,000' _ '_SafeMul(0x186a0,' _ 'Need Approved 100,000 TREASURY BILL'
-st6_vol = 131.1 # _SafeMul(1311 _ 'Need Approved 131.1 â§' (â§ = E291A7)
+st6_vol = 197 # _SafeMul(1311 _ 'Need Approved (1311 * 9**18) / 10**18 â§' (â§ = E291A7)
 st6b_vol = 1311 # _SafeMul(1311 _ 'Need Approved 131.1 â§' (â§ = E291A7)
 
 lst_alt_tok_addr = [st0_addr,st1_addr,st2_addr,st3_addr,st4_addr,st5_addr,st6_addr]

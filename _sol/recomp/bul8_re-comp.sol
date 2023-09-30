@@ -86,5 +86,12 @@ contract YourTokenName {
         emit Transfer(msg.sender, to, value);
         return true;
     }
+
+    function allowance(address varg0, address varg1) public payable {
+        require(4 + (msg.data.length - 4) - 4 >= 64);
+        require(varg0 == varg0);
+        require(varg1 == varg1);
+        return _allowance[varg0][varg1];
+    }
 }
 
