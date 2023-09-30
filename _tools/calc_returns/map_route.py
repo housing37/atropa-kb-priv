@@ -23,7 +23,6 @@ import requests, json
 #   FUNCTNION SUPPORT                                        #
 #------------------------------------------------------------#
 def get_pairs_lst(tok_addr, tok_symb):
-    print('', cStrDivider, f'Getting pairs for {tok_symb}: {tok_addr} _ {get_time_now()}', cStrDivider, sep='\n')
     try:
         url = f"https://api.dexscreener.io/latest/dex/tokens/{tok_addr}"
         response = requests.get(url)
@@ -56,13 +55,15 @@ def get_pairs_lst(tok_addr, tok_symb):
 def find_comm_toks_lvl_1(pt_addr='nil_', pt_symb='nil_', pt_name='nil_', st_addr='nil_', st_symb='nil_', st_name='nil_', d_print=True):
 
     # get PT and ST pairs list
+    print('', cStrDivider, f'Getting pairs for PT | {pt_symb}: {pt_addr} _ {get_time_now()}', cStrDivider, sep='\n')
     lst_pt_pair_toks = get_pairs_lst(pt_addr, pt_symb)
+    print('', cStrDivider, f'Getting pairs for ST | {st_symb}: {st_addr} _ {get_time_now()}', cStrDivider, sep='\n')
     lst_st_pair_toks = get_pairs_lst(st_addr, st_symb)
 
     # print LPs for PT and ST
-    if d_print: print('', cStrDivider, f'Print pairs for {pt_symb}: {pt_addr} _ {get_time_now()}', cStrDivider, sep='\n')
+    if d_print: print('', cStrDivider, f'Print pairs for PT | {pt_symb}: {pt_addr} _ {get_time_now()}', cStrDivider, sep='\n')
     if d_print: [print(d) for d in lst_pt_pair_toks]
-    if d_print: print('', cStrDivider, f'Print pairs for {st_symb}: {st_addr} _ {get_time_now()}', cStrDivider, sep='\n')
+    if d_print: print('', cStrDivider, f'Print pairs for ST | {st_symb}: {st_addr} _ {get_time_now()}', cStrDivider, sep='\n')
     if d_print: [print(d) for d in lst_st_pair_toks]
 
     # get common pairs and print
@@ -120,7 +121,24 @@ def read_cli_args():
     return sys.argv, len(sys.argv)
 
 def go_main():
-    addr_wpls = '0xA1077a294dDE1B09bB078844df40758a5D0f9a27'
+    addr_wpls = '0xA1077a294dDE1B09bB078844df40758a5D0f9a27' # '问题 (问题) _ wenti'
+    #========================================================#
+    
+    addr_wenti = '0xA537d6F4c1c8F8C41f1004cc34C00e7Db40179Cc'
+    st0_addr = '0x52a4682880E990ebed5309764C7BD29c4aE22deB' # 2,000,000 유 (YuContract) _ (ì = EC9CA0)
+    st1_addr = '0x347BC40503E0CE23fE0F5587F232Cd2D07D4Eb89' # 1 Di (DiContract) _ (ç¬¬ä½ = E7ACACE4BD9C)
+    liq_tok = '0xE63191967735C52f5de78CE2471759a9963Ce118' # 清导
+    find_comm_toks_lvl_1(pt_addr=addr_wenti,
+                            pt_symb='问题 (问题) _ wenti',
+                            st_addr=liq_tok,
+                            st_symb='清导',
+                            d_print=True)
+    find_comm_toks_lvl_1(pt_addr=liq_tok,
+                            pt_symb='清导',
+                            st_addr=addr_wpls,
+                            st_symb='WPLS',
+                            d_print=True)
+                            
     addr_bond = '0x25d53961a27791B9D8b2d74FB3e937c8EAEadc38'
     st0_addr = '0x0b1307dc5D90a0B60Be18D2634843343eBc098AF' # 1 LEGAL (LegalContract) _ 'LEGAL'
     st1_addr = '0xFa4d9C6E012d946853386113ACbF166deC5465Bb' # 500 ã (OjeonContract) _ (ã = E3889D)
@@ -129,12 +147,13 @@ def go_main():
     st4_addr = '0xCc78A0acDF847A2C1714D2A925bB4477df5d48a6' # 313 Atropa (AtropaContract) _ 'ATROPA'
     st5_addr = '0x463413c579D29c26D59a65312657DFCe30D545A1' # 100,000 Treasury (TreasuryBillContract) _ 'TREASURY BILL'
     st6_addr = '0x2959221675bdF0e59D0cC3dE834a998FA5fFb9F4' # 131.1 Bullion (Bullion8Contract) _ (â§ = E291A7)
-    
-    find_comm_toks_lvl_1(pt_addr=addr_bond,
-                            pt_symb='BOND',
-                            st_addr=addr_wpls,
-                            st_symb='WPLS',
-                            d_print=True)
+
+#    find_comm_toks_lvl_1(pt_addr=addr_bond,
+#                            pt_symb='BOND',
+#                            st_addr=addr_wpls,
+#                            st_symb='WPLS',
+#                            d_print=True)
+                            
 #    find_comm_toks_lvl_1(pt_addr=addr_bond,
 #                            pt_symb='BOND',
 #                            st_addr=st0_addr,
