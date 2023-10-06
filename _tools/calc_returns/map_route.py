@@ -22,7 +22,7 @@ import requests, json
 #------------------------------------------------------------#
 #   FUNCTNION SUPPORT                                        #
 #------------------------------------------------------------#
-def get_pairs_lst(tok_addr, tok_symb):
+def get_pairs_lst(tok_addr, tok_symb, plog=True):
     try:
         url = f"https://api.dexscreener.io/latest/dex/tokens/{tok_addr}"
         response = requests.get(url)
@@ -30,19 +30,38 @@ def get_pairs_lst(tok_addr, tok_symb):
         if response.status_code == 200:
             data = response.json()
             for k,v in enumerate(data['pairs']):
+                # ignore pairs not from 'pulsechain'|'pulsex'
+                if v['chainId'] != 'pulsechain' or v['dexId'] != 'pulsex':
+                    pair_skip_chain_cnt += 1
+                    if plog: print(f' ... found chainId ({v["chainId"]}) != "pulsechain" ... skip/continue _ {pair_skip_chain_cnt}')
+                    continue
+                    
                 pair_addr = v['pairAddress']
                 liquid = -1 if 'liquidity' not in v else v['liquidity']['usd']
+                chain_id = v['chainId']
+                dex_id = v['dexId']
+                labels = v['labels']
+                price_usd = -1 if 'priceUsd' not in v else v['priceUsd']
                 base_tok_addr = v['baseToken']['address']
                 base_tok_symb = v['baseToken']['symbol']
                 base_tok_name = v['baseToken']['name']
                 quote_tok_addr = v['quoteToken']['address']
                 quote_tok_symb = v['quoteToken']['symbol']
                 quote_tok_name = v['quoteToken']['name']
-                
+
                 if str(base_tok_addr) != str(tok_addr) and str(base_tok_addr) not in lst_pair_toks:
-                    lst_pair_toks.append({'tok_addr':base_tok_addr, 'pair_addr':pair_addr, 'liq':liquid, 'tok_symb':base_tok_symb, 'tok_name':base_tok_name})
+                    lst_pair_toks.append({'tok_addr':base_tok_addr, 'pair_addr':pair_addr, 'liq':liquid, 'pr_BT':price_usd, 'tok_symb':base_tok_symb, 'tok_name':base_tok_name, dex_id:labels[0]})
                 if str(quote_tok_addr) != str(tok_addr) and str(quote_tok_addr) not in lst_pair_toks:
-                    lst_pair_toks.append({'tok_addr':quote_tok_addr, 'pair_addr':pair_addr, 'liq':liquid, 'tok_symb':quote_tok_symb, 'tok_name':quote_tok_name})
+                    lst_pair_toks.append({'tok_addr':quote_tok_addr, 'pair_addr':pair_addr, 'liq':liquid, 'pr_QT':price_usd, 'tok_symb':quote_tok_symb, 'tok_name':quote_tok_name, dex_id:labels[0]})
+
+                # this algorithm not quite working correctly (doesn't display base|quote token correctly)
+                #t_addr = 'nil_addr'
+                #if str(base_tok_addr) != str(tok_addr):
+                #    t_addr = str(base_tok_addr)
+                #if str(quote_tok_addr) != str(tok_addr):
+                #    t_addr = str(quote_tok_addr)
+                #if str(t_addr) not in lst_pair_toks:
+                #    lst_pair_toks.append({'tok_addr':t_addr, 'pair_addr':pair_addr, 'liq':liquid, 'tok_symb':quote_tok_symb, 'tok_name':quote_tok_name, dex_id:labels[0]})
             return list(lst_pair_toks)
         else:
             print(f"Request failed with status code {response.status_code}\n returning empty list")
@@ -56,9 +75,9 @@ def find_comm_toks_lvl_1(pt_addr='nil_', pt_symb='nil_', pt_name='nil_', st_addr
 
     # get PT and ST pairs list
     print('', cStrDivider, f'Getting pairs for PT | {pt_symb}: {pt_addr} _ {get_time_now()}', cStrDivider, sep='\n')
-    lst_pt_pair_toks = get_pairs_lst(pt_addr, pt_symb)
+    lst_pt_pair_toks = get_pairs_lst(pt_addr, pt_symb, d_print)
     print('', cStrDivider, f'Getting pairs for ST | {st_symb}: {st_addr} _ {get_time_now()}', cStrDivider, sep='\n')
-    lst_st_pair_toks = get_pairs_lst(st_addr, st_symb)
+    lst_st_pair_toks = get_pairs_lst(st_addr, st_symb, d_print)
 
     # print LPs for PT and ST
     if d_print: print('', cStrDivider, f'Print pairs for PT | {pt_symb}: {pt_addr} _ {get_time_now()}', cStrDivider, sep='\n')
@@ -121,17 +140,62 @@ def read_cli_args():
     return sys.argv, len(sys.argv)
 
 def go_main(run_default=True):
-    addr_wpls = '0xA1077a294dDE1B09bB078844df40758a5D0f9a27' # '问题 (问题) _ wenti'
+    addr_wpls = '0xA1077a294dDE1B09bB078844df40758a5D0f9a27'
     addr_bear = '0xd6c31bA0754C4383A41c0e9DF042C62b5e918f6d'
     addr_a1a = '0x697fc467720B2a8e1b2F7F665d0e3f28793E65e8'
     addr_ying = '0x271197EFe41073681577CdbBFD6Ee1DA259BAa3c'
+    addr_r = '0x557F7e30aA6D909Cfe8a229A4CB178ab186EC622'
+    addr_wenti = '0xA537d6F4c1c8F8C41f1004cc34C00e7Db40179Cc' # '问题 (问题) _ wenti'
     #========================================================#
-    
+                                
+    find_comm_toks_lvl_1(pt_addr=addr_bear,
+                            pt_symb='BEAR',
+                            st_addr=addr_wpls,
+                            st_symb='WPLS',
+                            d_print=True)
+
     if not run_default:
-        addr_wenti = '0xA537d6F4c1c8F8C41f1004cc34C00e7Db40179Cc'
+    
+        #addr_wenti = '0xA537d6F4c1c8F8C41f1004cc34C00e7Db40179Cc' # '问题 (问题) _ wenti'
         st0_addr = '0x52a4682880E990ebed5309764C7BD29c4aE22deB' # 2,000,000 유 (YuContract) _ (ì = EC9CA0)
         st1_addr = '0x347BC40503E0CE23fE0F5587F232Cd2D07D4Eb89' # 1 Di (DiContract) _ (ç¬¬ä½ = E7ACACE4BD9C)
-        liq_tok = '0xE63191967735C52f5de78CE2471759a9963Ce118' # 清导
+        liq_tok_0 = '0xE63191967735C52f5de78CE2471759a9963Ce118' # 清导
+        liq_tok_1 = '0x26D5906c4Cdf8C9F09CBd94049f99deaa874fB0b' # ޖޮޔިސްދޭވޯހީ
+        find_comm_toks_lvl_1(pt_addr=addr_wenti,
+                                pt_symb='问题 (问题) _ wenti',
+                                st_addr=liq_tok_1,
+                                st_symb='ޖޮޔިސްދޭވޯހީ',
+                                d_print=True)
+        find_comm_toks_lvl_1(pt_addr=addr_wenti,
+                                pt_symb='问题 (问题) _ wenti',
+                                st_addr=liq_tok_0,
+                                st_symb='清导',
+                                d_print=True)
+        find_comm_toks_lvl_1(pt_addr=addr_wenti,
+                                pt_symb='问题 (问题) _ wenti',
+                                st_addr=addr_r,
+                                st_symb='r',
+                                d_print=True)
+        find_comm_toks_lvl_1(pt_addr=addr_wenti,
+                                pt_symb='问题 (问题) _ wenti',
+                                st_addr=st0_addr,
+                                st_symb='Yu',
+                                d_print=True)
+        find_comm_toks_lvl_1(pt_addr=st0_addr,
+                                pt_symb='Yu',
+                                st_addr=addr_wpls,
+                                st_symb='WPLS',
+                                d_print=True)
+        find_comm_toks_lvl_1(pt_addr=addr_wenti,
+                                pt_symb='问题 (问题) _ wenti',
+                                st_addr=st1_addr,
+                                st_symb='Di',
+                                d_print=True)
+        find_comm_toks_lvl_1(pt_addr=st1_addr,
+                                pt_symb='Yu',
+                                st_addr=addr_wpls,
+                                st_symb='Di',
+                                d_print=True)
         find_comm_toks_lvl_1(pt_addr=addr_wenti,
                                 pt_symb='问题 (问题) _ wenti',
                                 st_addr=liq_tok,
