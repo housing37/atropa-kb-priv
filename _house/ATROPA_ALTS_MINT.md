@@ -3,6 +3,57 @@
 ## TG: @WhiteRabbit0x0 contract mappings
     - https://docs.google.com/spreadsheets/d/15pFeW8FJw9J5bp3C9cKJqpRED_BI4DIdR_3HB_Tpoi8/edit#gid=0
 
+## exit route
+    - wenti: 0xA537d6F4c1c8F8C41f1004cc34C00e7Db40179Cc (问题)
+              v2 -> 0xE63191967735C52f5de78CE2471759a9963Ce118 (清导)
+            v1/2 -> 0x26D5906c4Cdf8C9F09CBd94049f99deaa874fB0b (ޔިސްދޭވޯހީ)
+              v1 -> 0xd6c31bA0754C4383A41c0e9DF042C62b5e918f6d (BEAR) -> WPLS
+
+## maria@twee.se, Global.citizen.watch@gmail.com
+    Hi Maria,
+        My name is house (and my partner 'rabbit' is cc'd)'. 
+        we cracked the puzzle for 6 of your mintable tokens.
+        A couple days ago we invited you to our github repo to show you the code we wrote for this minting: "https://github.com/housing37/atropa-kb-priv"
+        
+            We can now mint:
+                bul8: 0x2959221675bdF0e59D0cC3dE834a998FA5fFb9F4
+                wenti: 0xA537d6F4c1c8F8C41f1004cc34C00e7Db40179Cc
+                bel: 0x4C1518286E1b8D5669Fe965EF174B8B4Ae2f017B
+                write: 0x26D5906c4Cdf8C9F09CBd94049f99deaa874fB0b
+                bear9: 0x1f737F7994811fE994Fe72957C374e5cD5D5418A
+                bond: 0x25d53961a27791B9D8b2d74FB3e937c8EAEadc38
+                mv: 0xA1BEe1daE9Af77dAC73aA0459eD63b4D93fC6d29
+                 - although we feel MV was more of a starter and didn't require much work
+
+        Initial Questions:
+         - are there more mintable tokens like this, that you can bring to our attention?
+            can you give us another hint?
+         - as you are aware, it's not always profitable to call these mint functions...
+            is there another step that we are missing?
+         - are there other puzzles in the system that your team has created (besides these 2)?
+            1) we see a trading type puzzle which involves creating LPs bound to atropa
+            2) we see this developer puzzle that we've solved for 6 tokens
+            
+        On a lighter note... we think you guys are amazing for creating these puzzles
+         we think its a brillient way to reward people in order to bring in users to PC
+         thank you very much for putting this together for us, it was a lot of fun!
+         if you have any questions for us, please feel free to reach out. 
+         We would very much like to continue building a relationship.
+         
+         Yours truly,
+            house & rabbit
+            
+if u can add "that you can bring to our attention" after "are there other mintable.."
+            
+            
+## tools created
+    alright so i'm starting to look at this from a 'tool' based perspective...
+     - 1) we have the ability to dump PTs while pumping STs
+            we can do this at low fees to us
+                - sometimes for free, sometimes we get paid to do this
+     - 2) we can generate exit liquidity routes from any token
+     - 3)  
+
 ## BONUS code design
     - abstract:
         when each 'mint' token is minted, all the subsequent 'required' S-tokens are taken off the market.
@@ -184,8 +235,10 @@
 
 ## Maria leaked
     - ENS records
+        ref: https://app.ens.domains/0x7a20189B297343CF26d8548764b04891f37F3414
     - management records
     - twee.se
+    - https://twee.se/Alchemist.txt
     - maria@twee.se
 
     50 years old maybe
@@ -199,3 +252,119 @@
 
     cipher provided for comms (havok)
         - when did leonitus first...
+        
+    - lead: mapped by TG: JimmyRinse
+        https://ftp.heanet.ie/mirrors/fosdem-video/2018/K.4.601/perl6_extending_disco_era_crypto.mp4
+        
+        
+        
+## JimmyRinse, [Oct 2, 2023 at 6:18:43 PM]:
+        JimmyRinse, [Oct 2, 2023 at 6:18:43 PM]:
+        https://ftp.heanet.ie/mirrors/fosdem-video/2018/K.4.601/perl6_extending_disco_era_crypto.mp4
+
+        Dysomnia or whatever its called
+
+        It's on the screen 😉
+
+        house, [Oct 2, 2023 at 6:22:56 PM]:
+        ok, i'm not sure if you want me to mention this in public (and i may be wrong), but i don't think this is the guy...
+        the reason is because we have found links all over the internet to various youtube videos and other platforms, which designate how exactly they picked the token names
+
+        for example, we found marie related links to youtube videos that are named according the greek alphabet
+
+        can yuo tell me the steps that occurred for you to find the github repo, maria email, and then this video? this may help my understanding and further validate
+
+        JimmyRinse, [Oct 2, 2023 at 6:25:56 PM]:
+        Atropa.ens
+
+        Had the tree website
+
+        That lead us to maria
+
+        house, [Oct 2, 2023 at 6:26:51 PM]:
+        Atropa.ens ... is this a domain name?
+
+        JimmyRinse, [Oct 2, 2023 at 6:26:51 PM]:
+        The email led me to james
+
+        .Eth sorry
+
+        It's an ens
+
+        He bought it about a year ago
+
+        I assume you just found the public repo on GitHub?
+
+        Crazy it was there the whole time lol
+
+        house, [Oct 2, 2023 at 6:29:33 PM (Oct 2, 2023 at 6:29:51 PM)]:
+        yeah exactly you can just search github atropa and different variations
+
+        it takes a little while but its there
+
+        JimmyRinse, [Oct 2, 2023 at 6:26:51 PM]:
+        The email led me to james
+
+        .Eth sorry
+
+        It's an ens
+
+        He bought it about a year ago
+
+        I assume you just found the public repo on GitHub?
+
+        Crazy it was there the whole time lol
+
+        house, [Oct 2, 2023 at 6:29:33 PM (Oct 2, 2023 at 6:29:51 PM)]:
+        yeah exactly you can just search github atropa and different variations
+
+        it takes a little while but its there
+
+        JimmyRinse, [Oct 2, 2023 at 6:30:08 PM]:
+        Weird it's public lol
+
+        But that's kinda bullish too
+
+        But yea it's definitely the guy
+
+        house, [Oct 2, 2023 at 6:30:35 PM]:
+        i'm still not sure
+
+        but i'm getting there
+
+        JimmyRinse, [Oct 2, 2023 at 6:30:39 PM]:
+        That code on the lecture is the same project in the github
+
+        house, [Oct 2, 2023 at 6:30:47 PM]:
+        how did you get from the twee site to the video?
+
+        JimmyRinse, [Oct 2, 2023 at 6:31:11 PM]:
+        Just googled his name
+
+        house, [Oct 2, 2023 at 6:31:13 PM]:
+        yeah she might be just 'using' that guys code
+
+        sorry i meant, how did you get from twee to this guy james name
+
+        JimmyRinse, [Oct 2, 2023 at 6:31:35 PM]:
+        From the linked email
+
+        house, [Oct 2, 2023 at 6:32:07 PM]:
+        you typed that email maria@tee.se into something online like google or something?
+
+        JimmyRinse, [Oct 2, 2023 at 6:32:56 PM]:
+        I started a chat and it changed to his email address from maria
+
+        So it's linked to his gmail
+
+        house, [Oct 2, 2023 at 6:36:11 PM]:
+        you can chat with people on ens.domains? is that right?
+
+        i've never really looked into this, but i'm going through it now
+
+        JimmyRinse, [Oct 2, 2023 at 6:37:41 PM]:
+        Yea I believe so
+
+        I don't know how you'd get a nofit though
+
+        You can also message through debank etc
