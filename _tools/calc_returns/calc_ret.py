@@ -278,16 +278,20 @@ def go_calc(tok_name, argv_cnt, st_idx=-37, go_print=False):
 
     # get & organize meta for token address to mint
     d_mint = get_usd_val_for_tok_cnt(contract_address, mint_cnt, go_print)
-    str_print_one = '\nUSD values...'
-    str_print = '\nMINTING requirements...'
-    for i in range(0, len(lst_return)):
-        d = lst_return[i]
+    #str_print_one = '\nUSD values...'
+    str_print_one = '\nMINTING requirements...'
+    str_print = '\nMINT requirement totals (w/ largest exit liq routes)...'
+    
+    # sort print outs by token's total cost to mint
+    lst_ret_sorted = sorted(lst_return, key=lambda x: x['cost'], reverse=True)
+    for i in range(0, len(lst_ret_sorted)):
+        d = lst_ret_sorted[i]
         if tok_name == 'bel':
-            str_print_one += f"\n mint {d['symb']} ({d['name']}) _ x1 = ${float(d['price']):.8f}        _ liq: ${d['liquid']:,.2f} ({d['q_name']})"
-            str_print += f"\n mint {d['symb']} ({d['name']}) _ x{d['cnt']} = ${d['cost']:,.8f}"
+            str_print_one += f"\n tok: {d['symb']} ({d['name']}) _ x1 = ${float(d['price']):.8f}"
+            str_print += f"\n need: {d['symb']} ({d['name']}) _ x{d['cnt']} = ${d['cost']:,.8f}        _ liq: ${d['liquid']:,.2f} ({d['q_name']})"
         else:
-            str_print_one += f"\n mint {d['symb']} ({d['name']}) _ x1 = ${float(d['price']):.12f}        _ liq: ${d['liquid']:,.2f} ({d['q_name']})"
-            str_print += f"\n mint {d['symb']} ({d['name']}) _ x{d['cnt']} = ${d['cost']:,.8f}"
+            str_print_one += f"\n tok: {d['symb']} ({d['name']}) _ x1 = ${float(d['price']):.12f}"
+            str_print += f"\n need: {d['symb']} ({d['name']}) _ x{d['cnt']} = ${d['cost']:,.8f}        _ liq: ${d['liquid']:,.2f} ({d['q_name']})"
         
     # finalize output & print
     usd_total_cost_to_buy = float(d_mint['price'])*mint_cnt
