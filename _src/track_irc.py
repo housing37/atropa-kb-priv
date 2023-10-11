@@ -12,6 +12,14 @@ from datetime import datetime
 import requests, json
 import socket, threading
 import db_controller as dbc
+
+# dt format = 'Oct 08' & 'Oct 09'
+import maria_irc_100923, maria_irc_100923_tot
+
+# dt format = '[4:37am]' & '[12:37pm]'
+import maria_irc_100823, maria_irc_100823_2, maria_irc_100923_2
+import maria_irc_101023_0, maria_irc_101023_1
+
 #from web3 import Web3
 #import inspect # this_funcname = inspect.stack()[0].function
 #parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -73,7 +81,7 @@ def track_msgs(server, port, nick='guest50040', channel='#test', pw=''):
 
     # Close the IRC connection when done
     irc.close()
-
+    
 def db_add_log(keyVals):
     #if kPin in keyVals: del keyVals[kPin]
     db_return = dbc.exe_stored_proc(-1, 'irc_ADD_LOG', keyVals)
@@ -83,13 +91,56 @@ def db_add_log(keyVals):
         return db_return, False
     return db_return, True
     
-def parse_msg_string(data, channel):
+def parse_msg_string(data, channel, flag=-1):
     # format user msg
     #str_msg_start = '!-'+nick+'@'
     str_result = str_time = usr = usr_full = usr_loc = msg = msg_type = 'nil_parse'
     
+    # run w/ maria_irc_100923, maria_irc_100923_tot
+    if 'Oct 08' in data or 'Oct 09' in data:
+        # ex: data = 'Oct 08 01:11:25 <PassportPowell>	Hi everyone'
+        parts = data.split()
+        day = parts[1]
+        time = parts[2]
+        usr = parts[3].replace('<','').replace('>','')
+        msg = ' '.join(parts[4:len(parts)])
+        
+        str_print = channel+'  <'+usr+'>    '+msg
+        str_time = '2023-10-08 ' if day == '08' else '2023-10-09 '
+        str_time = str_time + time
+        str_result = '['+str_time+'] '+str_print
+
+    # run w/ maria_irc_100823, maria_irc_100823_2, maria_irc_100923_2
+    # run w/ maria_irc_101023_0, maria_irc_101023_1
+    elif data.startswith('['):
+        # ex: data = '[4:41pm] mariarahel: reached zero confidence in doge'
+        # ex: data = '[3:42pm] pulseperza joined the chat room.'
+        parts = data.split()
+        time = parts[0].replace('[','').replace(']','')
+        if 'am' in time:
+            time = time.replace('am','')
+            if time.index(':') == 1:
+                time = '0'+time
+        elif 'pm' in time:
+            time = time.replace('pm','')
+            if time[0:2] == '12': # handle special case 12pm
+                time = "00"+time[2:]
+            hr = int(time[0:time.index(':')]) + 12
+            time = f"{hr}{time[time.index(':'):]}"
+        else:
+            time = 'ERROR ... no am or pm found in time'
+            
+        usr = parts[1].replace(':','')
+        msg = ' '.join(parts[2:len(parts)])
+        
+        str_print = channel+'  <'+usr+'>    '+msg
+        if flag == 0: str_time = '2023-10-08 '+time # run w/ maria_irc_100823, maria_irc_100823_2
+        if flag == 1: str_time = '2023-10-09 '+time # run w/ maria_irc_100923_2
+        if flag == 2: str_time = '2023-10-10 '+time # run w/ maria_irc_101023_0, maria_irc_101023_1
+        str_result = '['+str_time+'] '+str_print
+        
     # check for users joing / leaving channel
-    if 'join' in data.lower() or 'part' in data.lower():
+    elif 'join' in data.lower() or 'part' in data.lower():
         str_time = get_time_now()
         str_result = '['+str_time+'] '+data
     
@@ -123,28 +174,6 @@ def parse_msg_string(data, channel):
         str_print = channel+'  <'+usr+'>    '+msg
         str_time = get_time_now()
         str_result = '['+str_time+'] '+str_print
-    
-    elif 'Oct 08' in data: # run w/ 'maria_irc_100823*.py files
-        # ex: data = 'Oct 08 01:11:25 <PassportPowell>	Hi everyone'
-        parts = data.split()
-        time = parts[2]
-        usr = parts[3].replace('<','').replace('>','')
-        msg = parts[4:len(parts)]
-        
-        str_print = channel+'  <'+usr+'>    '+msg
-        str_time = '2023-10-08 '+time
-        str_result = '['+str_time+'] '+str_print
-
-    elif data.startswith('['): # run w/ 'maria_irc_10[09|10]23*.py files
-        # ex: data = '[4:41pm] mariarahel: reached zero confidence in doge'
-        parts = data.split()
-        time = parts[0].replace('[','').replace(']','')
-        usr = parts[1].replace(':','')
-        msg = parts[2:len(parts)]
-        
-        str_print = channel+'  <'+usr+'>    '+msg
-        str_time = '2023-10-09 '+time # note: change to 10-10 when running *_101023*.py files
-        str_result = '['+str_time+'] '+str_print
         
     # handle default
     else:
@@ -152,6 +181,19 @@ def parse_msg_string(data, channel):
         str_result = '['+str_time+'] '+data
 
     return str_result, str_time, usr, usr_full, usr_loc, msg, msg_type
+    
+def import_msg(server, port, nick='guest50040', channel='#test', data='nil_data', flag=-1):
+    str_print = str_time = usr = usr_full = usr_loc = msg = msg_type = 'nil_str_import'
+    # Print formatted msg to the console
+    #str_print, str_time, usr, msg = parse_msg_string(data, channel)
+    str_print, str_time, usr, usr_full, usr_loc, msg, msg_type = parse_msg_string(data, channel, flag)
+    print(str_print)
+    
+    # update db
+    keyVals = { 1:server, 2:port, 3:nick, 4:channel, 5:str_print, 6:str_time,
+                7:usr_full, 8:usr_loc, 9:usr, 10:msg, 11:msg_type, 12:data }
+    lst_db_return, success = db_add_log(keyVals)
+    print(f'IMPORTED... {str_print}')
     
 #------------------------------------------------------------#
 #   DEFAULT SUPPORT                                          #
@@ -185,19 +227,42 @@ def read_cli_args():
     print('read_cli_args _ DONE\n')
     return sys.argv, len(sys.argv)
 
-def go_main():
-    try:
-        # run tracker
-        ch_lst = ["#test", "#pulsechain", "#atropa"]
-        track_msgs("irc.debian.org", 6667, 'hlog', ch_lst[2]) # IRC server, port, nick, channel & channel pw (if required)
-    
-        # Create and start two threads
-        #ping_thread = threading.Thread(target=send_ping_commands)
-        #message_thread = threading.Thread(target=listen_for_messages)
-        #ping_thread.start()
-        #message_thread.start()
-    except Exception as e:
-        print(f'Error: {e}')
+def run_tracker(run_imports=False):
+    if run_imports:
+        # run w/ maria_irc_100823, maria_irc_100823_2, maria_irc_100923_2 -> dt format = '[4:37pm]'
+        lines = maria_irc_100823.str_alt.split('\n')
+        for line in lines: import_msg("irc.debian.org", 6667, 'hlog_import', '#atropa', line, flag=0)
+        lines = maria_irc_100823_2.str_alt.split('\n')
+        for line in lines: import_msg("irc.debian.org", 6667, 'hlog_import', '#atropa', line, flag=0)
+        lines = maria_irc_100923_2.str_alt.split('\n')
+        for line in lines: import_msg("irc.debian.org", 6667, 'hlog_import', '#atropa', line, flag=1)
+
+        # run w/ maria_irc_101023_0, maria_irc_101023_1 -> dt format = '[4:37pm]'
+        lines = maria_irc_101023_0.str_alt.split('\n')
+        for line in lines: import_msg("irc.debian.org", 6667, 'hlog_import', '#atropa', line, flag=2)
+        lines = maria_irc_101023_1.str_alt.split('\n')
+        for line in lines: import_msg("irc.debian.org", 6667, 'hlog_import', '#atropa', line, flag=2)
+        
+        # run w/ maria_irc_100923, maria_irc_100923_tot -> dt format = 'Oct 08'
+        lines = maria_irc_100923.str_alt.split('\n')
+        for line in lines: import_msg("irc.debian.org", 6667, 'hlog_import', '#atropa', line)
+        lines = maria_irc_100923_tot.str_alt.split('\n')
+        for line in lines: import_msg("irc.debian.org", 6667, 'hlog_import', '#atropa', line)
+        
+    else:
+        try:
+            pass
+            # run tracker
+            ch_lst = ["#test", "#pulsechain", "#atropa"]
+            track_msgs("irc.debian.org", 6667, 'hlog', ch_lst[2]) # IRC server, port, nick, channel & channel pw (if required)
+            
+            # Create and start two threads
+            #ping_thread = threading.Thread(target=send_ping_commands)
+            #message_thread = threading.Thread(target=listen_for_messages)
+            #ping_thread.start()
+            #message_thread.start()
+        except Exception as e:
+            print(f'Error: {e}')
         
 if __name__ == "__main__":
     ## start ##
@@ -206,7 +271,8 @@ if __name__ == "__main__":
     lst_argv_OG, argv_cnt = read_cli_args()
     
     ## exe ##
-    go_main()
+    run_tracker(run_imports=True)
+    #run_tracker(run_imports=False)
     
     ## end ##
     print(f'\n\nRUN_TIME_START: {run_time_start}\nRUN_TIME_END:   {get_time_now()}\n')
