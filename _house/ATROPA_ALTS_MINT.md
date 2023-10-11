@@ -1,5 +1,14 @@
 # atropa alts list
 
+## maria help request
+    [1:40pm] mariarahel: if anyone has http get/post content for submitting arbitrary token transactions with wallet data I can add api for that
+    [1:45pm] iTz_Black007: maria what's arbitrary token transaction? 🤔
+    [1:45pm] mariarahel: ex: http get/post for calling Rho() function on specific contract address
+    [1:47pm] iTz_Black007: oh thats easy ah...
+    [1:47pm] midnightmadwalk: Wrapper around rpc
+    [4:50pm] mariarahel: is there any python wallet that works with pulsechain ?
+
+
 ## TG: @WhiteRabbit0x0 contract mappings
     - https://docs.google.com/spreadsheets/d/15pFeW8FJw9J5bp3C9cKJqpRED_BI4DIdR_3HB_Tpoi8/edit#gid=0
 
