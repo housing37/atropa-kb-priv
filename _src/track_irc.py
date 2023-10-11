@@ -48,7 +48,7 @@ def track_msgs(server, port, nick='guest50040', channel='#test', pw=''):
     while True:
         # data = ":r_!~r@ec2-18-188-176-66.us-east-2.compute.amazonaws.com PRIVMSG #test :te"
         data = irc.recv(2048).decode("UTF-8")
-        str_print = str_time = usr = msg = 'nil_str'
+        str_print = str_time = usr = usr_full = usr_loc = msg = msg_type = 'nil_str'
         if not data:
             break
 
@@ -59,12 +59,13 @@ def track_msgs(server, port, nick='guest50040', channel='#test', pw=''):
             irc.send(bytes(f"PONG {data.split()[1]}\r\n", "UTF-8"))
         else:
             # Print formatted msg to the console
-            str_print, str_time, usr, msg = parse_msg_string(data, channel)
+            #str_print, str_time, usr, msg = parse_msg_string(data, channel)
+            str_print, str_time, usr, usr_full, usr_loc, msg, msg_type = parse_msg_string(data, channel)
             print(str_print)
             
             # update db
-            keyVals = { 1:server, 2:port, 3:nick, 4:channel, 5:str_print,
-                        6:str_time, 7:usr, 8:msg, 9:data }
+            keyVals = { 1:server, 2:port, 3:nick, 4:channel, 5:str_print, 6:str_time,
+                        7:usr_full, 8:usr_loc, 9:usr, 10:msg, 11:msg_type, 12:data }
             lst_db_return, success = db_add_log(keyVals)
         
         if 'mariarahel' in usr:
@@ -85,7 +86,7 @@ def db_add_log(keyVals):
 def parse_msg_string(data, channel):
     # format user msg
     #str_msg_start = '!-'+nick+'@'
-    str_result = str_time = usr = msg = 'nil_parse'
+    str_result = str_time = usr = usr_full = usr_loc = msg = msg_type = 'nil_parse'
     
     # check for users joing / leaving channel
     if 'join' in data.lower() or 'part' in data.lower():
@@ -95,20 +96,37 @@ def parse_msg_string(data, channel):
     #elif (data[0] == ':' and data.find(str_msg_start) > -1):
     #    usr = data[1:data.index(str_msg_start):1]
     #elif 'privmsg' in data.lower() or (data[0] == ':' and data.find('@') > -1):
+    #elif 'privmsg' in data.lower():
+    #    # ex: data = ":r_!~r@ec2-18-188-176-66.us-east-2.compute.amazonaws.com PRIVMSG #test :t_msg"
+    #    usr = data[1:data.index('@'):1]
+    #    msg = data[data.rfind(':')+1:-1:1]
+    #    str_print = channel+'  <'+usr+'>    '+msg
+    #    str_time = get_time_now()
+    #    str_result = '['+str_time+'] '+str_print
+    #    # ex: str_result = "[10/09/23 23:07:35.42] #test  <r_!~r>    test"
     elif 'privmsg' in data.lower():
-        # ex: data = ":r_!~r@ec2-18-188-176-66.us-east-2.compute.amazonaws.com PRIVMSG #test :t_msg"
-        usr = data[1:data.index('@'):1]
-        msg = data[data.rfind(':')+1:-1:1]
+        # ex: data = ':Manga13!uid623229@id-623229.helmsley.irccloud.com PRIVMSG #atropa :@Cryptic420: I love teddy and love 2cc, I just think 2cc is underestimated by everyone 🧸\r\n'
+        parts = data.split()
+        usr_full = parts[0]
+        usr_full = usr_full[1:] # remove preceeding ':'
+        usr = usr_full[0:usr_full.index('@'):1]
+        usr_loc = usr_full[usr_full.index('@'):len(usr_full)]
+        
+        msg_type = parts[1]
+        ch_name = parts[2]
+        
+        msg = ' '.join(parts[3:len(parts)])
+        msg = msg[1:] # remove preceeding ':'
+        
         str_print = channel+'  <'+usr+'>    '+msg
         str_time = get_time_now()
         str_result = '['+str_time+'] '+str_print
-        # ex: str_result = "[10/09/23 23:07:35.42] #test  <r_!~r>    test"
         
     # handle default
     else:
         str_result = '['+get_time_now()+'] '+data
 
-    return str_result, str_time, usr, msg
+    return str_result, str_time, usr, usr_full, usr_loc, msg, msg_type
     
 #------------------------------------------------------------#
 #   DEFAULT SUPPORT                                          #
@@ -146,7 +164,7 @@ def go_main():
     try:
         # run tracker
         ch_lst = ["#test", "#pulsechain", "#atropa"]
-        track_msgs("irc.debian.org", 6667, 'hlog', ch_lst[2]) # IRC server, port, nick, channel & channel pw (if required)
+        track_msgs("irc.debian.org", 6667, 'hlog', ch_lst[0]) # IRC server, port, nick, channel & channel pw (if required)
     
         # Create and start two threads
         #ping_thread = threading.Thread(target=send_ping_commands)

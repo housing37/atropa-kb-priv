@@ -50,11 +50,15 @@ CREATE TABLE `log_irc` (
   `channel` varchar(255) NOT NULL, -- channel
   `str_print` TEXT NOT NULL, -- str_print
   `time_parse` varchar(255) DEFAULT 'nil_parse', -- str_time
+  `usr_full_parse` varchar(255) DEFAULT 'nil_parse', -- usr_full
+  `usr_loc_parse` varchar(255) DEFAULT 'nil_parse', -- usr_loc
   `usr_parse` varchar(255) DEFAULT 'nil_parse', -- usr
   `msg_parse` varchar(1024) DEFAULT NULL, -- msg
+  `msg_type_parse` varchar(1024) DEFAULT NULL, -- msg_type
   `raw_data` TEXT NOT NULL, -- data
   UNIQUE KEY `ID` (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci; -- emoji support
+-- ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 #===============================================#
 # legacy

@@ -65,8 +65,11 @@ CREATE PROCEDURE `irc_ADD_LOG`(
     IN p_channel VARCHAR(255),
     IN p_str_print TEXT,
     IN p_time_parse VARCHAR(255),
+    IN p_usr_full_parse VARCHAR(255),
+    IN p_usr_loc_parse VARCHAR(255),
     IN p_usr_parse VARCHAR(255),
     IN p_msg_parse VARCHAR(1024),
+    IN p_msg_type_parse VARCHAR(1024),
     IN p_raw_data TEXT)
 
 BEGIN
@@ -78,8 +81,11 @@ BEGIN
             channel,
             str_print,
             time_parse,
+            usr_full_parse,
+            usr_loc_parse,
             usr_parse,
             msg_parse,
+            msg_type_parse,
             raw_data
 		) VALUES (
             p_server,
@@ -88,8 +94,11 @@ BEGIN
             p_channel,
             p_str_print,
             p_time_parse,
+            p_usr_full_parse,
+            p_usr_loc_parse,
             p_usr_parse,
             p_msg_parse,
+            p_msg_type_parse,
             p_raw_data
 		);
 
