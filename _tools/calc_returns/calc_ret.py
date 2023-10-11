@@ -278,21 +278,14 @@ def go_calc(tok_name, argv_cnt, st_idx=-37, go_print=False):
 
     # get & organize meta for token address to mint
     d_mint = get_usd_val_for_tok_cnt(contract_address, mint_cnt, go_print)
-    #str_print_one = '\nUSD values...'
-    str_print_one = '\nMINTING requirements...'
-    str_print = '\nMINT requirement totals (w/ largest exit liq routes)...'
+
+    # sort print outs by token's total 'cost' to mint or largest LP 'liquid'
+    str_print_x1_0, str_print_0 = gen_tok_meta_str(lst_meta=lst_return, sort_by='cost', rev=False) # sort_by='cost|liquid'
+    str_print_x1_0 = '\nMINTING requirements... (w/ largest exit liq routes)'+str_print_x1_0
+    str_print_0 = '\nMINTING requirements... (sort by cost)'+str_print_0
+    str_print_x1_1, str_print_1 = gen_tok_meta_str(lst_meta=lst_return, sort_by='liquid', rev=False) # sort_by='cost|liquid'
+    str_print_1 = '\nMINTING requirements... (sort by liquidity)'+str_print_1
     
-    # sort print outs by token's total cost to mint
-    lst_ret_sorted = sorted(lst_return, key=lambda x: x['cost'], reverse=True)
-    for i in range(0, len(lst_ret_sorted)):
-        d = lst_ret_sorted[i]
-        if tok_name == 'bel':
-            str_print_one += f"\n tok: {d['symb']} ({d['name']}) _ x1 = ${float(d['price']):.8f}"
-            str_print += f"\n need: {d['symb']} ({d['name']}) _ x{d['cnt']} = ${d['cost']:,.8f}        _ liq: ${d['liquid']:,.2f} ({d['q_name']})"
-        else:
-            str_print_one += f"\n tok: {d['symb']} ({d['name']}) _ x1 = ${float(d['price']):.12f}"
-            str_print += f"\n need: {d['symb']} ({d['name']}) _ x{d['cnt']} = ${d['cost']:,.8f}        _ liq: ${d['liquid']:,.2f} ({d['q_name']})"
-        
     # finalize output & print
     usd_total_cost_to_buy = float(d_mint['price'])*mint_cnt
     usd_gross_ret = usd_total_cost_to_buy - usd_total_cost_to_mint
@@ -310,9 +303,9 @@ def go_calc(tok_name, argv_cnt, st_idx=-37, go_print=False):
         str_gross_ret_usd = f"${usd_gross_ret:,.2f}"
         str_gross_ret_x = f"{x_gross_ret:,.2f}x"
     
-    # print string totals
-    print('\n', cStrDivider, cStrDivider, f"TOKEN TOTALS: {d_mint['symb']}({d_mint['addr']})\n{str_print_one}\n{str_print}\n\nTOTAL USD cost to mint ({d_mint['symb']}) x{mint_cnt} = {str_tot_mint_usd}\n CURR USD price to buy/sell ({d_mint['symb']}) x{mint_cnt} = {str_tot_buy_usd}        _ liq: ${d_mint['liquid']:,.2f}\n\nTOTAL USD gross return (if execute) = {str_gross_ret_usd}\n RATIO gross return (if execute) = {str_gross_ret_x}", '', sep='\n')
-
+    # print string totals (str_print_x1_0, str_print_0, str_print_1)
+    print('\n', cStrDivider, cStrDivider, f"PRIZE TOKEN TOTALS: {d_mint['symb']}({d_mint['addr']})\n{str_print_x1_0}\n{str_print_0}\n{str_print_1}\n\nTOTAL USD cost to mint ({d_mint['symb']}) x{mint_cnt} = {str_tot_mint_usd}\n CURR USD price to buy/sell ({d_mint['symb']}) x{mint_cnt} = {str_tot_buy_usd}        _ liq: ${d_mint['liquid']:,.2f}\n\nTOTAL USD gross return (if execute) = {str_gross_ret_usd}\n RATIO gross return (if execute) = {str_gross_ret_x}", '', sep='\n')
+    
     # calculate returns
     #usd_prof_goal = 300000
     # check for valid valid_st_idx: 'lst_alt_tok_addr' idx of ST to acquire (-1 = last idx, -37 = default pass)
@@ -321,6 +314,7 @@ def go_calc(tok_name, argv_cnt, st_idx=-37, go_print=False):
     max_ratio_sell_off = 1 - (usd_total_cost_to_mint / usd_total_cost_to_buy)
     max_perc_sell_off = f'{max_ratio_sell_off*100:.2f}%'
     req_prof_mint_cnt = usd_prof_goal / usd_gross_ret
+    print('** DEAD CODE **')
     print(f'USD profit goal: {str_usd_prof_goal}\n MIN required mint cnt: {req_prof_mint_cnt:,.2f}\n MAX ratio drop (in profit): {max_ratio_sell_off}\n MAX % drop (in profit): {max_perc_sell_off}', cStrDivider, cStrDivider, sep='\n')
     
     # calc mint cnt needed to acquire 'usd_prof_goal' in PT
@@ -328,6 +322,20 @@ def go_calc(tok_name, argv_cnt, st_idx=-37, go_print=False):
     #req_prof_mint_cnt = usd_prof_goal / usd_gross_ret
     #print(f'USD profit goal: {str_usd_prof_goal}\n MINT COUNT required: {req_prof_mint_cnt:.2f}\n MAX ratio drop (in profit): {max_ratio_sell_off}\n MAX % drop (in profit): {max_perc_sell_off}' , cStrDivider, cStrDivider, sep='\n')
     
+def gen_tok_meta_str(lst_meta=[], sort_by='cost', rev=False): # sort_by='cost|liquid'
+    # sort print outs by token's total 'cost' to mint or largest LP 'liquid'
+    lst_ret_sorted = list(sorted(lst_meta, key=lambda x: x[sort_by], reverse=rev))
+    str_print_x1 = str_print = ''
+    for i in range(0, len(lst_ret_sorted)):
+        d = lst_ret_sorted[i]
+        if tok_name == 'bel':
+            str_print_x1 += f"\n tok: {d['symb']} ({d['name']}) _ x1 = ${float(d['price']):.8f}        _ liq: ${d['liquid']:,.2f} ({d['q_name']})"
+            str_print += f"\n need: {d['symb']} ({d['name']}) _ x{d['cnt']} = ${d['cost']:,.8f}        _ liq: ${d['liquid']:,.2f} ({d['q_name']})"
+        else:
+            str_print_x1 += f"\n tok: {d['symb']} ({d['name']}) _ x1 = ${float(d['price']):.12f}        _ liq: ${d['liquid']:,.2f} ({d['q_name']})"
+            str_print += f"\n need: {d['symb']} ({d['name']}) _ x{d['cnt']} = ${d['cost']:,.8f}        _ liq: ${d['liquid']:,.2f} ({d['q_name']})"
+    return str_print_x1, str_print
+            
 if __name__ == "__main__":
     ## start ##
     run_time_start = get_time_now()
