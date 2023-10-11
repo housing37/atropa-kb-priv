@@ -61,15 +61,15 @@ def track_msgs(server, port, nick='guest50040', channel='#test', pw=''):
             # Print formatted msg to the console
             str_print, str_time, usr, msg = parse_msg_string(data, channel)
             print(str_print)
+            
+            # update db
+            keyVals = { 1:server, 2:port, 3:nick, 4:channel, 5:str_print,
+                        6:str_time, 7:usr, 8:msg, 9:data }
+            lst_db_return, success = db_add_log(keyVals)
         
         if 'mariarahel' in usr:
             pass # TODO: notify admin
 
-        # update db
-        keyVals = { 1:server, 2:port, 3:nick, 4:channel, 5:str_print,
-                    6:str_time, 7:usr, 8:msg, 9:data }
-        lst_db_return, success = db_add_log(keyVals)
-        
     # Close the IRC connection when done
     irc.close()
 
