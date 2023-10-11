@@ -90,7 +90,7 @@ def find_comm_toks_lvl_1(pt_addr='nil_', pt_symb='nil_', pt_name='nil_', st_addr
     #print(f'\nlst_comm_toks: {lst_comm_toks}')
     #[print(f'{json.dumps(d, indent=4)}') for d in lst_comm_toks]
     
-    # get common pairs and print
+    # get common pairs (for route print)
     lst_comm_toks = []
     for d_pt in lst_pt_pair_toks:
         for d_st in lst_st_pair_toks:
@@ -111,7 +111,18 @@ def find_comm_toks_lvl_1(pt_addr='nil_', pt_symb='nil_', pt_name='nil_', st_addr
         str_rt = f'''   route: PT|({pt_symb}) -> lp|{d['pt_pair_addr']} (${d['pt_pair_liq']:,.2f}) -> T|({t_print})
            T|({t_print}) -> lp|{d['st_pair_addr']} (${d['st_pair_liq']:,.2f}) -> ST({st_symb})'''
         print(str_rt+'\n')
+
+def get_lps(t_addr='nil_', t_symb='nil_', t_name='nil_', d_print=True):
+    print('', cStrDivider, f'Getting pairs for T | {t_symb}: {t_addr} _ {get_time_now()}', cStrDivider, sep='\n')
+    lst_t_pair_toks = get_pairs_lst(t_addr, t_symb, d_print)
     
+    if d_print: print('', cStrDivider, f'Print pairs for T | {t_symb}: {t_addr} _ {get_time_now()}', cStrDivider, sep='\n')
+    if d_print: [print(d) for d in lst_t_pair_toks]
+    
+    # TODO: send_to_db(lst_t_pair_toks)
+    
+    return list(lst_t_pair_toks)
+
 #------------------------------------------------------------#
 #   DEFAULT SUPPORT                                          #
 #------------------------------------------------------------#
@@ -144,23 +155,54 @@ def go_main(run_default=True):
     addr_bear = '0xd6c31bA0754C4383A41c0e9DF042C62b5e918f6d'
     addr_a1a = '0x697fc467720B2a8e1b2F7F665d0e3f28793E65e8'
     addr_ying = '0x271197EFe41073681577CdbBFD6Ee1DA259BAa3c'
+    
+    addr_write = '0x26D5906c4Cdf8C9F09CBd94049f99deaa874fB0b' # ޖޮޔިސްދޭވޯހީ (write) $M price token
     addr_r = '0x557F7e30aA6D909Cfe8a229A4CB178ab186EC622'
+    addr_bear9 = '0x1f737F7994811fE994Fe72957C374e5cD5D5418A'
+    
     addr_wenti = '0xA537d6F4c1c8F8C41f1004cc34C00e7Db40179Cc' # '问题 (问题) _ wenti'
+    
+    addr_atrop = '0xCc78A0acDF847A2C1714D2A925bB4477df5d48a6' # 313 Atropa (AtropaContract) _ 'ATROPA'
+    addr_tsfi = '0x4243568Fa2bbad327ee36e06c16824cAd8B37819'
     #========================================================#
-                                
-    find_comm_toks_lvl_1(pt_addr=addr_bear,
-                            pt_symb='BEAR',
-                            st_addr=addr_wpls,
-                            st_symb='WPLS',
-                            d_print=True)
 
+    get_lps(t_addr=addr_tsfi,
+            t_symb='TSFi',
+            d_print=True)
+            
+    get_lps(t_addr=addr_atrop,
+            t_symb='ATROPA',
+            d_print=True)
+            
+    get_lps(t_addr=addr_bear,
+            t_symb='BEAR',
+            d_print=True)
+    get_lps(t_addr=addr_write,
+            t_symb='WRITE',
+            d_print=True)
+    get_lps(t_addr=addr_r,
+            t_symb='"R"',
+            d_print=True)
+    get_lps(t_addr=addr_bear9,
+            t_symb='BEAR9',
+            d_print=True)
+    
+#    find_comm_toks_lvl_1(pt_addr=addr_bear,
+#                            pt_symb='BEAR',
+#                            st_addr=addr_wpls,
+#                            st_symb='WPLS',
+#                            d_print=True)
+
+    print(cStrDivider, 'exit(1)', cStrDivider, sep='\n')
+    exit(1)
+    
     if not run_default:
     
         #addr_wenti = '0xA537d6F4c1c8F8C41f1004cc34C00e7Db40179Cc' # '问题 (问题) _ wenti'
         st0_addr = '0x52a4682880E990ebed5309764C7BD29c4aE22deB' # 2,000,000 유 (YuContract) _ (ì = EC9CA0)
         st1_addr = '0x347BC40503E0CE23fE0F5587F232Cd2D07D4Eb89' # 1 Di (DiContract) _ (ç¬¬ä½ = E7ACACE4BD9C)
         liq_tok_0 = '0xE63191967735C52f5de78CE2471759a9963Ce118' # 清导
-        liq_tok_1 = '0x26D5906c4Cdf8C9F09CBd94049f99deaa874fB0b' # ޖޮޔިސްދޭވޯހީ
+        liq_tok_1 = '0x26D5906c4Cdf8C9F09CBd94049f99deaa874fB0b' # ޖޮޔިސްދޭވޯހީ (write)
         find_comm_toks_lvl_1(pt_addr=addr_wenti,
                                 pt_symb='问题 (问题) _ wenti',
                                 st_addr=liq_tok_1,
