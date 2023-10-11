@@ -202,10 +202,13 @@ READ_ME = f'''
     *DESCRIPTION*
         track IRC with domain, port, channel
         formats and prints user messges
+        writes log to db
         
     *EXAMPLE EXECUTION*
-        $ python3 {__filename} -<nil> <nil>
-        $ python3 {__filename}
+        $ python3 {__filename} <usr|chan> <chan|usr>
+        $ python3 {__filename} hlog #test
+        $ python3 {__filename} #test hlog
+        $ python3 {__filename} -h
         
     *NOTE* INPUT PARAMS...
         nil
@@ -227,7 +230,7 @@ def read_cli_args():
     print('read_cli_args _ DONE\n')
     return sys.argv, len(sys.argv)
 
-def run_tracker(run_imports=False):
+def run_tracker(usr_name='hlog', chan_name='#test', run_imports=False):
     if run_imports:
         # run w/ maria_irc_100823, maria_irc_100823_2, maria_irc_100923_2 -> dt format = '[4:37pm]'
         lines = maria_irc_100823.str_alt.split('\n')
@@ -251,10 +254,13 @@ def run_tracker(run_imports=False):
         
     else:
         try:
-            pass
+            # run tracker
+            track_msgs("irc.debian.org", 6667, usr_name, chan_name) # IRC server, port, nick, channel & channel pw (if required)
+            
             # run tracker
             ch_lst = ["#test", "#pulsechain", "#atropa"]
-            track_msgs("irc.debian.org", 6667, 'hlog', ch_lst[2]) # IRC server, port, nick, channel & channel pw (if required)
+            #track_msgs("irc.debian.org", 6667, 'hlog', ch_lst[2]) # IRC server, port, nick, channel & channel pw (if required)
+            #track_msgs("irc.debian.org", 6667, 'hlog0', ch_lst[1]) # IRC server, port, nick, channel & channel pw (if required)
             
             # Create and start two threads
             #ping_thread = threading.Thread(target=send_ping_commands)
@@ -272,7 +278,17 @@ if __name__ == "__main__":
     
     ## exe ##
     #run_tracker(run_imports=True)
-    run_tracker(run_imports=False)
+    if '-h' in lst_argv_OG or '--help' in lst_argv_OG:
+        print(READ_ME)
+    elif len(lst_argv_OG) == 1:
+        run_tracker(run_imports=False)
+    else: # $ python3 track_irc.py <usr|chan> <chan|usr>
+        usr_name = lst_argv_OG[1]
+        ch_name = lst_argv_OG[2]
+        if lst_argv_OG[1].startswith('#'):
+            ch_name = lst_argv_OG[1]
+            usr_name = lst_argv_OG[2]
+        run_tracker(usr_name, ch_name, run_imports=False)
     
     ## end ##
     print(f'\n\nRUN_TIME_START: {run_time_start}\nRUN_TIME_END:   {get_time_now()}\n')
