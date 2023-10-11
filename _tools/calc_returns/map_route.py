@@ -34,7 +34,7 @@ def get_pairs_lst(tok_addr, tok_symb, plog=True):
                 # ignore pairs not from 'pulsechain'|'pulsex'
                 if v['chainId'] != 'pulsechain' or v['dexId'] != 'pulsex':
                     pair_skip_chain_cnt += 1
-                    if plog: print(f' ... found chainId ({v["chainId"]}) != "pulsechain" ... skip/continue _ {pair_skip_chain_cnt}')
+                    if plog: print(f' ... found chainId: "{v["chainId"]}" != "pulsechain" OR dexId: "{v["dexId"]}" != "pulsex" ... skip/continue _ {pair_skip_chain_cnt}')
                     continue
                     
                 pair_addr = v['pairAddress']
