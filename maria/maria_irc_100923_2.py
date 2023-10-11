@@ -185,10 +185,10 @@ str_alt = '''
 [5:34pm] pdizzle3:  Mariarahel where would you like to see people provide liquidity inside your ecosystem? Atropa pairs? pls pairs? Paring up of new coins as they are released?
 [5:35pm] Tetragrammaton: What'd i miss? ?
 '''
-
-lines = str_alt.split('\n')
-#filtered_lines = [line +'\n' for line in lines if 'mariarahel' in line]
-filtered_lines = [line +'\n' for line in lines if 'maria' in line]
-for l in filtered_lines:
-    print(l)
+if __name__ == "__main__":
+    lines = str_alt.split('\n')
+    #filtered_lines = [line +'\n' for line in lines if 'mariarahel' in line]
+    filtered_lines = [line +'\n' for line in lines if 'maria' in line]
+    for l in filtered_lines:
+        print(l)
 

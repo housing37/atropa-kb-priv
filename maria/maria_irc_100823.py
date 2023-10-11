@@ -389,8 +389,9 @@ str_alt = '''
 [3:59pm] TreasuryBill: When teddy gets renounced if it does will pull a tsfi lol 1B mkt
 '''
 
-lines = str_alt.split('\n')
-#filtered_lines = [line +'\n' for line in lines if 'mariarahel' in line]
-filtered_lines = [line +'\n' for line in lines if 'maria' in line]
-for l in filtered_lines:
-    print(l)
+if __name__ == "__main__":
+    lines = str_alt.split('\n')
+    #filtered_lines = [line +'\n' for line in lines if 'mariarahel' in line]
+    filtered_lines = [line +'\n' for line in lines if 'maria' in line]
+    for l in filtered_lines:
+        print(l)
