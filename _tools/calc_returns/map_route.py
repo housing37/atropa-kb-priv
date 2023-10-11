@@ -27,6 +27,7 @@ def get_pairs_lst(tok_addr, tok_symb, plog=True):
         url = f"https://api.dexscreener.io/latest/dex/tokens/{tok_addr}"
         response = requests.get(url)
         lst_pair_toks = []
+        pair_skip_chain_cnt = 0
         if response.status_code == 200:
             data = response.json()
             for k,v in enumerate(data['pairs']):
@@ -164,16 +165,18 @@ def go_main(run_default=True):
     
     addr_atrop = '0xCc78A0acDF847A2C1714D2A925bB4477df5d48a6' # 313 Atropa (AtropaContract) _ 'ATROPA'
     addr_tsfi = '0x4243568Fa2bbad327ee36e06c16824cAd8B37819'
+    addr_caw = '0xf3b9569F82B18aEf890De263B84189bd33EBe452'
     #========================================================#
 
+    get_lps(t_addr=addr_caw,
+            t_symb='CAW',
+            d_print=True)
     get_lps(t_addr=addr_tsfi,
             t_symb='TSFi',
             d_print=True)
-            
     get_lps(t_addr=addr_atrop,
             t_symb='ATROPA',
             d_print=True)
-            
     get_lps(t_addr=addr_bear,
             t_symb='BEAR',
             d_print=True)
