@@ -393,5 +393,5 @@ if __name__ == "__main__":
     filtered_lines = [line for line in lines if '] mariarahel:' in line or '] iTz_Black007:' in line]
     #filtered_lines = [line +'\n' for line in lines if '] mariarahel:' in line or '] iTz_Black007:' in line or '] midnightmadwalk:' in line]
     for l in filtered_lines:
-    print(l)
+        print(l)
 
