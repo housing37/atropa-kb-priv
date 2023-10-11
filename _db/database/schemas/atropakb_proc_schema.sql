@@ -64,7 +64,7 @@ CREATE PROCEDURE `irc_ADD_LOG`(
     IN p_nick_log VARCHAR(255),
     IN p_channel VARCHAR(255),
     IN p_str_print TEXT,
-    IN p_time_parse VARCHAR(255),
+    IN p_time_parse timestamp,
     IN p_usr_full_parse VARCHAR(255),
     IN p_usr_loc_parse VARCHAR(255),
     IN p_usr_parse VARCHAR(255),

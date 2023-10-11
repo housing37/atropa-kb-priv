@@ -90,7 +90,8 @@ def parse_msg_string(data, channel):
     
     # check for users joing / leaving channel
     if 'join' in data.lower() or 'part' in data.lower():
-        str_result = '['+get_time_now()+'] '+data
+        str_time = get_time_now()
+        str_result = '['+str_time+'] '+data
     
     # check for msg format
     #elif (data[0] == ':' and data.find(str_msg_start) > -1):
@@ -98,14 +99,15 @@ def parse_msg_string(data, channel):
     #elif 'privmsg' in data.lower() or (data[0] == ':' and data.find('@') > -1):
     #elif 'privmsg' in data.lower():
     #    # ex: data = ":r_!~r@ec2-18-188-176-66.us-east-2.compute.amazonaws.com PRIVMSG #test :t_msg"
+    #    # ex: str_result = "[10/09/23 23:07:35.42] #test  <r_!~r>    test"
     #    usr = data[1:data.index('@'):1]
     #    msg = data[data.rfind(':')+1:-1:1]
     #    str_print = channel+'  <'+usr+'>    '+msg
     #    str_time = get_time_now()
     #    str_result = '['+str_time+'] '+str_print
-    #    # ex: str_result = "[10/09/23 23:07:35.42] #test  <r_!~r>    test"
     elif 'privmsg' in data.lower():
         # ex: data = ':Manga13!uid623229@id-623229.helmsley.irccloud.com PRIVMSG #atropa :@Cryptic420: I love teddy and love 2cc, I just think 2cc is underestimated by everyone 🧸\r\n'
+        # ex: str_restul = '[10/11/23 09:19:15.32] #test  <n2_sales_force!~r>    @Cryptic420: I love teddy and love 2cc, I just think 2cc is underestimated by everyone 🧸'
         parts = data.split()
         usr_full = parts[0]
         usr_full = usr_full[1:] # remove preceeding ':'
@@ -121,10 +123,33 @@ def parse_msg_string(data, channel):
         str_print = channel+'  <'+usr+'>    '+msg
         str_time = get_time_now()
         str_result = '['+str_time+'] '+str_print
+    
+    elif 'Oct 08' in data: # run w/ 'maria_irc_100823*.py files
+        # ex: data = 'Oct 08 01:11:25 <PassportPowell>	Hi everyone'
+        parts = data.split()
+        time = parts[2]
+        usr = parts[3].replace('<','').replace('>','')
+        msg = parts[4:len(parts)]
+        
+        str_print = channel+'  <'+usr+'>    '+msg
+        str_time = '2023-10-08 '+time
+        str_result = '['+str_time+'] '+str_print
+
+    elif data.startswith('['): # run w/ 'maria_irc_10[09|10]23*.py files
+        # ex: data = '[4:41pm] mariarahel: reached zero confidence in doge'
+        parts = data.split()
+        time = parts[0].replace('[','').replace(']','')
+        usr = parts[1].replace(':','')
+        msg = parts[2:len(parts)]
+        
+        str_print = channel+'  <'+usr+'>    '+msg
+        str_time = '2023-10-09 '+time # note: change to 10-10 when running *_101023*.py files
+        str_result = '['+str_time+'] '+str_print
         
     # handle default
     else:
-        str_result = '['+get_time_now()+'] '+data
+        str_time = get_time_now()
+        str_result = '['+str_time+'] '+data
 
     return str_result, str_time, usr, usr_full, usr_loc, msg, msg_type
     
@@ -151,7 +176,7 @@ def wait_sleep(wait_sec : int, b_print=True): # sleep 'wait_sec'
     print(f'waited... {wait_sec} sec')
         
 def get_time_now(dt=True):
-    if dt: return datetime.now().strftime("%D %H:%M:%S.%f")[0:-4]
+    if dt: return datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[0:-4]
     return datetime.now().strftime("%H:%M:%S.%f")[0:-4]
     
 def read_cli_args():

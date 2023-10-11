@@ -49,7 +49,7 @@ CREATE TABLE `log_irc` (
   `nick_log` varchar(255) NOT NULL, -- nick
   `channel` varchar(255) NOT NULL, -- channel
   `str_print` TEXT NOT NULL, -- str_print
-  `time_parse` varchar(255) DEFAULT 'nil_parse', -- str_time
+  `time_parse` timestamp DEFAULT NULL, -- str_time
   `usr_full_parse` varchar(255) DEFAULT 'nil_parse', -- usr_full
   `usr_loc_parse` varchar(255) DEFAULT 'nil_parse', -- usr_loc
   `usr_parse` varchar(255) DEFAULT 'nil_parse', -- usr
