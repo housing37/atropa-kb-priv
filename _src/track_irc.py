@@ -271,8 +271,8 @@ if __name__ == "__main__":
     lst_argv_OG, argv_cnt = read_cli_args()
     
     ## exe ##
-    run_tracker(run_imports=True)
-    #run_tracker(run_imports=False)
+    #run_tracker(run_imports=True)
+    run_tracker(run_imports=False)
     
     ## end ##
     print(f'\n\nRUN_TIME_START: {run_time_start}\nRUN_TIME_END:   {get_time_now()}\n')
