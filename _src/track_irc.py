@@ -205,13 +205,13 @@ READ_ME = f'''
         writes log to db
         
     *EXAMPLE EXECUTION*
-        $ python3 {__filename} <usr|chan> <chan|usr>
+        $ python3 {__filename} <usr|chan> <chan|usr> -h|--help
         $ python3 {__filename} hlog #test
         $ python3 {__filename} #test hlog
-        $ python3 {__filename} -h
+        $ python3 {__filename} --help
         
     *NOTE* INPUT PARAMS...
-        nil
+        known channels = ["#test", "#pulsechain", "#atropa"]
 '''
 def wait_sleep(wait_sec : int, b_print=True): # sleep 'wait_sec'
     print(f'waiting... {wait_sec} sec')
