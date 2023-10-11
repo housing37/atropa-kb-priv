@@ -45,14 +45,14 @@ CREATE TABLE `log_irc` (
   `dt_updated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `dt_deleted` timestamp NULL DEFAULT NULL,
   `server` varchar(255) NOT NULL, -- server
-  `port` varchar(255) NOT NULL, -- plot
+  `port` varchar(255) NOT NULL, -- port
   `nick_log` varchar(255) NOT NULL, -- nick
   `channel` varchar(255) NOT NULL, -- channel
-  `str_print` BLOB NOT NULL, -- str_print
+  `str_print` TEXT NOT NULL, -- str_print
   `time_parse` varchar(255) DEFAULT 'nil_parse', -- str_time
   `usr_parse` varchar(255) DEFAULT 'nil_parse', -- usr
-  `msg_parse` BLOB DEFAULT NULL, -- msg
-  `raw_data` BLOB NOT NULL, -- data
+  `msg_parse` varchar(1024) DEFAULT NULL, -- msg
+  `raw_data` TEXT NOT NULL, -- data
   UNIQUE KEY `ID` (`id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 

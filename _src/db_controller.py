@@ -1,11 +1,8 @@
-__filename = 'db_controller.py'
 __fname = 'db_controller'
+__filename = __fname + '.py'
 cStrDivider = '#================================================================#'
 print('', cStrDivider, f'START _ {__filename}', cStrDivider, sep='\n')
 print(f'GO {__filename} -> starting IMPORTs and globals decleration')
-
-import sites_env #required: sites_env/__init__.py
-from tools import *
 
 '''
 # https://mariadb.com/resources/blog/how-to-connect-python-programs-to-mariadb/
@@ -17,13 +14,14 @@ from tools import *
         $ python3.7 -m pip install PyMySQL
     '''
 import pymysql.cursors
+import env
 
-logenter(__filename, " IMPORTs complete:- STARTING -> file '{__filename}' . . . ", simpleprint=True, tprint=True)
+print(" IMPORTs complete:- STARTING -> file '{__filename}' . . . ")
 
-dbHost = sites_env.dbHost #read_env()
-dbName = sites_env.dbName #read_env()
-dbUser = sites_env.dbUser #read_env()
-dbPw = sites_env.dbPw     #read_env()
+dbHost = env.dbHost #read_env()
+dbName = env.dbName #read_env()
+dbUser = env.dbUser #read_env()
+dbPw = env.dbPw     #read_env()
 
 db = None
 cur = None
@@ -36,7 +34,7 @@ strErrConn = "FAILED to connect to db"
 #====================================================#
 def open_database_connection():
     funcname = f'({__filename}) open_database_connection'
-    logenter(funcname, simpleprint=False, tprint=False)
+    #print(funcname)
 
     # Connect to DB #
     try:
@@ -55,9 +53,9 @@ def open_database_connection():
             logerror(funcname, "database cursor received (cur) == None; returning None", "FAILED to connect to db", simpleprint=False)
             return -1
 
-        loginfo(funcname, f' >> CONNECTED >> to db {dbName} successfully!', simpleprint=True)
+        #print(funcname, f' >> CONNECTED >> to db {dbName} successfully!')
     except Exception as e:
-        logerror(funcname, "exception hit", "FAILED to connect to db", simpleprint=False)
+        print(funcname, " exception hit", "FAILED to connect to db")
         printException(e, debugLvl=2)
         return -1
     finally:
@@ -65,11 +63,11 @@ def open_database_connection():
 
 def close_database_connection():
     funcname = f'({__filename}) close_database_connection'
-    logenter(funcname, simpleprint=False, tprint=False)
+    #print(funcname)
 
     global db, cur
     if db == None:
-        logerror(funcname, "global var db == None; returning", "FAILED to close db connection", simpleprint=False)
+        print(funcname, "global var db == None; returning", "FAILED to close db connection")
         return
 
     db.commit()
@@ -77,11 +75,11 @@ def close_database_connection():
 
     db = None
     cur = None
-    loginfo(funcname, ' >> CLOSED >> db successfully!', simpleprint=True)
+    #print(funcname, ' >> CLOSED >> db successfully!')
 
 def exeStoredProcedure(argsTup, strProc, strOutParam=None, exe_select=False):
     funcname = f'({__filename}) exeStoredProcedure({argsTup}, {strProc}, {strOutParam}, exe_select={exe_select})'
-    logenter(funcname, simpleprint=False, tprint=True)
+    #print(funcname)
 
     #============ open db connection ===============#
     global cur
@@ -89,7 +87,7 @@ def exeStoredProcedure(argsTup, strProc, strOutParam=None, exe_select=False):
         return -1
 
     if cur == None:
-        logerror(funcname, strErrCursor, strErrConn, simpleprint=False)
+        print(funcname, strErrCursor, strErrConn)
         return -1
 
     #============ perform db query ===============#
@@ -107,11 +105,11 @@ def exeStoredProcedure(argsTup, strProc, strOutParam=None, exe_select=False):
             rowCnt = cur.execute(f"select {strOutParam};") if strOutParam != None else -1
             rows = cur.fetchall()
 
-        loginfo(funcname, f" >> RESULT 'call {strProc}' procArgs: {procArgs};", simpleprint=True)
-        loginfo(funcname, f" >> RESULT 'call {strProc}' rowCnt: {rowCnt};", simpleprint=True)
-        #loginfo(funcname, f' >> Printing... rows', *rows, simpleprint=True)
-        getPrintListStr(lst=rows, strListTitle='  >> Printing... rows', useEnumerate=True, goIdxPrint=True, goPrint=True)
-        #loginfo(funcname, f' >> Printing... rows[0]:', rows[0], simpleprint=True)
+        #print(funcname, f" >> RESULT 'call {strProc}' procArgs: {procArgs};")
+        #print(funcname, f" >> RESULT 'call {strProc}' rowCnt: {rowCnt};")
+        #print(funcname, f' >> Printing... rows', *rows)
+        #getPrintListStr(lst=rows, strListTitle='  >> Printing... rows', useEnumerate=True, goIdxPrint=True, goPrint=True)
+        #print(funcname, f' >> Printing... rows[0]:', rows[0])
         
         result = None
         if strOutParam == None: # stored proc invoked w/o OUT param
@@ -122,9 +120,9 @@ def exeStoredProcedure(argsTup, strProc, strOutParam=None, exe_select=False):
                 result = int(rows[0][strOutParam])
     except Exception as e: # ref: https://docs.python.org/2/tutorial/errors.html
         #============ handle db exceptions ===============#
-        strE_0 = f"Exception hit... \nFAILED to call '{funcname}'; \n\nprocArgs: {procArgs}; \n\nreturning -1"
+        strE_0 = f"\n*** Exception hit ***... \nFAILED to call '{funcname}'; \n\nprocArgs: {procArgs}; \n\nreturning -1"
         strE_1 = f"\n __Exception__: \n{e}\n __Exception__"
-        logerror(funcname, strE_0, strE_1, simpleprint=False)
+        print(funcname, strE_0, strE_1)
         result = -1
     finally:
         #============ close db connection ===============#
@@ -133,7 +131,7 @@ def exeStoredProcedure(argsTup, strProc, strOutParam=None, exe_select=False):
         
 def exe_stored_proc(iUserID=-1, strProc='', dictKeyVals={}):
     funcname = f'({__filename}) exe_stored_proc(iUserID={iUserID}, strProc={strProc}, dictKeyVals={dictKeyVals})'
-    logenter(funcname, simpleprint=False, tprint=True)
+    #print(funcname)
 
     argsTup = () # generate tuple of vals from dictKeyVals (dict order maintained in python3.7+)
     argsTup = [argsTup + (dictKeyVals[k],) for k in dictKeyVals]
@@ -142,7 +140,7 @@ def exe_stored_proc(iUserID=-1, strProc='', dictKeyVals={}):
     
 def exe_select_stat(iUserID=-1, strSel='', dictKeyVals={}):
     funcname = f'({__filename}) exe_select_stat(iUserID={iUserID}, strProc={strProc}, dictKeyVals={dictKeyVals})'
-    logenter(funcname, simpleprint=False, tprint=True)
+    print(funcname)
     
     argsTup = () # generate tuple of vals from dictKeyVals (dict order maintained in python3.7+)
     argsTup = [argsTup + (dictKeyVals[k],) for k in dictKeyVals]
@@ -159,12 +157,12 @@ def sel_2_tbl_query(d_col_val_where_1={},
                         str_tbl_as_2='',
                         bGetAll=False):
     funcname = f'({__filename}) sel_2_tbl_query(d_col_val_where_1={d_col_val_where_1}, d_col_val_where_2={d_col_val_where_2}, lst_col_sel_1={lst_col_sel_1}, lst_col_sel_2={lst_col_sel_2}, str_tbl_as_1={str_tbl_as_1}, str_tbl_as_2={str_tbl_as_2}, bGetAll={bGetAll})'
-    logenter(funcname, simpleprint=False, tprint=True)
+    print(funcname)
 
     # generate string using lst_col_sel_1|2:
     #   EX: 'SELECT <columns> FROM candidates cand INNER JOIN candidate_apps capp'
     strSel = ''
-    loginfo(funcname, f'strSel: {strSel}', simpleprint=True)
+    print(funcname, f'strSel: {strSel}')
     if bGetAll:
         #logalert(funcname, f"bGetAll: {bGetAll}", simpleprint=False)
         strSel = f'SELECT {str_tbl_as_1}.*, {str_tbl_as_2}.*, {str_tbl_as_1}.id AS {str_tbl_as_1}_id, {str_tbl_as_2}.id AS {str_tbl_as_2}_id FROM {str_tbl_1} {str_tbl_as_1} INNER JOIN {str_tbl_2} {str_tbl_as_2} ON {str_tbl_as_2}.fk_{str_tbl_as_1}_id = {str_tbl_as_1}.id'
@@ -194,7 +192,7 @@ def sel_2_tbl_query(d_col_val_where_1={},
         strSel = f"{strSel} FROM {str_tbl_1} {str_tbl_as_1} JOIN {str_tbl_2} {str_tbl_as_2} ON {str_tbl_as_2}.fk_{str_tbl_as_1}_id = {str_tbl_as_1}.id"
 
     # print current strSel
-    loginfo(funcname, f'strSel: {strSel}', simpleprint=True)
+    print(funcname, f'strSel: {strSel}')
     
     # check / init WHERE clause
     logalert(funcname, f"d_col_val_where_1: {d_col_val_where_1}\n", f"d_col_val_where_2: {d_col_val_where_2}", simpleprint=False)
@@ -229,13 +227,13 @@ def sel_2_tbl_query(d_col_val_where_1={},
                     strSel = f"{strSel} {str_tbl_as_2}.{k} = '{d_col_val_where_2[key]}'"
                 
     # print current strSel
-    loginfo(funcname, f'strSel: {strSel}', simpleprint=True)
+    print(funcname, f'strSel: {strSel}')
     
     # append end query sorting
     strSel = f"{strSel} ORDER BY {str_tbl_as_2}_id DESC;"
     
     # print current strSel
-    loginfo(funcname, f'strSel: {strSel}', simpleprint=True)
+    print(funcname, f'strSel: {strSel}')
     
     argsTup = (d_col_val_where_1, d_col_val_where_2, lst_col_sel_1, lst_col_sel_2, bGetAll)
     strProc = strSel
@@ -245,9 +243,32 @@ def sel_2_tbl_query(d_col_val_where_1={},
 #===========================================================#
 # db_controller support (migrated from gms_post)
 #===========================================================#
+def getPrintListStr(lst=[], strListTitle='list', useEnumerate=True, goIdxPrint=False, goPrint=True):
+    strGoIndexPrint = None
+    if goIdxPrint:
+        strGoIndexPrint = '(w/ indexes)'
+    else:
+        strGoIndexPrint = '(w/o indexes)'
+
+    lst_str = None
+    if useEnumerate:
+        if goIdxPrint:
+            lst_str = [f'{i}: {v}' for i,v in enumerate(lst)]
+        else:
+            lst_str = [f'{v}' for i,v in enumerate(lst)]
+    else:
+        if goIdxPrint:
+            lst_str = [f'{lst.index(x)}: {x}' for x in lst]
+        else:
+            lst_str = [f'{x}' for x in lst]
+
+    lst_len = len(lst)
+    print(f'{strListTitle} _ {strGoIndexPrint} _ count {lst_len}:', *lst_str, sep = "\n ")
+    return lst_str
+    
 def procValidatePIN(strPIN='-1'):
     funcname = f'({__filename}) procValidatePIN(strPIN={strPIN})'
-    logenter(funcname, simpleprint=False, tprint=True)
+    print(funcname)
 
     argsTup = (strPIN, 'p_Result')
     strProc = 'ValidatePIN'
@@ -256,7 +277,7 @@ def procValidatePIN(strPIN='-1'):
 
 def procGetEmpData(strPIN=''):
     funcname = f'({__filename}) procGetEmpData({strPIN})'
-    logenter(funcname, simpleprint=False, tprint=True)
+    print(funcname)
 
     argsTup = (strPIN,)
     strProc = 'GetEmpDataFrom_PIN'
@@ -273,6 +294,6 @@ def isTypeInteger(varCheck=None):
 #====================================================#
 #====================================================#
 
-loginfo(__filename, f"\n CLASSES & FUNCTIONS initialized:- STARTING -> additional '{__filename}' run scripts (if applicable) . . .", simpleprint=True)
-loginfo(__filename, f"\n  DONE Executing additional '{__filename}' run scripts ...", simpleprint=False)
+print(f"\n CLASSES & FUNCTIONS initialized:- STARTING -> additional '{__filename}' run scripts (if applicable) . . .")
+print(f"\n  DONE Executing additional '{__filename}' run scripts ...")
 print('#======================================================================#')

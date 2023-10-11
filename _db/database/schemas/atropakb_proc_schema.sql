@@ -12,7 +12,7 @@ CREATE PROCEDURE `liq_ADD_LOG`(
     IN p_liq_usd VARCHAR(32),
     IN p_price_usd VARCHAR(32),
     IN p_dex_name VARCHAR(64),
-    IN p_dex_vers VARCHAR(10)
+    IN p_dex_vers VARCHAR(10))
 BEGIN
 	-- add event log
 	INSERT INTO log_liquidity (
@@ -59,37 +59,38 @@ DELIMITER ;
 DELIMITER $$
 drop PROCEDURE if exists irc_ADD_LOG;
 CREATE PROCEDURE `irc_ADD_LOG`(
-    IN p_raw_data BLOB,
-    IN p_str_print BLOB,
-    IN p_time_parse VARCHAR(255),
-    IN p_usr_parse VARCHAR(255),
-    IN p_msg_parse BLOB,
     IN p_server VARCHAR(255),
     IN p_port VARCHAR(255),
     IN p_nick_log VARCHAR(255),
-    IN p_channel VARCHAR(255)
+    IN p_channel VARCHAR(255),
+    IN p_str_print TEXT,
+    IN p_time_parse VARCHAR(255),
+    IN p_usr_parse VARCHAR(255),
+    IN p_msg_parse VARCHAR(1024),
+    IN p_raw_data TEXT)
+
 BEGIN
 	-- add event log
 	INSERT INTO log_irc (
-            raw_data,
+            `server`,
+            `port`,
+            nick_log,
+            channel,
             str_print,
             time_parse,
             usr_parse,
             msg_parse,
-            server,
-            port,
-            nick_log,
-            channel
+            raw_data
 		) VALUES (
-            p_raw_data,
+            p_server,
+            p_port,
+            p_nick_log,
+            p_channel,
             p_str_print,
             p_time_parse,
             p_usr_parse,
             p_msg_parse,
-            p_server,
-            p_port,
-            p_nick_log,
-            p_channel
+            p_raw_data
 		);
 
 	-- RETURN

@@ -11,6 +11,7 @@ import sys, os, time
 from datetime import datetime
 import requests, json
 import socket, threading
+import db_controller as dbc
 #from web3 import Web3
 #import inspect # this_funcname = inspect.stack()[0].function
 #parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -53,7 +54,7 @@ def track_msgs(server, port, nick='guest50040', channel='#test', pw=''):
 
         # check for ping
         if data.split()[0] == "PING":
-            str_print = '['+get_time_now()+'] '+data.rstrip()+' ... PONG'
+            str_print = '['+get_time_now()+'] '+data.rstrip()+' ... PONG\n'
             print(str_print)
             irc.send(bytes(f"PONG {data.split()[1]}\r\n", "UTF-8"))
         else:
@@ -63,24 +64,24 @@ def track_msgs(server, port, nick='guest50040', channel='#test', pw=''):
         
         if 'mariarahel' in usr:
             pass # TODO: notify admin
-            
-        # TODO: ... design / integrate DB
-        #send_to_db(data, str_print, str_time, usr, msg, server, port, nick, channel)
-        #=====================================================#
+
         # update db
-        #=====================================================#
-        #if kPin in keyVals: del keyVals[kPin]
-        keyVals = { 1:usr_id_full, 2:usr_id_name, 3:usr_id_tag, 4:dt_start, 5:voice_channel.id, 6:chan_evt,
-                    7:chan_instr_exists.id, 8:chan_instr, 9:evt_name, 10:evt_descr, 11:evt_status, 12:reward_pts }
-        dbProcResult = exe_stored_proc(-1, 'disc_ADD_CHAN_EVT', keyVals)
-        bErr, jsonResp = prepJsonResponseDbProcErr(dbProcResult, tprint=True)
-        if bErr:
-            logalert(funcname, "bErr from 'disc_ADD_CHAN_EVT'", f"info:\n {dbProcResult}", simpleprint=False)
-            await interaction.response.send_message(f'cmd: "{str_cmd}"; channels created successfully, but db err occurred: jsonResp -> {jsonResp}')
+        keyVals = { 1:server, 2:port, 3:nick, 4:channel, 5:str_print,
+                    6:str_time, 7:usr, 8:msg, 9:data }
+        lst_db_return, success = db_add_log(keyVals)
         
     # Close the IRC connection when done
     irc.close()
 
+def db_add_log(keyVals):
+    #if kPin in keyVals: del keyVals[kPin]
+    db_return = dbc.exe_stored_proc(-1, 'irc_ADD_LOG', keyVals)
+    bErr = 'status' not in db_return[0] or db_return[0]['status'] != 'success'
+    if bErr:
+        print('\n\n*** DB ERROR ***', " _ bErr from 'irc_ADD_LOG'", f"info:\n {db_return}", '*** DB ERROR ***\n', sep='\n')
+        return db_return, False
+    return db_return, True
+    
 def parse_msg_string(data, channel):
     # format user msg
     #str_msg_start = '!-'+nick+'@'
@@ -93,7 +94,8 @@ def parse_msg_string(data, channel):
     # check for msg format
     #elif (data[0] == ':' and data.find(str_msg_start) > -1):
     #    usr = data[1:data.index(str_msg_start):1]
-    elif 'privmsg' in data.lower() or (data[0] == ':' and data.find('@') > -1):
+    #elif 'privmsg' in data.lower() or (data[0] == ':' and data.find('@') > -1):
+    elif 'privmsg' in data.lower():
         # ex: data = ":r_!~r@ec2-18-188-176-66.us-east-2.compute.amazonaws.com PRIVMSG #test :t_msg"
         usr = data[1:data.index('@'):1]
         msg = data[data.rfind(':')+1:-1:1]
