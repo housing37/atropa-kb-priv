@@ -12,14 +12,6 @@ from datetime import datetime
 import requests, json
 import socket, threading
 import db_controller as dbc
-
-# dt format = 'Oct 08' & 'Oct 09'
-import maria_irc_100923, maria_irc_100923_tot
-
-# dt format = '[4:37am]' & '[12:37pm]'
-import maria_irc_100823, maria_irc_100823_2, maria_irc_100923_2
-import maria_irc_101023_0, maria_irc_101023_1
-
 #from web3 import Web3
 #import inspect # this_funcname = inspect.stack()[0].function
 #parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -137,6 +129,7 @@ def parse_msg_string(data, channel, flag=-1):
         if flag == 0: str_time = '2023-10-08 '+time # run w/ maria_irc_100823, maria_irc_100823_2
         if flag == 1: str_time = '2023-10-09 '+time # run w/ maria_irc_100923_2
         if flag == 2: str_time = '2023-10-10 '+time # run w/ maria_irc_101023_0, maria_irc_101023_1
+        if flag == 3: str_time = '2023-10-11 '+time # run w/ maria_irc_101123_0_a, maria_irc_101123_0_pc
         str_result = '['+str_time+'] '+str_print
         
     # check for users joing / leaving channel
@@ -232,6 +225,20 @@ def read_cli_args():
 
 def run_tracker(usr_name='hlog', chan_name='#test', run_imports=False):
     if run_imports:
+        # dt format = 'Oct 08' & 'Oct 09'
+        import maria_irc_100923, maria_irc_100923_tot
+
+        # dt format = '[4:37am]' & '[12:37pm]'
+        import maria_irc_100823, maria_irc_100823_2, maria_irc_100923_2
+        import maria_irc_101023_0, maria_irc_101023_1
+        import maria_irc_101123_0_a, maria_irc_101123_0_pc
+        
+        # run w/ maria_irc_100923, maria_irc_100923_tot -> dt format = 'Oct 08'
+        lines = maria_irc_100923.str_alt.split('\n')
+        for line in lines: import_msg("irc.debian.org", 6667, 'hlog_import', '#atropa', line)
+        lines = maria_irc_100923_tot.str_alt.split('\n')
+        for line in lines: import_msg("irc.debian.org", 6667, 'hlog_import', '#atropa', line)
+        
         # run w/ maria_irc_100823, maria_irc_100823_2, maria_irc_100923_2 -> dt format = '[4:37pm]'
         lines = maria_irc_100823.str_alt.split('\n')
         for line in lines: import_msg("irc.debian.org", 6667, 'hlog_import', '#atropa', line, flag=0)
@@ -246,12 +253,12 @@ def run_tracker(usr_name='hlog', chan_name='#test', run_imports=False):
         lines = maria_irc_101023_1.str_alt.split('\n')
         for line in lines: import_msg("irc.debian.org", 6667, 'hlog_import', '#atropa', line, flag=2)
         
-        # run w/ maria_irc_100923, maria_irc_100923_tot -> dt format = 'Oct 08'
-        lines = maria_irc_100923.str_alt.split('\n')
-        for line in lines: import_msg("irc.debian.org", 6667, 'hlog_import', '#atropa', line)
-        lines = maria_irc_100923_tot.str_alt.split('\n')
-        for line in lines: import_msg("irc.debian.org", 6667, 'hlog_import', '#atropa', line)
-        
+        # run w/ maria_irc_101123_0_a, maria_irc_101123_0_pc -> dt format = '[4:37pm]'
+        lines = maria_irc_101123_0_a.str_alt.split('\n')
+        for line in lines: import_msg("irc.debian.org", 6667, 'hlog_import', '#atropa', line, flag=3)
+        lines = maria_irc_101123_0_pc.str_alt.split('\n')
+        for line in lines: import_msg("irc.debian.org", 6667, 'hlog_import', '#pulsechain', line, flag=3)
+
     else:
         try:
             # run tracker
@@ -281,7 +288,8 @@ if __name__ == "__main__":
     if '-h' in lst_argv_OG or '--help' in lst_argv_OG:
         print(READ_ME)
     elif len(lst_argv_OG) == 1:
-        run_tracker(run_imports=False)
+        #run_tracker(run_imports=True)
+        run_tracker(run_imports=False) # default hlog & #test
     else: # $ python3 track_irc.py <usr|chan> <chan|usr>
         usr_name = lst_argv_OG[1]
         ch_name = lst_argv_OG[2]
