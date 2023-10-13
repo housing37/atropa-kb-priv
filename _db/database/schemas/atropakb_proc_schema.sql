@@ -1,60 +1,162 @@
 DELIMITER $$
-drop PROCEDURE if exists liq_ADD_LOG;
-CREATE PROCEDURE `liq_ADD_LOG`(
+drop PROCEDURE if exists tok_pair_ADD_LOG;
+CREATE PROCEDURE `tok_pair_ADD_LOG`(
     IN p_chain_id VARCHAR(255),
-    IN p_bt_name VARCHAR(255),
-    IN p_bt_symb VARCHAR(255),
-    IN p_bt_addr VARCHAR(255),
-    IN p_qt_name VARCHAR(255),
-    IN p_qt_symb VARCHAR(255),
-    IN p_qt_addr VARCHAR(255),
-    IN p_pair_addr VARCHAR(255),
-    IN p_liq_usd VARCHAR(32),
-    IN p_price_usd VARCHAR(32),
     IN p_dex_name VARCHAR(64),
-    IN p_dex_vers VARCHAR(10))
+    IN p_dex_vers VARCHAR(10),
+    IN p_tok_name VARCHAR(255),
+    IN p_tok_symb VARCHAR(255),
+    IN p_tok_addr VARCHAR(255),
+    IN p_tok_price_usd VARCHAR(32),
+    IN p_liq_usd VARCHAR(32),
+    IN p_pair_tok_type VARCHAR(11),
+    IN p_pair_addr VARCHAR(255),
+    IN p_pair_tok_name VARCHAR(255),
+    IN p_pair_tok_symb VARCHAR(255),
+    IN p_pair_tok_addr VARCHAR(255))
 BEGIN
-	-- add event log
-	INSERT INTO log_liquidity (
-            chain_id,
-            bt_name,
-            bt_symb,
-            bt_addr,
-            qt_name,
-            qt_symb,
-            qt_addr,
-            pair_addr,
-            liq_usd,
-            price_usd,
-            dex_name,
-            dex_vers
-		) VALUES (
-            p_chain_id,
-            p_bt_name,
-            p_bt_symb,
-            p_bt_addr,
-            p_qt_name,
-            p_qt_symb,
-            p_qt_addr,
-            p_pair_addr,
-            p_liq_usd,
-            p_price_usd,
-            p_dex_name,
-            p_dex_vers
-		);
+    -- set defaults
+    set @v_liq_delta = 0;
+    set @v_go_insert = TRUE;
+    
+    -- check if LP address has already been logged
+    select count(*) from log_token_pairs where pair_addr = p_pair_addr into @v_cnt;
+    
+    -- NOTE: sanity check to prevent dup pair_addr logging (due to multiple LP to BT/QT combos)
+    -- if LP address (pair_addr) already has a previous log
+    --  check if insert should occur, based on curr vs. prev liquidity
+    if @v_cnt > 0 then
+        -- get liq_usd from LP address latest log
+        select liq_usd
+            from log_token_pairs
+            where pair_addr = p_pair_addr
+            order by id desc
+            limit 1
+            into @v_prev_liq;
+            
+        -- if new liq_usd is different than old liq_usd
+        if p_liq_usd != @v_prev_liq then
+            -- get the difference, and proceed with new insert
+            set @v_liq_delta = CAST(p_liq_usd AS FLOAT) - CAST(@v_prev_liq AS FLOAT);
+        else
+            -- else, cancel new insert (found no change to log)
+            set @v_go_insert = FALSE;
+        end if;
+    end if;
+    
+    -- perform new insert if needed
+    if @v_go_insert = TRUE then
+        -- add event log
+        INSERT INTO log_token_pairs (
+                chain_id,
+                dex_name,
+                dex_vers,
+                tok_name,
+                tok_symb,
+                tok_addr,
+                tok_price_usd,
+                liq_usd,
+                liq_usd_delta,
+                pair_tok_type,
+                pair_addr,
+                pair_tok_name,
+                pair_tok_symb,
+                pair_tok_addr
+            ) VALUES (
+                p_chain_id,
+                p_dex_name,
+                p_dex_vers,
+                p_tok_name,
+                p_tok_symb,
+                p_tok_addr,
+                p_tok_price_usd,
+                p_liq_usd,
+                @v_liq_delta,
+                p_pair_tok_type,
+                p_pair_addr,
+                p_pair_tok_name,
+                p_pair_tok_symb,
+                p_pair_tok_addr
+            );
 
-	-- RETURN
-	SELECT LAST_INSERT_ID() into @new_log_id;
-	SELECT dt_updated,
-				'success' as `status`,
-				'added new liquidity event log' as info,
-				@new_log_id as new_log_id,
-				p_pair_addr as pair_addr,
-                p_bt_addr as bt_addr
-		FROM log_liq
-		WHERE id = @new_log_id;
+        -- RETURN
+        SELECT LAST_INSERT_ID() into @new_log_id;
+        SELECT dt_updated,
+                    'success' as `status`,
+                    'added new liquidity event log' as info,
+                    @new_log_id as new_log_id,
+                    p_pair_addr as pair_addr,
+                    p_liq_usd as liq_usd
+            FROM log_token_pairs
+            WHERE id = @new_log_id;
+    else
+        -- RETURN
+        SELECT 'failed' as `status`,
+            'CANCELED add liquidity log; found NO CHANGE in liq to log; p_liq_usd == @v_prev_liq' as info,
+            p_pair_addr as pair_addr,
+            p_liq_usd as liq_usd,
+            @v_prev_liq as prev_liq_usd;
+    end if;
 END $$
 DELIMITER ;
+
+-- DELIMITER $$
+-- drop PROCEDURE if exists liq_ADD_LOG;
+-- CREATE PROCEDURE `liq_ADD_LOG`(
+--     IN p_chain_id VARCHAR(255),
+--     IN p_bt_name VARCHAR(255),
+--     IN p_bt_symb VARCHAR(255),
+--     IN p_bt_addr VARCHAR(255),
+--     IN p_qt_name VARCHAR(255),
+--     IN p_qt_symb VARCHAR(255),
+--     IN p_qt_addr VARCHAR(255),
+--     IN p_pair_addr VARCHAR(255),
+--     IN p_liq_usd VARCHAR(32),
+--     IN p_price_usd VARCHAR(32),
+--     IN p_dex_name VARCHAR(64),
+--     IN p_dex_vers VARCHAR(10))
+-- BEGIN
+-- 	-- add event log
+-- 	INSERT INTO log_liquidity (
+--             chain_id,
+--             bt_name,
+--             bt_symb,
+--             bt_addr,
+--             qt_name,
+--             qt_symb,
+--             qt_addr,
+--             pair_addr,
+--             liq_usd,
+--             price_usd,
+--             dex_name,
+--             dex_vers
+-- 		) VALUES (
+--             p_chain_id,
+--             p_bt_name,
+--             p_bt_symb,
+--             p_bt_addr,
+--             p_qt_name,
+--             p_qt_symb,
+--             p_qt_addr,
+--             p_pair_addr,
+--             p_liq_usd,
+--             p_price_usd,
+--             p_dex_name,
+--             p_dex_vers
+-- 		);
+
+-- 	-- RETURN
+-- 	SELECT LAST_INSERT_ID() into @new_log_id;
+-- 	SELECT dt_updated,
+-- 				'success' as `status`,
+-- 				'added new liquidity event log' as info,
+-- 				@new_log_id as new_log_id,
+-- 				p_pair_addr as pair_addr,
+--                 p_bt_addr as bt_addr
+-- 		FROM log_liq
+-- 		WHERE id = @new_log_id;
+-- END $$
+-- DELIMITER ;
 
 DELIMITER $$
 drop PROCEDURE if exists irc_ADD_LOG;
