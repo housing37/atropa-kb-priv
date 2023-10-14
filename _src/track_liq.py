@@ -197,11 +197,11 @@ def go_main():
             'tsfi':'0x4243568Fa2bbad327ee36e06c16824cAd8B37819',
             'caw':'0xf3b9569F82B18aEf890De263B84189bd33EBe452',
             
-            'wenit':'0xA537d6F4c1c8F8C41f1004cc34C00e7Db40179Cc', # '问题 (问题) _ wenti'
+            'wenti':'0xA537d6F4c1c8F8C41f1004cc34C00e7Db40179Cc', # '问题 (问题) _ wenti'
             'Yu':'0x52a4682880E990ebed5309764C7BD29c4aE22deB', # 2,000,000 유 (YuContract) _ (ì = EC9CA0)
             'Di':'0x347BC40503E0CE23fE0F5587F232Cd2D07D4Eb89', # 1 Di (DiContract) _ (ç¬¬ä½ = E7ACACE4BD9C)
             '清导':'0xE63191967735C52f5de78CE2471759a9963Ce118', # 清导
-            'write':'0x26D5906c4Cdf8C9F09CBd94049f99deaa874fB0b', # ޖޮޔިސްދޭވޯހީ (write)
+            'write':'0x26D5906c4Cdf8C9F09CBd94049f99deaa874fB0b', # ޖޮޔިސްދޭވޯހީ (write) $M price token
         
             'bond':'0x25d53961a27791B9D8b2d74FB3e937c8EAEadc38',
             'Legal':'0x0b1307dc5D90a0B60Be18D2634843343eBc098AF', # 1 LEGAL (LegalContract) _ 'LEGAL'
@@ -232,7 +232,7 @@ if __name__ == "__main__":
         net_req_cnt = go_main()
         tot_cnt += net_req_cnt
         print(f'net_request_cnt={net_req_cnt} _ tot_cnt={tot_cnt}')
-        wait_sleep(30, True)
+        wait_sleep(60*5, True)
     
     ## end ##
     print(f'\n\nRUN_TIME_START: {run_time_start}\nRUN_TIME_END:   {get_time_now()}\n')
