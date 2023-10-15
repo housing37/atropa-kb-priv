@@ -42,9 +42,6 @@ sender_address = wallet_address
 contract_address = router_addr
 tok_addr = wpls_addr
 
-
-
-
 # setup our account and chain connection - we will use ganache here
 #chain_id = 1337
 #rpc_endpoint = "http://127.0.0.1:8545" # our local ganache instance
@@ -75,35 +72,205 @@ print('getting contracts')
 # load the contracts
 router_contract = web3.eth.contract(address=UNISWAP_V2_SWAP_ROUTER_ADDRESS, abi=UNISWAPV2_ROUTER_ABI)
 uni_contract = web3.eth.contract(address=UNISWAP_TOKEN_ADDRESS, abi=MIN_ERC20_ABI)
+wpls_contract = web3.eth.contract(address=wpls_addr, abi=wpls_abi)
 
 # prepare the swap function call parameters
 buy_path = [WETH_TOKEN_ADDRESS, UNISWAP_TOKEN_ADDRESS]
 #amount_to_buy_for = 1 * 10**18
 amount_to_buy_for = 500 * 10**18 # this is how much Ether we want to spend on our token purchase.
 
-print('generating buy tx')
+deadline = int(time.time())+180 # deadline now + 180 sec
+
+#print('STARTING - build buy tx _ swapExactETHForTokens')
+#buy_tx_params = {
+#    "nonce": web3.eth.get_transaction_count(account.address),
+#    "from": account.address,
+#    "chainId": chain_id,
+#    "gas": 20_000_000,
+#    "maxPriorityFeePerGas": web3.eth.max_priority_fee,
+#    #"maxFeePerGas": 100 * 10**10,
+#    "value": amount_to_buy_for,
+#}
+#buy_tx = router_contract.functions.swapExactETHForTokens(
+#        0, # min amount out
+#        buy_path,
+#        account.address,
+#        deadline
+#    ).build_transaction(buy_tx_params)
+#print('STARTING - build buy tx _ swapExactETHForTokens _ DONE')
+#exit(1)
+
+print('STARTING - build buy tx _ swapExactTokensForTokens')
+buy_path = [wpls_addr, pdai_addr]
+def set_approval(type='increase', amnt=-1, st_addr='nil_addr', st_abi=[]):
+
+    # connect to pulse chain
+    print('\n\ngo # connect to pulse chain')
+    w3 = Web3(Web3.HTTPProvider('https://rpc.pulsechain.com'))
+
+    # Check if connected
+    print('go # Check if connected')
+    if w3.isConnected():
+        print("Connected to PulseChain mainnet")
+    else:
+        print("Failed to connect to PulseChain mainnet")
+
+    # Create a contract instance
+    print('go # get the contract w/ address & abi')
+    contract_alt = w3.eth.contract(address=st_addr, abi=st_abi)
+    #contract_alt = w3.eth.contract(address=tok_allow_addr, abi=tok_allow_abi)
+    #contract = w3.eth.contract(address=contract_address, abi=contract_abi)
+
+    # get allowance for 'contract_address' to spend 'sender_address' tokens, inside contract 'st_addr'
+    allow_num = contract_alt.functions.allowance(sender_address, contract_address).call()
+    print(cStrDivider, f'Function "allowance" executed successfully...\n sender_address: {sender_address}\n contract_address: {contract_address}\n contract_alt: {st_addr}\n allowance: {allow_num}', cStrDivider, sep='\n')
+
+    print('go # Prepare the transaction data')
+    # Function arguments
+    d_tx_data = {
+            'chainId': 369,  # Replace with the appropriate chain ID (Mainnet)
+            'gas': 20000000,  # Adjust the gas limit as needed
+#            'gasPrice': w3.toWei('4000000', 'gwei'),  # Set the gas price in Gwei
+            'gasPrice': w3.to_wei('4000000', 'gwei'),  # Set the gas price in Gwei
+            'nonce': w3.eth.getTransactionCount(sender_address),
+        }
+
+    # Build the transaction
+    func_type = 'nil_fun_call'
+    if type == 'approve':
+        tx_data = contract_alt.functions.approve(contract_address, amnt).buildTransaction(d_tx_data)
+        func_type = 'approve'
+    elif type == 'increase':
+        tx_data = contract_alt.functions.increaseAllowance(contract_address, amnt).buildTransaction(d_tx_data)
+        func_type = 'increaseAllowance'
+    else:
+        tx_data = contract_alt.functions.decreaseAllowance(contract_address, amnt).buildTransaction(d_tx_data)
+        func_type = 'decreaseAllowance'
+
+    print(f'go # Check sender address balance _ sender: {sender_address}')
+    balance_wei = w3.eth.getBalance(sender_address)
+    balance_eth = w3.fromWei(balance_wei, 'ether')
+    print(f" _ Account balance: {balance_eth} PLS")
+
+    # Sign the transaction
+    print(f'go # Create a signed transaction _ tx_data: {tx_data}')
+    signed_tx = w3.eth.account.signTransaction(tx_data, private_key=sender_secret)
+
+    # Send the transaction
+    print('go # Send the transaction')
+    tx_hash = w3.eth.sendRawTransaction(signed_tx.rawTransaction)
+
+    # wait for mined receipt
+    print(f'go # wait for mined receipt _ tx_hash: {tx_hash.hex()}')
+    tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
+
+    print(f'Function "{func_type}" executed successfully...\n tx_hash: {tx_hash.hex()}\n Transaction receipt: {tx_receipt}')
+#    if tx_receipt and tx_receipt['status'] == 1:
+#        print(f"approve successful: approved {UNISWAP_V2_SWAP_ROUTER_ADDRESS} to spend {uni_balance / 10**18} token")
+        
+    # get allowance for 'contract_address' to spend 'sender_address' tokens, inside contract 'st_addr'
+    allow_num = contract_alt.functions.allowance(sender_address, contract_address).call()
+    print(cStrDivider, f'Function "allowance" executed successfully...\n sender_address: {sender_address}\n contract_address: {contract_address}\n contract_alt: {st_addr}\n allowance: {allow_num}', cStrDivider, sep='\n')
+    
+## Create a contract instance
+print('go # get the contract w/ address & abi')
+contract_alt = web3.eth.contract(address=wpls_addr, abi=wpls_abi)
+
+# get allowance for 'contract_address' to spend 'sender_address' tokens, inside contract 'contract_alt'
+allow_num = contract_alt.functions.allowance(sender_address, UNISWAP_V2_SWAP_ROUTER_ADDRESS).call()
+print(cStrDivider, f'Function "allowance" executed successfully...\n sender_address: {sender_address}\n contract_address: {UNISWAP_V2_SWAP_ROUTER_ADDRESS}\n contract_alt: {wpls_addr}\n allowance: {allow_num}', cStrDivider, sep='\n')
+print('done check allowance')
+
+if allow_num == 0:
+    print("__ set_approval() __")
+    amnt = 115792089237316195423570985008687907853269984665640564039457584007913129639935 # uint256.max
+    set_approval(type='approve', amnt=amnt, st_addr=wpls_addr, st_abi=wpls_abi)
+    print("__ set_approval() __ DONE")
+
+print('getting balances')
+# now make sure we got some uni tokens
+uni_balance = uni_contract.functions.balanceOf(account.address).call()
+wpl_balance = wpls_contract.functions.balanceOf(account.address).call()
+
+print(f"uni token balance: {uni_balance / 10**18}")
+print(f"wpls token balance: {wpl_balance / 10**18}")
+print(f"eth balance: {web3.eth.get_balance(account.address)}")
+
+# Create the transaction to perform the swap
+# The amount of token to swap (in Wei)
+#amount_to_swap = Web3.toWei(1, 'ether')  # Swap 1 token
+#amount_to_swap = Web3.toWei(500, 'ether')  # Swap 10000 tokens # house
+#amount_to_swap = Web3.to_wei(501, 'ether')  # Swap 10000 tokens # house
+#amount_in_wpls = 500
+#amount_to_swap = int((amount_in_wpls * 10**18) + 1)
+#amount_to_buy_for = 500 * 10**18 # this is how much Ether we want to spend on our token purchase.
+amount_to_swap = 500 * 10**18 # this is how much Ether we want to spend on our token purchase.
+#500000000000000000000
+#500000000000000000001
+#30066452427816053350
+#29994129736292340173
+#29694188438929416192
+# Estimate the amount of token you will receive
+amount_out = router_contract.functions.getAmountsOut(amount_to_swap, buy_path).call()[-1]
+
+# Define the slippage tolerance as a percentage (e.g., 1%)
+slippage_tolerance = 1 # %
+
+# Calculate the minimum amount to receive after slippage
+min_amount_out = int(amount_out - (amount_out * slippage_tolerance / 100))
+
+print('build params...')
+print(' amount_to_swap: ' + str(amount_to_swap))
+print(' amount_out: ' + str(amount_out))
+print(' min_amount_out: ' + str(min_amount_out))
+print(' buy_path: ' + str(buy_path))
+print(' wallet_address: ' + str(account.address))
+print(' deadline: ' + str(deadline))
+
+buy_tx = router_contract.functions.swapExactTokensForTokens(
+    int(amount_to_swap),  # Amount of token to sell
+    int(min_amount_out),  # Minimum amount of token to receive (considering slippage)
+    buy_path,  # Token path
+    account.address,  # Your wallet address
+    deadline,  # Deadline for the transaction
+)
+
+# Estimate the gas cost for the transaction
+#gas_estimate = buy_tx.estimate_gas()
+
+# max gas units to use for tx
+gas_limit = 20_000_000
+
+# price to pay for each unit of gas
+gas_price = web3.to_wei('0.0009', 'ether')
+
+# max fee per gas unit willing to pay
+max_fee = web3.to_wei('0.001', 'ether')
+
+# max fee per gas unit willing to pay for priority (faster)
+#max_priority_fee = web3.to_wei('0.000000003', 'ether')
+max_priority_fee = web3.eth.max_priority_fee * 1
+
+# Build the transaction dictionary
 buy_tx_params = {
-    "nonce": web3.eth.get_transaction_count(account.address),
+    'chainId': 369,  # Mainnet
     "from": account.address,
-    "chainId": chain_id,
-#    "gas": 500_000,
-    "gas": 20_000_000,
-    "maxPriorityFeePerGas": web3.eth.max_priority_fee,
-#    "maxFeePerGas": 100 * 10**10,
-    "value": amount_to_buy_for,
+    'nonce': web3.eth.getTransactionCount(account.address),
+    "gas": gas_limit, # required
+    #'gasPrice': gas_price,  # optional: defaults to remote rpc node settings
+    #"maxFeePerGas": max_fee, # optional: defaults to net-cond
+    "maxPriorityFeePerGas": max_priority_fee, # optional: defaults to net-cond
 }
 
-buy_tx = router_contract.functions.swapExactETHForTokens(
-        0, # min amount out
-        buy_path,
-        account.address,
-        int(time.time())+180 # deadline now + 180 sec
-    ).build_transaction(buy_tx_params)
+buy_tx = buy_tx.buildTransaction(buy_tx_params)
+#signed_buy_tx = w3.eth.account.signTransaction(buy_tx.buildTransaction(buy_tx), private_key=account.key)
+#print(f'signed buy tx: {buy_tx}')
+print('STARTING - build buy tx _ swapExactTokensForTokens _ DONE')
 
 print(f'signing buy tx: {buy_tx}')
 signed_buy_tx = web3.eth.account.sign_transaction(buy_tx, account.key)
 
-print(f'sending buy tx: {buy_tx}')
+print(f'sending buy tx')
 tx_hash = web3.eth.send_raw_transaction(signed_buy_tx.rawTransaction)
 
 print('waiting for buy tx receipt...')
@@ -113,7 +280,10 @@ print(f"tx hash: {Web3.to_hex(tx_hash)}")
 print('getting balances')
 # now make sure we got some uni tokens
 uni_balance = uni_contract.functions.balanceOf(account.address).call()
+wpl_balance = wpls_contract.functions.balanceOf(account.address).call()
+
 print(f"uni token balance: {uni_balance / 10**18}")
+print(f"wpls token balance: {wpl_balance / 10**18}")
 print(f"eth balance: {web3.eth.get_balance(account.address)}")
 
 print('DONE... wpls to pdai')
