@@ -20,12 +20,12 @@ from web3 import Account, Web3
 # DYNAMIC INPUTS: set contract addr, abi, & amnt
 router_addr = _req_pulsex.pulsex_router_addr
 router_abi = _req_pulsex.pulsex_router_abi
-pdai_addr = _req_pulsex.contract_pdai_addr
-pdai_abi = _req_pulsex.contract_pdai_abi
 wpls_addr = _req_pulsex.contract_wpls_addr
 wpls_abi = _req_pulsex.contract_wpls_abi
-pdai_amnt_exact = 30 * 10**18 # pdai exact trade amount
+pdai_addr = _req_pulsex.contract_pdai_addr
+pdai_abi = _req_pulsex.contract_pdai_abi
 wpls_amnt_exact = 500 * 10**18 # wpls exact trade amount
+pdai_amnt_exact = 30 * 10**18 # pdai exact trade amount
 
 # STATIC CONSTANTS
 RPC_URL = _req_pulsex.pulsechain_rpc_url
@@ -41,11 +41,16 @@ ACCOUNT = Account.from_key(SENDER_SECRET)
 
 print('loading contracts ...')
 ROUTER_CONTRACT = W3.eth.contract(address=router_addr, abi=router_abi)
-TOK_CONTR_0 = W3.eth.contract(address=pdai_addr, abi=pdai_abi)
-TOK_CONTR_1 = W3.eth.contract(address=wpls_addr, abi=wpls_abi)
-TOK_AMNT_0 = pdai_amnt_exact
-TOK_AMNT_1 = wpls_amnt_exact
+TOK_CONTR_0 = W3.eth.contract(address=wpls_addr, abi=wpls_abi)
+TOK_CONTR_1 = W3.eth.contract(address=pdai_addr, abi=pdai_abi)
+TOK_ADDR_0 = wpls_addr
+TOK_ADDR_1 = pdai_addr
+TOK_AMNT_0 = wpls_amnt_exact
+TOK_AMNT_1 = pdai_amnt_exact
 
+#------------------------------------------------------------#
+#   FUNCTNION SUPPORT                                        #
+#------------------------------------------------------------#
 # allowance for 'contract_a' to spend 's_addr' tokens, inside 'contract_b'
 def get_allowance(contract_a, s_addr, contract_b, go_print=True):
     global W3, ACCOUNT
@@ -98,7 +103,7 @@ def get_tok_bals(tok_contract_a, tok_contract_b, go_print=True):
     return tok_bal_a, tok_bal_B
     
 # swap exact token amount FOR min token amount (after slippage)
-def get_tx_swap_exact_for_tokens(amount_in_exact=-1, path=[], slip_perc=1, dead_sec=180):
+def tx_get_swap_exact_for_tokens(amount_in_exact=-1, path=[], slip_perc=1, dead_sec=180):
     global ACCOUNT, ROUTER_CONTRACT
 
     # calc exact amount to send & MIN amount to receive (after slippage)
@@ -125,7 +130,7 @@ def get_tx_swap_exact_for_tokens(amount_in_exact=-1, path=[], slip_perc=1, dead_
     return swap_tx
 
 # swap max token amount FOR exact token amount (after slippage)
-def get_tx_swap_tokens_for_exact(amount_out_exact=-1, path=[], slip_perc=1, dead_sec=180):
+def tx_get_swap_tokens_for_exact(amount_out_exact=-1, path=[], slip_perc=1, dead_sec=180):
     global ACCOUNT, ROUTER_CONTRACT
     
     # calc exact amount to receive & MAX amount to send (after slippage)
@@ -151,7 +156,7 @@ def get_tx_swap_tokens_for_exact(amount_out_exact=-1, path=[], slip_perc=1, dead
     )
     return swap_tx
     
-def build_sign_send_tx(swap_tx, lst_gas_params=[], wait_rec=True):
+def tx_build_sign_send(swap_tx, lst_gas_params=[], wait_rec=True):
     global W3, ACCOUNT
     
     # Build the tx dict and append gas params
@@ -191,6 +196,7 @@ def get_gas_params_lst():
     return [{'gas':gas_limit}, {'maxPriorityFeePerGas': max_prior_fee}]
     #return [{'gas':gas_limit}, {'gasPrice': gas_price}, {'maxFeePerGas': max_fee}, {'maxPriorityFeePerGas': max_prior_fee}]
 
+# router contract, tok_contr (in), amount_exact (in_ET-T|out_T-ET), swap_path, swap_type (ET-T|T-ET)
 def go_swap(rout_contr, tok_contr, amount_exact, swap_path=[], swap_type=1):
     # check tok_contr allowance for swap, and approve if needed, then check again
     print('START - validate allowance ...')
@@ -201,37 +207,125 @@ def go_swap(rout_contr, tok_contr, amount_exact, swap_path=[], swap_type=1):
     
     if swap_type == SWAP_TYPE_ET_FOR_T:
         print('START - build swap_tx _ swapExactTokensForTokens ...')
-        swap_tx = get_tx_swap_exact_for_tokens(amount_exact, path=swap_path, slip_perc=1, dead_sec=180)
+        swap_tx = tx_get_swap_exact_for_tokens(amount_exact, path=swap_path, slip_perc=1, dead_sec=180)
         print('DONE - build swap_tx _ swapExactTokensForTokens')
     else:
         print('START - build swap_tx _ swapTokensForExactTokens ...')
-        swap_tx = get_tx_swap_tokens_for_exact(amount_exact, path=swap_path, slip_perc=1, dead_sec=180):
+        swap_tx = tx_get_swap_tokens_for_exact(amount_exact, path=swap_path, slip_perc=1, dead_sec=180):
         print('DONE - build swap_tx _ swapTokensForExactTokens')
 
     print('START - build, sign, & send tx ...')
     lst_gas_params = get_gas_params_lst()
-    swap_tx = build_sign_send_tx(swap_tx, lst_gas_params, wait_rec=True)
+    swap_tx = tx_build_sign_send(swap_tx, lst_gas_params, wait_rec=True)
     print('DONE - build, sign, & send tx')
 
-print('START - swap TOK for TOK testing')
-# print token swap balances (w/ pls balance) ... BEFORE swap
-tok_bal_a, tok_bal_B = get_tok_bals(TOK_CONTR_0, TOK_CONTR_1, go_print=True)
+def exe_input_cli():
+    global SENDER_ADDRESS, ROUTER_CONTRACT, TOK_CONTR_0, TOK_CONTR_1, SWAP_TYPE_ET_FOR_T, SWAP_TYPE_T_FOR_ET
+    # router contract, tok_contr (in), amount_exact (ET-T_in|T-ET_out), swap_path, swap_type (ET-T|T-ET)
+    s_path = int(input("Choose swap_path:\n 0 = WPLS to PDAI\n 1 = PDAI to WPLS\n > "))
+    swap_path = [wpls_addr, pdai_addr] if s_path == 0 else [pdai_addr, wpls_addr]
+    tok_in_contr = TOK_CONTR_0 if s_path == 0 else TOK_CONTR_1
+    
+    s_type = int(input("Choose swap_type:\n 0 = SWAP_TYPE_ET_FOR_T\n 1 = SWAP_TYPE_T_FOR_ET\n > "))
+    swap_type = SWAP_TYPE_ET_FOR_T if s_type == 0 else SWAP_TYPE_T_FOR_ET
+    
+    str_inp = 'Input exact amount to '
+    if swap_type == SWAP_TYPE_ET_FOR_T: str_inp = str_inp + 'sell/trade-in ({swap_path[0]}):\n > '
+    if swap_type == SWAP_TYPE_T_FOR_ET: str_inp = str_inp + 'buy/receive-out ({swap_path[-1]}):\n > '
+    amnt_exact = int(input(str_inp))
 
-#TOK_AMNT_0 = pdai_amnt_exact = 30 * 10**18 # this is how much Ether we want to spend on our token purchase.
-#TOK_AMNT_1 = wpls_amnt_exact = 500 * 10**18 # how much tok 'a' we want to spend on tok 'b' purchase
+    str_conf = "Confirm swap inputs..."
+    if swap_type == SWAP_TYPE_ET_FOR_T: # uses 'amount_in_exact'
+        amount_out = ROUTER_CONTRACT.functions.getAmountsOut(amnt_exact, path).call()[-1] # get 'out' estimate
+        str_conf = str_conf + "\n FROM tok: {swap_path[0]}\n  exact_amount-in: {amnt_exact}\n TO tok: {swap_path[-1]}\n  quote_amount-out: {amount_out}"
+    if swap_type == SWAP_TYPE_T_FOR_ET: # uses 'amount_out_exact'
+        amount_in = ROUTER_CONTRACT.functions.getAmountsIn(amnt_exact, path).call()[-1] # get 'in' estimate
+        str_conf = str_conf + "\n FROM tok: {swap_path[0]}\n  quote_amount-in: {amount_in}\n TO tok: {swap_path[-1]}\n  exact_amount-out: {amnt_exact}"
+    str_conf = str_conf + '\n using wallet_address: {SENDER_ADDRESS}'
+    
+    # Fat-fingering check
+    confirm = input(str_conf+"\n\n  ... Ok? [y/n] > ")
+    if confirm.lower() != "y":
+        print("Aborted")
+        return False
 
-go_swap(ROUTER_CONTRACT, TOK_CONTR_0, TOK_AMNT_1, [pdai_addr, wpls_addr], swap_type=SWAP_TYPE_T_FOR_ET) # not tested
-#go_swap(ROUTER_CONTRACT, TOK_CONTR_0, TOK_AMNT_0, [pdai_addr, wpls_addr], swap_type=SWAP_TYPE_ET_FOR_T) # not tested
+    amnt_exact = amnt_exact * 10**18 # convert BEAT (wei)
+        
+    # router contract, tok_contr (in), amount_exact (ET-T_in|T-ET_out), swap_path, swap_type (ET-T|T-ET)
+    go_swap(ROUTER_CONTRACT, tok_in_contr, amnt_exact, swap_path, swap_type) # not tested
+    return True
+    
+#------------------------------------------------------------#
+#   DEFAULT SUPPORT                                          #
+#------------------------------------------------------------#
+READ_ME = f'''
+    *EXAMPLE EXECUTION*
+        $ python3 {__filename} -<nil> <nil>
+        $ python3 {__filename}
+        
+    *NOTE* INPUT PARAMS...
+        nil
+'''
+def wait_sleep(wait_sec : int, b_print=True): # sleep 'wait_sec'
+    print(f'waiting... {wait_sec} sec')
+    for s in range(wait_sec, 0, -1):
+        if b_print: print('wait ', s, sep='', end='\n')
+        time.sleep(1)
+    print(f'waited... {wait_sec} sec')
+        
+def get_time_now(dt=True):
+    if dt: return datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[0:-4]
+    return datetime.now().strftime("%H:%M:%S.%f")[0:-4]
+    
+def read_cli_args():
+    print(f'\nread_cli_args...\n # of args: {len(sys.argv)}\n argv lst: {str(sys.argv)}')
+    for idx, val in enumerate(sys.argv): print(f' argv[{idx}]: {val}')
+    print('read_cli_args _ DONE\n')
+    return sys.argv, len(sys.argv)
 
-#go_swap(ROUTER_CONTRACT, TOK_CONTR_1, TOK_AMNT_1, [wpls_addr, pdai_addr], swap_type=SWAP_TYPE_ET_FOR_T) # tested success
-#go_swap(ROUTER_CONTRACT, TOK_CONTR_1, TOK_AMNT_0, [wpls_addr, pdai_addr], swap_type=SWAP_TYPE_T_FOR_ET) # not tested
+def go_main(debug=True):
+    print('START - swap TOK for TOK testing')
+    # print token swap balances (w/ pls balance) ... BEFORE swap
+    tok_bal_a, tok_bal_B = get_tok_bals(TOK_CONTR_0, TOK_CONTR_1, go_print=True)
 
-# print token swap balances (w/ pls balance) ... AFTER swap
-tok_bal_a, tok_bal_b = get_tok_bals(TOK_CONTR_0, TOK_CONTR_1, go_print=True)
-print('DONE - swap TOK for TOK testing')
+    if not debug:
+        print(f'exe_input_cli() _ exe ...')
+        success = exe_input_cli()
+        print(f'exe_input_cli() _ success = {success}')
+    else:
+        #TOK_AMNT_0 = wpls_amnt_exact = 500 * 10**18 # how much tok 'a' we want to spend on tok 'b' purchase
+        #TOK_AMNT_1 = pdai_amnt_exact = 30 * 10**18 # this is how much Ether we want to spend on our token purchase.
+        
+        # router contract, tok_contr (in), amount_exact (ET-T_in|T-ET_out), swap_path, swap_type (ET-T|T-ET)
+        go_swap(ROUTER_CONTRACT, TOK_CONTR_0, TOK_AMNT_1, [pdai_addr, wpls_addr], swap_type=SWAP_TYPE_T_FOR_ET) # not tested
+        #go_swap(ROUTER_CONTRACT, TOK_CONTR_0, TOK_AMNT_0, [pdai_addr, wpls_addr], swap_type=SWAP_TYPE_ET_FOR_T) # not tested
+        #go_swap(ROUTER_CONTRACT, TOK_CONTR_1, TOK_AMNT_1, [wpls_addr, pdai_addr], swap_type=SWAP_TYPE_ET_FOR_T) # tested success
+        #go_swap(ROUTER_CONTRACT, TOK_CONTR_1, TOK_AMNT_0, [wpls_addr, pdai_addr], swap_type=SWAP_TYPE_T_FOR_ET) # not tested
 
-# TODO: review new 414 mintable
-#   ref: https://library.dedaub.com/decompile?md5=768e5fd071614cd95efce4781538a233
+    # print token swap balances (w/ pls balance) ... AFTER swap
+    tok_bal_a, tok_bal_b = get_tok_bals(TOK_CONTR_0, TOK_CONTR_1, go_print=True)
+    print('DONE - swap TOK for TOK testing')
 
-# TODO: left off here... need to test swapTokensForExactTokens
-#   note: comment out swapExactTokensForTokens above
+    # TODO: review new 414 mintable (x2)
+    #   ref: One Time Pass Fake (OTPF) -> 0x3815D67214216EC3683652c6f1DA4fD99F677d0b
+    #   ref: One Time Pass Fake (OTPF)_ 2 -> 0x4443123a54A05bAF16089a3c922D0b9CF5901032
+
+    # TODO: left off here... need to test swapTokensForExactTokens
+    #   note: comment out swapExactTokensForTokens above
+    
+    # TODO: left off here... ready for input cli testing
+    #   NEXT: desing inputs for selective 'get_gas_params_lst()'
+
+if __name__ == "__main__":
+    ## start ##
+    run_time_start = get_time_now()
+    print(f'\n\nRUN_TIME_START: {run_time_start}\n'+READ_ME)
+    lst_argv_OG, argv_cnt = read_cli_args()
+    
+    ## exe ##
+    go_main(debug=False)
+    
+    ## end ##
+    print(f'\n\nRUN_TIME_START: {run_time_start}\nRUN_TIME_END:   {get_time_now()}\n')
+
+print('', cStrDivider, f'# END _ {__filename}', cStrDivider, sep='\n')
