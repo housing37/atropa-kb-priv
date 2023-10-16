@@ -3,11 +3,13 @@ __filename = __fname + '.py'
 cStrDivider = '#================================================================#'
 print('', cStrDivider, f'START _ {__filename}', cStrDivider, sep='\n')
 print(f'GO {__filename} -> starting IMPORTs and globals decleration')
+cStrDivider_1 = '#----------------------------------------------------------------#'
 
 #------------------------------------------------------------#
 #   IMPORTS                                                  #
 #------------------------------------------------------------#
-import os, time
+import sys, os, time
+from datetime import datetime
 import _req_pulsex # _req_bond
 from web3 import Account, Web3
 #import inspect # this_funcname = inspect.stack()[0].function
@@ -21,9 +23,12 @@ from web3 import Account, Web3
 router_addr = _req_pulsex.pulsex_router_addr
 router_abi = _req_pulsex.pulsex_router_abi
 wpls_addr = _req_pulsex.contract_wpls_addr
+    
 wpls_abi = _req_pulsex.contract_wpls_abi
 pdai_addr = _req_pulsex.contract_pdai_addr
+pdai_symb = _req_pulsex.contract_pdai_symb
 pdai_abi = _req_pulsex.contract_pdai_abi
+
 wpls_amnt_exact = 500 * 10**18 # wpls exact trade amount
 pdai_amnt_exact = 30 * 10**18 # pdai exact trade amount
 
@@ -45,6 +50,8 @@ TOK_CONTR_0 = W3.eth.contract(address=wpls_addr, abi=wpls_abi)
 TOK_CONTR_1 = W3.eth.contract(address=pdai_addr, abi=pdai_abi)
 TOK_ADDR_0 = wpls_addr
 TOK_ADDR_1 = pdai_addr
+TOK_SYMB_0 = wpls_symb
+TOK_SYMB_1 = pdai_symb
 TOK_AMNT_0 = wpls_amnt_exact
 TOK_AMNT_1 = pdai_amnt_exact
 
@@ -91,16 +98,21 @@ def get_sender_pls_bal(go_print=True):
     
 def get_tok_bals(tok_contract_a, tok_contract_b, go_print=True):
     global W3, ACCOUNT
-    print('getting token balances...')
-    # now make sure we got some uni tokens
+    tok_name_a = tok_contract_a.functions.name().call()
+    tok_symb_a = tok_contract_a.functions.symbol().call()
     tok_bal_a = tok_contract_a.functions.balanceOf(ACCOUNT.address).call()
+    
+    tok_name_b = tok_contract_b.functions.name().call()
+    tok_symb_b = tok_contract_b.functions.symbol().call()
     tok_bal_b = tok_contract_b.functions.balanceOf(ACCOUNT.address).call()
 
     if go_print:
-        print(f" tok_bal_a balance: {tok_bal_a / 10**18} _ {tok_contract_a.address}")
-        print(f" tok_bal_b balance: {tok_bal_b / 10**18} _ {tok_contract_b.address}")
-        print(f" pls balance: {W3.eth.get_balance(accnt.address)}")
-    return tok_bal_a, tok_bal_B
+        print('', cStrDivider_1, 'get_tok_bals ...', cStrDivider_1, sep='\n')
+        print(f" PLS balance: {(W3.eth.get_balance(ACCOUNT.address) / 10**18):,.2f}\n")
+        print(f' {tok_symb_a}: {tok_contract_a.address}\n   balance = {(tok_bal_a / 10**18):,} {tok_symb_a}\n')
+        print(f' {tok_symb_b}: {tok_contract_b.address}\n   balance = {(tok_bal_b / 10**18):,} {tok_symb_b}')
+        print(cStrDivider_1, 'get_tok_bals _ DONE', cStrDivider_1, '', sep='\n')
+    return tok_bal_a, tok_bal_b
     
 # swap exact token amount FOR min token amount (after slippage)
 def tx_get_swap_exact_for_tokens(amount_in_exact=-1, path=[], slip_perc=1, dead_sec=180):
@@ -211,7 +223,7 @@ def go_swap(rout_contr, tok_contr, amount_exact, swap_path=[], swap_type=1):
         print('DONE - build swap_tx _ swapExactTokensForTokens')
     else:
         print('START - build swap_tx _ swapTokensForExactTokens ...')
-        swap_tx = tx_get_swap_tokens_for_exact(amount_exact, path=swap_path, slip_perc=1, dead_sec=180):
+        swap_tx = tx_get_swap_tokens_for_exact(amount_exact, path=swap_path, slip_perc=1, dead_sec=180)
         print('DONE - build swap_tx _ swapTokensForExactTokens')
 
     print('START - build, sign, & send tx ...')
@@ -266,19 +278,21 @@ READ_ME = f'''
     *NOTE* INPUT PARAMS...
         nil
 '''
-def wait_sleep(wait_sec : int, b_print=True): # sleep 'wait_sec'
+def wait_sleep(wait_sec : int, b_print=True, bp_one_line=True): # sleep 'wait_sec'
     print(f'waiting... {wait_sec} sec')
     for s in range(wait_sec, 0, -1):
-        if b_print: print('wait ', s, sep='', end='\n')
+        if b_print and bp_one_line: print(wait_sec-s+1, end=' ', flush=True)
+        if b_print and not bp_one_line: print('wait ', s, sep='', end='\n')
         time.sleep(1)
-    print(f'waited... {wait_sec} sec')
+    if bp_one_line and b_print: print() # line break if needed
+    print(f'waiting... {wait_sec} sec _ DONE')
         
 def get_time_now(dt=True):
     if dt: return datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[0:-4]
     return datetime.now().strftime("%H:%M:%S.%f")[0:-4]
     
 def read_cli_args():
-    print(f'\nread_cli_args...\n # of args: {len(sys.argv)}\n argv lst: {str(sys.argv)}')
+    print(f'\nread_cli_args ...\n # of args: {len(sys.argv)}\n argv lst: {str(sys.argv)}')
     for idx, val in enumerate(sys.argv): print(f' argv[{idx}]: {val}')
     print('read_cli_args _ DONE\n')
     return sys.argv, len(sys.argv)
