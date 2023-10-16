@@ -1,4 +1,4 @@
-__fname = 'track_liquidity'
+__fname = 'track_liq'
 __filename = __fname + '.py'
 cStrDivider = '#================================================================#'
 print('', cStrDivider, f'START _ {__filename}', cStrDivider, sep='\n')
@@ -166,12 +166,14 @@ READ_ME = f'''
     *NOTE* INPUT PARAMS...
         nil
 '''
-def wait_sleep(wait_sec : int, b_print=True): # sleep 'wait_sec'
+def wait_sleep(wait_sec : int, b_print=True, bp_one_line=True): # sleep 'wait_sec'
     print(f'waiting... {wait_sec} sec')
     for s in range(wait_sec, 0, -1):
-        if b_print: print('wait ', s, sep='', end='\n')
+        if b_print and bp_one_line: print(wait_sec-s+1, end=' ', flush=True)
+        if b_print and not bp_one_line: print('wait ', s, sep='', end='\n')
         time.sleep(1)
-    print(f'waited... {wait_sec} sec')
+    if bp_one_line and b_print: print() # line break if needed
+    print(f'waiting... {wait_sec} sec _ DONE')
         
 def get_time_now(dt=True):
     if dt: return datetime.now().strftime("%Y-%m-%d %H:%M:%S.%f")[0:-4]
@@ -196,13 +198,13 @@ def go_main():
 #            'atropa':'0xCc78A0acDF847A2C1714D2A925bB4477df5d48a6', # 313 Atropa (AtropaContract) _ 'ATROPA'
             'tsfi':'0x4243568Fa2bbad327ee36e06c16824cAd8B37819',
             'caw':'0xf3b9569F82B18aEf890De263B84189bd33EBe452',
-            
+
             'wenti':'0xA537d6F4c1c8F8C41f1004cc34C00e7Db40179Cc', # '问题 (问题) _ wenti'
             'Yu':'0x52a4682880E990ebed5309764C7BD29c4aE22deB', # 2,000,000 유 (YuContract) _ (ì = EC9CA0)
             'Di':'0x347BC40503E0CE23fE0F5587F232Cd2D07D4Eb89', # 1 Di (DiContract) _ (ç¬¬ä½ = E7ACACE4BD9C)
             '清导':'0xE63191967735C52f5de78CE2471759a9963Ce118', # 清导
             'write':'0x26D5906c4Cdf8C9F09CBd94049f99deaa874fB0b', # ޖޮޔިސްދޭވޯހީ (write) $M price token
-        
+
             'bond':'0x25d53961a27791B9D8b2d74FB3e937c8EAEadc38',
             'Legal':'0x0b1307dc5D90a0B60Be18D2634843343eBc098AF', # 1 LEGAL (LegalContract) _ 'LEGAL'
             'Ojeon':'0xFa4d9C6E012d946853386113ACbF166deC5465Bb', # 500 ã (OjeonContract) _ (ã = E3889D)
@@ -227,12 +229,14 @@ if __name__ == "__main__":
     lst_argv_OG, argv_cnt = read_cli_args()
     
     ## exe ##
-    tot_cnt = 0
+    tot_req_cnt = tot_iter_cnt = 0
     while True:
         net_req_cnt = go_main()
-        tot_cnt += net_req_cnt
-        print(f'net_request_cnt={net_req_cnt} _ tot_cnt={tot_cnt}')
-        wait_sleep(60*5, True)
+        tot_req_cnt += net_req_cnt
+        tot_iter_cnt += 1
+        print(f'\nRequest Cycle #{tot_iter_cnt}: {net_req_cnt} requests ({tot_req_cnt} total since start)')
+        wait_sleep(60*5, b_print=True, bp_one_line=True) # wait 5 minutes
+        #wait_sleep(5, b_print=True, bp_one_line=True)
     
     ## end ##
     print(f'\n\nRUN_TIME_START: {run_time_start}\nRUN_TIME_END:   {get_time_now()}\n')
