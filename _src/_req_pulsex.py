@@ -7,6 +7,12 @@ print(f'GO {__filename} -> starting IMPORTs and globals decleration')
 #------------------------------------------------------------#
 #   IMPORTS                                                  #
 #------------------------------------------------------------#
+# ** COMMENT BEFORE COMMIT **
+from read_env import read_env #ref: https://github.com/sloria/read_env
+try: read_env() # recursively traverse up dir tree looking for '.env' file
+except: print(" ERROR: no .env files found ")
+sender_address = os.environ['PUBLIC_KEY_4']
+sender_secret = os.environ['PRIVATE_KEY_4']
 
 #------------------------------------------------------------#
 #   GLOBALS
@@ -17,7 +23,8 @@ USE_VX=False
 #    USE_V1=b
 #def set_USE_VX(b):
 #    USE_V1X=b
-    
+
+pulsechain_rpc_url = 'https://rpc.pulsechain.com'
 # contract address & ABI (Application Binary Interface)
 pulsex_factory_addr='0x1715a3E4A142d8b698131108995174F37aEBA10D' # v1|v2 ??
 #pulsex_router02_addr_v1='0x98bf93ebf5c380C0e6Ae8e192A7e2AE08edAcc02' # PulseXRouter02_v1 ref: https://www.irccloud.com/pastebin/6ftmqWuk
