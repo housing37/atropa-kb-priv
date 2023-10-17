@@ -368,6 +368,7 @@ def go_main(debug=True):
         #go_swap(ROUTER_CONTRACT, TOK_CONTR_1, TOK_AMNT_0, [wpls_addr, pdai_addr], swap_type=SWAP_TYPE_T_FOR_ET) # not tested
     
     # TODO: left off here... (input cli testing successful)
+    #   NEXT: add timestamps to print outs (send tx, tx receipt, etc.)
     #   NEXT: design inputs for selective 'get_gas_params_lst()'
     
     # TODO: review new 414 mintable (x2)
