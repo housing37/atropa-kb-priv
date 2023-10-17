@@ -186,15 +186,15 @@ def tx_build_sign_send(swap_tx, lst_gas_params=[], wait_rec=True):
     swap_tx = swap_tx.buildTransaction(tx_params)
     signed_tx = W3.eth.account.sign_transaction(swap_tx, ACCOUNT.key)
     tx_hash = W3.eth.send_raw_transaction(signed_tx.rawTransaction)
-    print(f'TX sent _ tx_hash: {tx_hash.hex()}\n tx_params: {tx_params}\n wait_rec={wait_rec}')
+    print(f'[{get_time_now()}] _ TX sent _ tx_hash: {tx_hash.hex()}\n tx_params: {tx_params}\n wait_rec={wait_rec}')
     if wait_rec:
-        print(f'WAITING for mined tx receipt _ tx_hash: {tx_hash.hex()} ...') # wait for receipt
+        print(f'[{get_time_now()}] _ WAITING for mined tx receipt _ tx_hash: {tx_hash.hex()} ...') # wait for receipt
         tx_receipt = W3.eth.wait_for_transaction_receipt(tx_hash)
         if tx_receipt and tx_receipt['status'] == 1:
-            print(f"SUCCESS! tx mined _ tx_hash: {tx_hash.hex()}")
+            print(f"[{get_time_now()}] _ SUCCESS! tx mined _ tx_hash: {tx_hash.hex()}")
             print(cStrDivider_1, f'Transaction receipt:\n {tx_receipt}', sep='\n')
         else:
-            print(f'\n*ERROR* "build_sign_send_tx" execution failed...\n tx_hash: {tx_hash.hex()}\n Transaction receipt: {tx_receipt}\n')
+            print(f'\n[{get_time_now()}] _ *ERROR* _ "build_sign_send_tx" execution failed...\n tx_hash: {tx_hash.hex()}\n Transaction receipt: {tx_receipt}\n')
 
 # note: params checked/set in priority order; 'def|max_params' uses 'mpf_ratio'
 #   if all params == False, falls back to 'min_params=True' (ie. just use 'gas_limit')

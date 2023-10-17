@@ -74,6 +74,7 @@ def set_approval(type='increase', amnt=-1, st_addr='nil_addr', st_abi=[]):
     allow_num = contract_alt.functions.allowance(sender_address, contract_address).call()
     print(cStrDivider, f'Function "allowance" executed successfully...\n sender_address: {sender_address}\n contract_address: {contract_address}\n contract_alt: {st_addr}\n allowance: {allow_num}', cStrDivider, sep='\n')
 
+# ref: https://github.com/crjameson/python-defi-tutorials/blob/main/uniswapv2/uniswapv2_buy_sell_basic.py
 """
 How to buy and sell a token on Uniswap v2 and derivatives like Pancakeswap, Sushiswap, etc.
 
