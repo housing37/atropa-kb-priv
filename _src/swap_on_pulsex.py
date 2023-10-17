@@ -23,7 +23,7 @@ from web3 import Account, Web3
 router_addr = _req_pulsex.pulsex_router_addr
 router_abi = _req_pulsex.pulsex_router_abi
 wpls_addr = _req_pulsex.contract_wpls_addr
-    
+wpls_symb = _req_pulsex.contract_wpls_symb
 wpls_abi = _req_pulsex.contract_wpls_abi
 pdai_addr = _req_pulsex.contract_pdai_addr
 pdai_symb = _req_pulsex.contract_pdai_symb
@@ -37,8 +37,8 @@ RPC_URL = _req_pulsex.pulsechain_rpc_url
 SENDER_ADDRESS = _req_pulsex.sender_address
 SENDER_SECRET = _req_pulsex.sender_secret
 AMNT_MAX = 115792089237316195423570985008687907853269984665640564039457584007913129639935 # uint256.max
-SWAP_TYPE_ET_FOR_T = 1
-SWAP_TYPE_T_FOR_ET = 2
+SWAP_TYPE_ET_FOR_T = 0
+SWAP_TYPE_T_FOR_ET = 1
 
 print('connecting to pulsechain ... (getting account for secret)')
 W3 = Web3(Web3.HTTPProvider(RPC_URL))
@@ -58,12 +58,11 @@ TOK_AMNT_1 = pdai_amnt_exact
 #------------------------------------------------------------#
 #   FUNCTNION SUPPORT                                        #
 #------------------------------------------------------------#
-# allowance for 'contract_a' to spend 's_addr' tokens, inside 'contract_b'
-def get_allowance(contract_a, s_addr, contract_b, go_print=True):
-    global W3, ACCOUNT
-    allow_num = contract_b.functions.allowance(s_addr, contract_a).call()
+# allowance for 'contract_a' to spend 'accnt' tokens, inside 'contract_b'
+def get_allowance(contract_a, accnt, contract_b, go_print=True):
+    allow_num = contract_b.functions.allowance(accnt.address, contract_a.address).call()
     if go_print:
-        print(cStrDivider, f'Function "allowance" executed successfully...\n contract_b: {contract_b.address}\n shows allowance for contract_a: {contract_a.address}\n to spend tokens from sender_address: {s_addr}\n token amnt allowed: {allow_num}', cStrDivider, sep='\n')
+        print(f'Function "allowance" executed successfully...\n contract_b: {contract_b.address}\n shows allowance for contract_a: {contract_a.address}\n to spend tokens from sender_address: {accnt.address}\n token amnt allowed: {allow_num}')
     return allow_num
 
 # contract_a approves (grants allowance for) contract_b to spend SENDER_ADDRESS tokens
@@ -78,12 +77,12 @@ def set_approval(contract_a, contract_b, amnt=-1):
             'gasPrice': W3.to_wei('4000000', 'gwei'),  # Set the gas price in Gwei
             'nonce': W3.eth.getTransactionCount(SENDER_ADDRESS),
         }
-    tx_data = contract_a.functions.approve(contract_b, amnt).buildTransaction(d_tx_data) # build tx
-    signed_tx = w3.eth.account.signTransaction(tx_data, private_key=SENDER_SECRET) # sign tx
-    tx_hash = w3.eth.sendRawTransaction(signed_tx.rawTransaction) # send tx
+    tx_data = contract_a.functions.approve(contract_b.address, amnt).buildTransaction(d_tx_data) # build tx
+    signed_tx = W3.eth.account.signTransaction(tx_data, private_key=SENDER_SECRET) # sign tx
+    tx_hash = W3.eth.sendRawTransaction(signed_tx.rawTransaction) # send tx
     
     print(f'waiting for mined receipt _ tx_hash: {tx_hash.hex()} ...') # wait for receipt
-    tx_receipt = w3.eth.waitForTransactionReceipt(tx_hash)
+    tx_receipt = W3.eth.waitForTransactionReceipt(tx_hash)
     if tx_receipt and tx_receipt['status'] == 1:
         print(f"'approve' successful:\n contract_a: {contract_a}\n approved contract_b: {contract_b}\n to spend SENDER_ADDRESS: {SENDER_ADDRESS} tokens\n amnt allowed: {amnt}\n tx_hash: {tx_hash.hex()}\n Transaction receipt: {tx_receipt}")
     else:
@@ -108,7 +107,7 @@ def get_tok_bals(tok_contract_a, tok_contract_b, go_print=True):
 
     if go_print:
         print('', cStrDivider_1, 'get_tok_bals ...', cStrDivider_1, sep='\n')
-        print(f" PLS balance: {(W3.eth.get_balance(ACCOUNT.address) / 10**18):,.2f}\n")
+        print(f' PLS balance: {(W3.eth.get_balance(ACCOUNT.address) / 10**18):,.2f}\n')
         print(f' {tok_symb_a}: {tok_contract_a.address}\n   balance = {(tok_bal_a / 10**18):,} {tok_symb_a}\n')
         print(f' {tok_symb_b}: {tok_contract_b.address}\n   balance = {(tok_bal_b / 10**18):,} {tok_symb_b}')
         print(cStrDivider_1, 'get_tok_bals _ DONE', cStrDivider_1, '', sep='\n')
@@ -124,7 +123,7 @@ def tx_get_swap_exact_for_tokens(amount_in_exact=-1, path=[], slip_perc=1, dead_
     amount_out_min = int(amount_out - (amount_out * slip_perc / 100)) # considers slippage
     deadline = int(time.time())+dead_sec # deadline; from now + 180 sec (default)
     
-    print('build params...')
+    print('swap params...')
     print(' amount_in_exact: ' + str(amount_in_exact))
     print(' amount_out: ' + str(amount_out))
     print(' amount_out_min: ' + str(amount_out_min))
@@ -136,7 +135,7 @@ def tx_get_swap_exact_for_tokens(amount_in_exact=-1, path=[], slip_perc=1, dead_
         int(amount_in_exact),  # amount of token to sell (into the contract)
         int(amount_out_min),  # min amount of token to receive (from the contract)
         path,  # Token path
-        account.address,  # Your wallet address
+        ACCOUNT.address,  # Your wallet address
         deadline,  # Deadline for the transaction
     )
     return swap_tx
@@ -151,7 +150,7 @@ def tx_get_swap_tokens_for_exact(amount_out_exact=-1, path=[], slip_perc=1, dead
     amount_in_max = int(amount_in + (amount_in * slip_perc / 100)) # considers slippage
     deadline = int(time.time())+dead_sec # deadline; from now + 180 sec (default)
     
-    print('build params...')
+    print('swap params...')
     print(' amount_in: ' + str(amount_in))
     print(' amount_in_max: ' + str(amount_in_max))
     print(' amount_out_exact: ' + str(amount_out_exact))
@@ -163,7 +162,7 @@ def tx_get_swap_tokens_for_exact(amount_out_exact=-1, path=[], slip_perc=1, dead
         int(amount_out_exact),  # exact amnt of token to receive (from the contract)
         int(amount_in_max),  # max amnt of token to sell (into the contract)
         path,  # Token path
-        account.address,  # Your wallet address
+        ACCOUNT.address,  # Your wallet address
         deadline,  # Deadline for the transaction
     )
     return swap_tx
@@ -185,83 +184,116 @@ def tx_build_sign_send(swap_tx, lst_gas_params=[], wait_rec=True):
     
     # send and send tx (wait_rec)
     swap_tx = swap_tx.buildTransaction(tx_params)
-    signed_tx = w3.eth.account.sign_transaction(swap_tx, ACCOUNT.key)
-    tx_hash = w3.eth.send_raw_transaction(signed_tx.rawTransaction)
+    signed_tx = W3.eth.account.sign_transaction(swap_tx, ACCOUNT.key)
+    tx_hash = W3.eth.send_raw_transaction(signed_tx.rawTransaction)
+    print(f'TX sent _ tx_hash: {tx_hash.hex()}\n tx_params: {tx_params}\n wait_rec={wait_rec}')
     if wait_rec:
-        print(f'waiting for mined receipt _ tx_hash: {tx_hash.hex()} ...') # wait for receipt
-        tx_receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
+        print(f'WAITING for mined tx receipt _ tx_hash: {tx_hash.hex()} ...') # wait for receipt
+        tx_receipt = W3.eth.wait_for_transaction_receipt(tx_hash)
         if tx_receipt and tx_receipt['status'] == 1:
-            print(f"'build_sign_send_tx' successful:\n tx_hash: {tx_hash.hex()}\n Transaction receipt: {tx_receipt}")
+            print(f"SUCCESS! tx mined _ tx_hash: {tx_hash.hex()}")
+            print(cStrDivider_1, f'Transaction receipt:\n {tx_receipt}', sep='\n')
         else:
-            print(f'*ERROR* "build_sign_send_tx" execution failed...\n tx_hash: {tx_hash.hex()}\n Transaction receipt: {tx_receipt}')
-    print(f"'build_sign_send_tx' successful:\n tx_hash: {tx_hash.hex()}\n Transaction receipt: wait_rec={wait_rec}")
+            print(f'\n*ERROR* "build_sign_send_tx" execution failed...\n tx_hash: {tx_hash.hex()}\n Transaction receipt: {tx_receipt}\n')
 
-def get_gas_params_lst():
+# note: params checked/set in priority order; 'def|max_params' uses 'mpf_ratio'
+#   if all params == False, falls back to 'min_params=True' (ie. just use 'gas_limit')
+def get_gas_params_lst(min_params=False, max_params=False, def_params=True, mpf_ratio=1.0):
     # Estimate the gas cost for the transaction
     #gas_estimate = buy_tx.estimate_gas()
     gas_limit = 20_000_000 # max gas units to use for tx (required)
     gas_price = W3.to_wei('0.0009', 'ether') # price to pay for each unit of gas (optional)
     max_fee = W3.to_wei('0.001', 'ether') # max fee per gas unit to pay (optional)
-    max_prior_fee = W3.eth.max_priority_fee * 1 # max fee per gas unit to pay for priority (faster) (optional)
-    #max_priority_fee = w3.to_wei('0.000000003', 'ether')
-    
-    return [{'gas':gas_limit}, {'maxPriorityFeePerGas': max_prior_fee}]
-    #return [{'gas':gas_limit}, {'gasPrice': gas_price}, {'maxFeePerGas': max_fee}, {'maxPriorityFeePerGas': max_prior_fee}]
+    max_prior_fee = int(W3.eth.max_priority_fee * mpf_ratio) # max fee per gas unit to pay for priority (faster) (optional)
+    #max_priority_fee = W3.to_wei('0.000000003', 'ether')
+
+    if min_params:
+        return [{'gas':gas_limit}]
+    elif max_params:
+        return [{'gas':gas_limit}, {'gasPrice': gas_price}, {'maxFeePerGas': max_fee}, {'maxPriorityFeePerGas': max_prior_fee}]
+    elif def_params:
+        return [{'gas':gas_limit}, {'maxPriorityFeePerGas': max_prior_fee}]
+    else:
+        return [{'gas':gas_limit}]
 
 # router contract, tok_contr (in), amount_exact (in_ET-T|out_T-ET), swap_path, swap_type (ET-T|T-ET)
 def go_swap(rout_contr, tok_contr, amount_exact, swap_path=[], swap_type=1):
+    global ACCOUNT
     # check tok_contr allowance for swap, and approve if needed, then check again
-    print('START - validate allowance ...')
-    allow_num = get_allowance(rout_contr, SENDER_ADDRESS, tok_contr, go_print=True) # rout_contr can spend in tok_contr
-    if allow_num == 0: set_approval(tok_contr, rout_contr, AMNT_MAX) # tok_contr approves rout_contr to spend
-    allow_num = get_allowance(rout_contr, SENDER_ADDRESS, tok_contr, go_print=True) # rout_contr can spend in tok_contr
-    print('DONE - validate allowance')
+    print('\nSTART - validate allowance ...', cStrDivider_1, sep='\n')
+    allow_num = get_allowance(rout_contr, ACCOUNT, tok_contr, go_print=True) # rout_contr can spend in tok_contr
+    if allow_num == 0:
+        set_approval(tok_contr, rout_contr, AMNT_MAX) # tok_contr approves rout_contr to spend
+        allow_num = get_allowance(rout_contr, ACCOUNT, tok_contr, go_print=True) # rout_contr can spend in tok_contr
+    print(cStrDivider_1, 'DONE - validate allowance', sep='\n')
     
+    print('\nSTART - tx _ build, sign, & send ...', cStrDivider_1, sep='\n')
     if swap_type == SWAP_TYPE_ET_FOR_T:
-        print('START - build swap_tx _ swapExactTokensForTokens ...')
+        print('build swap_tx _ swapExactTokensForTokens ...')
         swap_tx = tx_get_swap_exact_for_tokens(amount_exact, path=swap_path, slip_perc=1, dead_sec=180)
-        print('DONE - build swap_tx _ swapExactTokensForTokens')
+        print('build swap_tx _ swapExactTokensForTokens _ DONE')
     else:
-        print('START - build swap_tx _ swapTokensForExactTokens ...')
+        print('build swap_tx _ swapTokensForExactTokens ...')
         swap_tx = tx_get_swap_tokens_for_exact(amount_exact, path=swap_path, slip_perc=1, dead_sec=180)
-        print('DONE - build swap_tx _ swapTokensForExactTokens')
+        print('build swap_tx _ swapTokensForExactTokens _ DONE')
 
-    print('START - build, sign, & send tx ...')
-    lst_gas_params = get_gas_params_lst()
+    # note: params checked/set in priority order; 'def|max_params' uses 'mpf_ratio'
+    #   if all params == False, falls back to 'min_params=True' (ie. just use 'gas_limit')
+    lst_gas_params = get_gas_params_lst(min_params=False, max_params=False, def_params=True, mpf_ratio=1.0)
     swap_tx = tx_build_sign_send(swap_tx, lst_gas_params, wait_rec=True)
-    print('DONE - build, sign, & send tx')
+    print(cStrDivider_1, 'DONE - tx _ build, sign, & send\n', sep='\n')
 
 def exe_input_cli():
     global SENDER_ADDRESS, ROUTER_CONTRACT, TOK_CONTR_0, TOK_CONTR_1, SWAP_TYPE_ET_FOR_T, SWAP_TYPE_T_FOR_ET
     # router contract, tok_contr (in), amount_exact (ET-T_in|T-ET_out), swap_path, swap_type (ET-T|T-ET)
-    s_path = int(input("Choose swap_path:\n 0 = WPLS to PDAI\n 1 = PDAI to WPLS\n > "))
-    swap_path = [wpls_addr, pdai_addr] if s_path == 0 else [pdai_addr, wpls_addr]
-    tok_in_contr = TOK_CONTR_0 if s_path == 0 else TOK_CONTR_1
     
-    s_type = int(input("Choose swap_type:\n 0 = SWAP_TYPE_ET_FOR_T\n 1 = SWAP_TYPE_T_FOR_ET\n > "))
-    swap_type = SWAP_TYPE_ET_FOR_T if s_type == 0 else SWAP_TYPE_T_FOR_ET
+    ## CHOOSE SWAP PATH
+    s_path = int(input("\n Choose swap_path:\n  0 = WPLS to PDAI\n  1 = PDAI to WPLS\n  > "))
+    assert 0 <= s_path <= 1, f"Invalid input: '{s_path}'"
+    if s_path == 0: swap_path = [wpls_addr, pdai_addr]
+    if s_path == 1: swap_path = [pdai_addr, wpls_addr]
+    if s_path == 0: swap_path_symb = [wpls_symb, pdai_symb]
+    if s_path == 1: swap_path_symb = [pdai_symb, wpls_symb]
+    if s_path == 0: tok_in_contr = TOK_CONTR_0
+    if s_path == 1: tok_in_contr = TOK_CONTR_1
     
-    str_inp = 'Input exact amount to '
-    if swap_type == SWAP_TYPE_ET_FOR_T: str_inp = str_inp + 'sell/trade-in ({swap_path[0]}):\n > '
-    if swap_type == SWAP_TYPE_T_FOR_ET: str_inp = str_inp + 'buy/receive-out ({swap_path[-1]}):\n > '
-    amnt_exact = int(input(str_inp))
+    ## CHOOSE SWAP TYPE
+    s_type = int(input("\n Choose swap_type:\n  0 = SWAP_TYPE_ET_FOR_T\n  1 = SWAP_TYPE_T_FOR_ET\n  > "))
+    assert 0 <= s_type <= 1, f"Invalid input: '{s_type}'"
+    if s_type == 0: swap_type = SWAP_TYPE_ET_FOR_T
+    if s_type == 1: swap_type = SWAP_TYPE_T_FOR_ET
+    
+    ## INPUT EXACT AMOUNT (IN/OUT)
+    str_inp = '\n Input exact amount to '
+    if swap_type == SWAP_TYPE_ET_FOR_T: str_inp = str_inp + f'sell (trade-in) for: {swap_path_symb[0]} ({swap_path[0]})\n  > '
+    if swap_type == SWAP_TYPE_T_FOR_ET: str_inp = str_inp + f'buy (receive-out) for: {swap_path_symb[-1]} ({swap_path[-1]})\n  > '
+    amnt_exact_inp = float(input(str_inp))
+    assert 0 < amnt_exact_inp, f"Invalid input: '{amnt_exact_inp}'"
+    amnt_exact = int(amnt_exact_inp * 10**18) # convert to BEAT (wei)
 
-    str_conf = "Confirm swap inputs..."
-    if swap_type == SWAP_TYPE_ET_FOR_T: # uses 'amount_in_exact'
-        amount_out = ROUTER_CONTRACT.functions.getAmountsOut(amnt_exact, path).call()[-1] # get 'out' estimate
-        str_conf = str_conf + "\n FROM tok: {swap_path[0]}\n  exact_amount-in: {amnt_exact}\n TO tok: {swap_path[-1]}\n  quote_amount-out: {amount_out}"
-    if swap_type == SWAP_TYPE_T_FOR_ET: # uses 'amount_out_exact'
-        amount_in = ROUTER_CONTRACT.functions.getAmountsIn(amnt_exact, path).call()[-1] # get 'in' estimate
-        str_conf = str_conf + "\n FROM tok: {swap_path[0]}\n  quote_amount-in: {amount_in}\n TO tok: {swap_path[-1]}\n  exact_amount-out: {amnt_exact}"
-    str_conf = str_conf + '\n using wallet_address: {SENDER_ADDRESS}'
+    ## INPUT SLIPPAGE PERCENT (%)
+    slip_perc = float(input('\n Input slippage as percent (%)\n  > '))
+    assert 0 <= slip_perc < 100, f"Invalid input: '{slip_perc}'"
+    
+    ## CONFIRM INPUTS
+    str_conf = f"\n Confirm swap inputs params...\n  using wallet_addr: {SENDER_ADDRESS}"
+    str_conf = str_conf + f"\n   trade-in   : {swap_path_symb[0]} ({swap_path[0]})\n   receive-out: {swap_path_symb[-1]} ({swap_path[-1]})"
+    if swap_type == SWAP_TYPE_ET_FOR_T: # uses exact amount 'in'
+        lst_amnts = ROUTER_CONTRACT.functions.getAmountsOut(amnt_exact, swap_path).call() # get lst_amnts (in/out)
+        amount_out = lst_amnts[-1] # -1 = 'out' estimate val in wei (10**18)
+        str_conf = str_conf + f"\n\n  QUOTE:\n   swap {amnt_exact_inp:,} {swap_path_symb[0]} (EXACT) for ~{(amount_out/10**18):,} {swap_path_symb[-1]}"
+        amount_out_min = int(amount_out - (amount_out * slip_perc / 100)) # considers slippage
+        str_conf = str_conf + f"\n\n  QUOTE (w/ {slip_perc}% slippage):\n   swap {amnt_exact_inp:,} {swap_path_symb[0]} (EXACT) for ~{(amount_out_min/10**18):,} {swap_path_symb[-1]} (MIN)"
+    if swap_type == SWAP_TYPE_T_FOR_ET: # uses exact amount 'out'
+        lst_amnts = ROUTER_CONTRACT.functions.getAmountsIn(amnt_exact, swap_path).call() # get lst_amnts (in/out); vals in wei (10**18)
+        amount_in = lst_amnts[0] # 0 = 'in' estimate val in wei (10**18)
+        str_conf = str_conf + f"\n\n  QUOTE:\n   swap ~{(amount_in/10**18):,} {swap_path_symb[0]} for {amnt_exact_inp:,} {swap_path_symb[-1]} (EXACT)"
+        amount_in_max = int(amount_in + (amount_in * slip_perc / 100)) # considers slippage
+        str_conf = str_conf + f"\n\n  QUOTE (w/ {slip_perc}% slippage):\n   swap ~{(amount_in_max/10**18):,} {swap_path_symb[0]} (MAX) for {amnt_exact_inp:,} {swap_path_symb[-1]} (EXACT)"
     
     # Fat-fingering check
-    confirm = input(str_conf+"\n\n  ... Ok? [y/n] > ")
-    if confirm.lower() != "y":
-        print("Aborted")
-        return False
-
-    amnt_exact = amnt_exact * 10**18 # convert BEAT (wei)
+    confirm = input(str_conf+"\n\n  OK to proceed? [y/n]\n   > ")
+    assert confirm.lower() == "y", f"Swap canceled by user input: '{confirm}' != 'y|Y'"
         
     # router contract, tok_contr (in), amount_exact (ET-T_in|T-ET_out), swap_path, swap_type (ET-T|T-ET)
     go_swap(ROUTER_CONTRACT, tok_in_contr, amnt_exact, swap_path, swap_type) # not tested
@@ -271,12 +303,22 @@ def exe_input_cli():
 #   DEFAULT SUPPORT                                          #
 #------------------------------------------------------------#
 READ_ME = f'''
+    *DESCRIPTION*
+        executes trade types ...
+            ET_to_T & T_to_ET
+            
+        swap paths supported ...
+            [pdai, wpls]
+            [wpls, pdai]
+        
+        run {__filename} and follow embedded CLI prompts
+        
     *EXAMPLE EXECUTION*
-        $ python3 {__filename} -<nil> <nil>
+        # run {__filename} and follow embedded CLI prompts
         $ python3 {__filename}
         
-    *NOTE* INPUT PARAMS...
-        nil
+    *NOTE* FLAGS & INPUT PARAMS...
+        -<nil> <nil>
 '''
 def wait_sleep(wait_sec : int, b_print=True, bp_one_line=True): # sleep 'wait_sec'
     print(f'waiting... {wait_sec} sec')
@@ -303,32 +345,34 @@ def go_main(debug=True):
     tok_bal_a, tok_bal_B = get_tok_bals(TOK_CONTR_0, TOK_CONTR_1, go_print=True)
 
     if not debug:
-        print(f'exe_input_cli() _ exe ...')
-        success = exe_input_cli()
-        print(f'exe_input_cli() _ success = {success}')
+        try:
+            print(f'exe_input_cli() ...')
+            success = exe_input_cli()
+            print(f'exe_input_cli() _ DONE (success = {success})')
+            
+            # print token swap balances (w/ pls balance) ... AFTER swap
+            tok_bal_a, tok_bal_b = get_tok_bals(TOK_CONTR_0, TOK_CONTR_1, go_print=True)
+            print('DONE - swap TOK for TOK testing')
+        except Exception as e:
+            print(f'\n *ERROR* -> {e} _ ABORTING\n')
     else:
+        pass
         #TOK_AMNT_0 = wpls_amnt_exact = 500 * 10**18 # how much tok 'a' we want to spend on tok 'b' purchase
         #TOK_AMNT_1 = pdai_amnt_exact = 30 * 10**18 # this is how much Ether we want to spend on our token purchase.
         
         # router contract, tok_contr (in), amount_exact (ET-T_in|T-ET_out), swap_path, swap_type (ET-T|T-ET)
-        go_swap(ROUTER_CONTRACT, TOK_CONTR_0, TOK_AMNT_1, [pdai_addr, wpls_addr], swap_type=SWAP_TYPE_T_FOR_ET) # not tested
-        #go_swap(ROUTER_CONTRACT, TOK_CONTR_0, TOK_AMNT_0, [pdai_addr, wpls_addr], swap_type=SWAP_TYPE_ET_FOR_T) # not tested
         #go_swap(ROUTER_CONTRACT, TOK_CONTR_1, TOK_AMNT_1, [wpls_addr, pdai_addr], swap_type=SWAP_TYPE_ET_FOR_T) # tested success
+        #go_swap(ROUTER_CONTRACT, TOK_CONTR_0, TOK_AMNT_1, [pdai_addr, wpls_addr], swap_type=SWAP_TYPE_T_FOR_ET) # tested success
+        
+        #go_swap(ROUTER_CONTRACT, TOK_CONTR_0, TOK_AMNT_0, [pdai_addr, wpls_addr], swap_type=SWAP_TYPE_ET_FOR_T) # not tested
         #go_swap(ROUTER_CONTRACT, TOK_CONTR_1, TOK_AMNT_0, [wpls_addr, pdai_addr], swap_type=SWAP_TYPE_T_FOR_ET) # not tested
-
-    # print token swap balances (w/ pls balance) ... AFTER swap
-    tok_bal_a, tok_bal_b = get_tok_bals(TOK_CONTR_0, TOK_CONTR_1, go_print=True)
-    print('DONE - swap TOK for TOK testing')
-
+    
+    # TODO: left off here... (input cli testing successful)
+    #   NEXT: design inputs for selective 'get_gas_params_lst()'
+    
     # TODO: review new 414 mintable (x2)
     #   ref: One Time Pass Fake (OTPF) -> 0x3815D67214216EC3683652c6f1DA4fD99F677d0b
     #   ref: One Time Pass Fake (OTPF)_ 2 -> 0x4443123a54A05bAF16089a3c922D0b9CF5901032
-
-    # TODO: left off here... need to test swapTokensForExactTokens
-    #   note: comment out swapExactTokensForTokens above
-    
-    # TODO: left off here... ready for input cli testing
-    #   NEXT: desing inputs for selective 'get_gas_params_lst()'
 
 if __name__ == "__main__":
     ## start ##
