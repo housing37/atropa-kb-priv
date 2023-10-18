@@ -89,10 +89,10 @@ def set_approval(contract_a, contract_b, amnt=-1):
     signed_tx = W3.eth.account.signTransaction(tx_data, private_key=SENDER_SECRET) # sign tx
     tx_hash = W3.eth.sendRawTransaction(signed_tx.rawTransaction) # send tx
     
-    print(f'waiting for mined receipt _ tx_hash: {tx_hash.hex()} ...') # wait for receipt
+    print(f'[{get_time_now()}] _ WAITING for mined receipt _ tx_hash: {tx_hash.hex()} ...') # wait for receipt
     tx_receipt = W3.eth.waitForTransactionReceipt(tx_hash)
     if tx_receipt and tx_receipt['status'] == 1:
-        print(f"'approve' successful:\n contract_a: {contract_a}\n approved contract_b: {contract_b}\n to spend SENDER_ADDRESS: {SENDER_ADDRESS} tokens\n amnt allowed: {amnt}\n tx_hash: {tx_hash.hex()}\n Transaction receipt: {tx_receipt}")
+        print(f"[{get_time_now()}] _ 'approve' SUCCESS:\n contract_a: {contract_a.address}\n approved contract_b: {contract_b.address}\n to spend SENDER_ADDRESS: {SENDER_ADDRESS} tokens\n amnt allowed: {amnt}\n tx_hash: {tx_hash.hex()}\n Transaction receipt: {tx_receipt}")
     else:
         print(f'*ERROR* Function "approve" execution failed...\n tx_hash: {tx_hash.hex()}\n Transaction receipt: {tx_receipt}')
 
@@ -401,9 +401,10 @@ def go_main(debug=True):
         #go_swap(ROUTER_CONTRACT, TOK_CONTR_1, TOK_AMNT_0, [wpls_addr, pdai_addr], swap_type=SWAP_TYPE_T_FOR_ET) # not tested
     
     # TODO: left off here... (input cli testing successful)
-    #   NEXT: integrate router selection
     #   NEXT: design inputs for selective 'get_gas_params_lst()'
     #   NEXT: add support for BOND minting STs and PTs
+    #   NEXT: test router select w/ token swaps with larger diffs between router versions
+	#	    like treasury to bond maybe or treasury to teddy maybe
     
     # TODO: review new 414 mintable (x2)
     #   ref: One Time Pass Fake (OTPF) -> 0x3815D67214216EC3683652c6f1DA4fD99F677d0b
