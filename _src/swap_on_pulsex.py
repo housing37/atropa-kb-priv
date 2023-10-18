@@ -303,7 +303,7 @@ def exe_input_cli():
             print(f'  [{i}] {n} QUOTE: *ERROR* ... aborts if chosen\n       {e}\n')
         
     ## CHOOSE PULSEX ROUTER VERSION
-    router_v = int(input(f'\n Choose pulsex router version:\n  0 = {lst_router_names[0]}\n  1 = {lst_router_names[1]}\n  2 = {lst_router_names[2]}\n  > '))
+    router_v = int(input(f'\n Choose pulsex router version:\n  0 = {lst_router_names[0]} ({lst_routers[0].address})\n  1 = {lst_router_names[1]} ({lst_routers[1].address})\n  2 = {lst_router_names[2]} ({lst_routers[2].address})\n  > '))
     assert 0 <= router_v < len(lst_routers), f"Invalid input: '{router_v}'"
     ROUTER_CONTRACT = lst_routers[router_v]
     router_name = lst_router_names[router_v]
