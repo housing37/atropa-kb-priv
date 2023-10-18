@@ -20,8 +20,12 @@ from web3 import Account, Web3
 #   GLOBALS
 #------------------------------------------------------------#
 # DYNAMIC INPUTS: set contract addr, abi, & amnt
-router_addr = _req_pulsex.pulsex_router_addr
-router_abi = _req_pulsex.pulsex_router_abi
+router_addr_v1 = _req_pulsex.pulsex_router02_addr_v1
+router_abi_v1 = _req_pulsex.pulsex_router02_abi_v1
+router_addr_v2 = _req_pulsex.pulsex_router02_addr_v2
+router_abi_v2 = _req_pulsex.pulsex_router02_abi_v2
+router_addr_vX = _req_pulsex.pulsex_router02_addr_vX
+router_abi_vX = _req_pulsex.pulsex_router02_abi_vX
 wpls_addr = _req_pulsex.contract_wpls_addr
 wpls_symb = _req_pulsex.contract_wpls_symb
 wpls_abi = _req_pulsex.contract_wpls_abi
@@ -45,7 +49,11 @@ W3 = Web3(Web3.HTTPProvider(RPC_URL))
 ACCOUNT = Account.from_key(SENDER_SECRET)
 
 print('loading contracts ...')
-ROUTER_CONTRACT = W3.eth.contract(address=router_addr, abi=router_abi)
+ROUTER_CONTRACT_v1 = W3.eth.contract(address=router_addr_v1, abi=router_abi_v1)
+ROUTER_CONTRACT_v2 = W3.eth.contract(address=router_addr_v2, abi=router_abi_v2)
+ROUTER_CONTRACT_vX = W3.eth.contract(address=router_addr_vX, abi=router_abi_vX)
+ROUTER_CONTRACT = ROUTER_CONTRACT_v1 # default to v1
+
 TOK_CONTR_0 = W3.eth.contract(address=wpls_addr, abi=wpls_abi)
 TOK_CONTR_1 = W3.eth.contract(address=pdai_addr, abi=pdai_abi)
 TOK_ADDR_0 = wpls_addr
@@ -186,15 +194,15 @@ def tx_build_sign_send(swap_tx, lst_gas_params=[], wait_rec=True):
     swap_tx = swap_tx.buildTransaction(tx_params)
     signed_tx = W3.eth.account.sign_transaction(swap_tx, ACCOUNT.key)
     tx_hash = W3.eth.send_raw_transaction(signed_tx.rawTransaction)
-    print(f'[{get_time_now()}] _ TX sent _ tx_hash: {tx_hash.hex()}\n tx_params: {tx_params}\n wait_rec={wait_rec}')
+    print(cStrDivider_1, f'[{get_time_now()}] _ TX sent\n tx_hash: {tx_hash.hex()}\n tx_params: {tx_params}\n wait_rec={wait_rec}', cStrDivider_1, sep='\n')
     if wait_rec:
         print(f'[{get_time_now()}] _ WAITING for mined tx receipt _ tx_hash: {tx_hash.hex()} ...') # wait for receipt
         tx_receipt = W3.eth.wait_for_transaction_receipt(tx_hash)
         if tx_receipt and tx_receipt['status'] == 1:
-            print(f"[{get_time_now()}] _ SUCCESS! tx mined _ tx_hash: {tx_hash.hex()}")
-            print(cStrDivider_1, f'Transaction receipt:\n {tx_receipt}', sep='\n')
+            print(f"[{get_time_now()}] _ SUCCESS! tx mined _ tx_hash: {tx_hash.hex()}", cStrDivider_1, sep='\n')
+            print(cStrDivider_1, f'TRANSACTION RECEIPT:\n {tx_receipt}', cStrDivider_1, sep='\n')
         else:
-            print(f'\n[{get_time_now()}] _ *ERROR* _ "build_sign_send_tx" execution failed...\n tx_hash: {tx_hash.hex()}\n Transaction receipt: {tx_receipt}\n')
+            print(cStrDivider, cStrDivider, f'\n[{get_time_now()}] _ *ERROR* _ "build_sign_send_tx" execution failed...\n tx_hash: {tx_hash.hex()}\n TRANSACTION RECEIPT: {tx_receipt}\n', cStrDivider, cStrDivider, sep='\n')
 
 # note: params checked/set in priority order; 'def|max_params' uses 'mpf_ratio'
 #   if all params == False, falls back to 'min_params=True' (ie. just use 'gas_limit')
@@ -217,7 +225,7 @@ def get_gas_params_lst(min_params=False, max_params=False, def_params=True, mpf_
         return [{'gas':gas_limit}]
 
 # router contract, tok_contr (in), amount_exact (in_ET-T|out_T-ET), swap_path, swap_type (ET-T|T-ET)
-def go_swap(rout_contr, tok_contr, amount_exact, swap_path=[], swap_type=1):
+def go_swap(rout_contr, tok_contr, amount_exact, swap_path=[], swap_type=1, slip_perc=0, time_out_sec=180):
     global ACCOUNT
     # check tok_contr allowance for swap, and approve if needed, then check again
     print('\nSTART - validate allowance ...', cStrDivider_1, sep='\n')
@@ -230,11 +238,11 @@ def go_swap(rout_contr, tok_contr, amount_exact, swap_path=[], swap_type=1):
     print('\nSTART - tx _ build, sign, & send ...', cStrDivider_1, sep='\n')
     if swap_type == SWAP_TYPE_ET_FOR_T:
         print('build swap_tx _ swapExactTokensForTokens ...')
-        swap_tx = tx_get_swap_exact_for_tokens(amount_exact, path=swap_path, slip_perc=1, dead_sec=180)
+        swap_tx = tx_get_swap_exact_for_tokens(amount_exact, path=swap_path, slip_perc=slip_perc, dead_sec=time_out_sec)
         print('build swap_tx _ swapExactTokensForTokens _ DONE')
     else:
         print('build swap_tx _ swapTokensForExactTokens ...')
-        swap_tx = tx_get_swap_tokens_for_exact(amount_exact, path=swap_path, slip_perc=1, dead_sec=180)
+        swap_tx = tx_get_swap_tokens_for_exact(amount_exact, path=swap_path, slip_perc=slip_perc, dead_sec=time_out_sec)
         print('build swap_tx _ swapTokensForExactTokens _ DONE')
 
     # note: params checked/set in priority order; 'def|max_params' uses 'mpf_ratio'
@@ -275,9 +283,34 @@ def exe_input_cli():
     slip_perc = float(input('\n Input slippage as percent (%)\n  > '))
     assert 0 <= slip_perc < 100, f"Invalid input: '{slip_perc}'"
     
-    ## CONFIRM INPUTS
-    str_conf = f"\n Confirm swap inputs params...\n  using wallet_addr: {SENDER_ADDRESS}"
-    str_conf = str_conf + f"\n   trade-in   : {swap_path_symb[0]} ({swap_path[0]})\n   receive-out: {swap_path_symb[-1]} ({swap_path[-1]})"
+    ## SHOW QUOTES FOR ALL ROUTERS
+    lst_routers = [ROUTER_CONTRACT_vX, ROUTER_CONTRACT_v1, ROUTER_CONTRACT_v2]
+    lst_router_names = ['PulseXSwapRouter', 'PulseX "v1"', 'PulseX "v2"']
+    print('\n Printing PulseX Router quote options:')
+    for i in range(0,len(lst_routers)):
+        rc = lst_routers[i]
+        n = lst_router_names[i]
+        try:
+            if swap_type == SWAP_TYPE_ET_FOR_T: # uses exact amount 'in'
+                lst_amnts = rc.functions.getAmountsOut(amnt_exact, swap_path).call() # get lst_amnts (in/out)
+                amount_out = lst_amnts[-1] # -1 = 'out' estimate val in wei (10**18)
+                print(f"  [{i}] {n} QUOTE: swap {amnt_exact_inp:,} {swap_path_symb[0]} (EXACT) for ~{(amount_out/10**18):,} {swap_path_symb[-1]}")
+            if swap_type == SWAP_TYPE_T_FOR_ET: # uses exact amount 'out'
+                lst_amnts = rc.functions.getAmountsIn(amnt_exact, swap_path).call() # get lst_amnts (in/out); vals in wei (10**18)
+                amount_in = lst_amnts[0] # 0 = 'in' estimate val in wei (10**18)
+                print(f"  [{i}] {n} QUOTE: swap ~{(amount_in/10**18):,} {swap_path_symb[0]} for {amnt_exact_inp:,} {swap_path_symb[-1]} (EXACT)")
+        except Exception as e:
+            print(f'  [{i}] {n} QUOTE: *ERROR* ... aborts if chosen\n       {e}\n')
+        
+    ## CHOOSE PULSEX ROUTER VERSION
+    router_v = int(input(f'\n Choose pulsex router version:\n  0 = {lst_router_names[0]}\n  1 = {lst_router_names[1]}\n  2 = {lst_router_names[2]}\n  > '))
+    assert 0 <= router_v < len(lst_routers), f"Invalid input: '{router_v}'"
+    ROUTER_CONTRACT = lst_routers[router_v]
+    router_name = lst_router_names[router_v]
+    
+    ## CONFIRM INPUTS (w/ new quotes)
+    str_conf = f"\n Confirm swap inputs params...\n  using wallet_addr: {SENDER_ADDRESS}\n  using {router_name}: {ROUTER_CONTRACT.address}"
+    str_conf = str_conf + f"\n   trade-in    {swap_path_symb[0]}: {swap_path[0]}\n   receive-out {swap_path_symb[-1]}: {swap_path[-1]}"
     if swap_type == SWAP_TYPE_ET_FOR_T: # uses exact amount 'in'
         lst_amnts = ROUTER_CONTRACT.functions.getAmountsOut(amnt_exact, swap_path).call() # get lst_amnts (in/out)
         amount_out = lst_amnts[-1] # -1 = 'out' estimate val in wei (10**18)
@@ -295,8 +328,8 @@ def exe_input_cli():
     confirm = input(str_conf+"\n\n  OK to proceed? [y/n]\n   > ")
     assert confirm.lower() == "y", f"Swap canceled by user input: '{confirm}' != 'y|Y'"
         
-    # router contract, tok_contr (in), amount_exact (ET-T_in|T-ET_out), swap_path, swap_type (ET-T|T-ET)
-    go_swap(ROUTER_CONTRACT, tok_in_contr, amnt_exact, swap_path, swap_type) # not tested
+    # router contract, tok_contr (in), amount_exact (ET-T_in|T-ET_out), swap_path, swap_type (ET-T|T-ET), slip_perc, dead_sec
+    go_swap(ROUTER_CONTRACT, tok_in_contr, amnt_exact, swap_path, swap_type, slip_perc) # not tested
     return True
     
 #------------------------------------------------------------#
@@ -368,6 +401,7 @@ def go_main(debug=True):
         #go_swap(ROUTER_CONTRACT, TOK_CONTR_1, TOK_AMNT_0, [wpls_addr, pdai_addr], swap_type=SWAP_TYPE_T_FOR_ET) # not tested
     
     # TODO: left off here... (input cli testing successful)
+    #   NEXT: integrate router selection
     #   NEXT: design inputs for selective 'get_gas_params_lst()'
     #   NEXT: add support for BOND minting STs and PTs
     
