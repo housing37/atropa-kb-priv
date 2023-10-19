@@ -10,7 +10,7 @@ cStrDivider_1 = '#--------------------------------------------------------------
 #------------------------------------------------------------#
 import sys, os, time
 from datetime import datetime
-import _req_pulsex # _req_bond
+import _req_pulsex as _p, _req_bond as _b
 from web3 import Account, Web3
 #import inspect # this_funcname = inspect.stack()[0].function
 #parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -20,26 +20,36 @@ from web3 import Account, Web3
 #   GLOBALS
 #------------------------------------------------------------#
 # DYNAMIC INPUTS: set contract addr, abi, & amnt
-router_addr_v1 = _req_pulsex.pulsex_router02_addr_v1
-router_abi_v1 = _req_pulsex.pulsex_router02_abi_v1
-router_addr_v2 = _req_pulsex.pulsex_router02_addr_v2
-router_abi_v2 = _req_pulsex.pulsex_router02_abi_v2
-router_addr_vX = _req_pulsex.pulsex_router02_addr_vX
-router_abi_vX = _req_pulsex.pulsex_router02_abi_vX
-wpls_addr = _req_pulsex.contract_wpls_addr
-wpls_symb = _req_pulsex.contract_wpls_symb
-wpls_abi = _req_pulsex.contract_wpls_abi
-pdai_addr = _req_pulsex.contract_pdai_addr
-pdai_symb = _req_pulsex.contract_pdai_symb
-pdai_abi = _req_pulsex.contract_pdai_abi
+router_addr_v1 = _p.pulsex_router02_addr_v1
+router_abi_v1 = _p.pulsex_router02_abi_v1
+router_addr_v2 = _p.pulsex_router02_addr_v2
+router_abi_v2 = _p.pulsex_router02_abi_v2
+router_addr_vX = _p.pulsex_router02_addr_vX
+router_abi_vX = _p.pulsex_router02_abi_vX
 
-wpls_amnt_exact = 500 * 10**18 # wpls exact trade amount
-pdai_amnt_exact = 30 * 10**18 # pdai exact trade amount
+addr_wpls = _p.contract_wpls_addr
+symb_wpls = _p.contract_wpls_symb
+abi_wpls = _p.contract_wpls_abi
+addr_pdai = _p.contract_pdai_addr
+symb_pdai = _p.contract_pdai_symb
+abi_pdai = _p.contract_pdai_abi
+
+# idx: 0 = addr[in,out], 1 = symb[in,out], 3 = addr[in] abi
+lst_swap_paths = [
+    [[addr_wpls, addr_pdai], [symb_wpls, symb_pdai], abi_wpls],
+    [[addr_pdai, addr_wpls], [symb_pdai, symb_wpls], abi_pdai],
+    
+    [[_b.addr_treas, _b.addr_bond], [_b.symb_treas, _b.symb_bond], _b.abi_treas],
+    [[_b.addr_bul8, _b.addr_bond], [_b.symb_bul8, _b.symb_bond], _b.abi_bul8],
+]
+
+#wpls_amnt_exact = 500 * 10**18 # wpls exact trade amount
+#pdai_amnt_exact = 30 * 10**18 # pdai exact trade amount
 
 # STATIC CONSTANTS
-RPC_URL = _req_pulsex.pulsechain_rpc_url
-SENDER_ADDRESS = _req_pulsex.sender_address
-SENDER_SECRET = _req_pulsex.sender_secret
+RPC_URL = _p.pulsechain_rpc_url
+SENDER_ADDRESS = _p.sender_address
+SENDER_SECRET = _p.sender_secret
 AMNT_MAX = 115792089237316195423570985008687907853269984665640564039457584007913129639935 # uint256.max
 SWAP_TYPE_ET_FOR_T = 0
 SWAP_TYPE_T_FOR_ET = 1
@@ -54,14 +64,14 @@ ROUTER_CONTRACT_v2 = W3.eth.contract(address=router_addr_v2, abi=router_abi_v2)
 ROUTER_CONTRACT_vX = W3.eth.contract(address=router_addr_vX, abi=router_abi_vX)
 ROUTER_CONTRACT = ROUTER_CONTRACT_v1 # default to v1
 
-TOK_CONTR_0 = W3.eth.contract(address=wpls_addr, abi=wpls_abi)
-TOK_CONTR_1 = W3.eth.contract(address=pdai_addr, abi=pdai_abi)
-TOK_ADDR_0 = wpls_addr
-TOK_ADDR_1 = pdai_addr
-TOK_SYMB_0 = wpls_symb
-TOK_SYMB_1 = pdai_symb
-TOK_AMNT_0 = wpls_amnt_exact
-TOK_AMNT_1 = pdai_amnt_exact
+TOK_CONTR_0 = W3.eth.contract(address=addr_wpls, abi=abi_wpls)
+TOK_CONTR_1 = W3.eth.contract(address=addr_pdai, abi=abi_pdai)
+#TOK_ADDR_0 = wpls_addr
+#TOK_ADDR_1 = pdai_addr
+#TOK_SYMB_0 = wpls_symb
+#TOK_SYMB_1 = pdai_symb
+#TOK_AMNT_0 = wpls_amnt_exact
+#TOK_AMNT_1 = pdai_amnt_exact
 
 #------------------------------------------------------------#
 #   FUNCTNION SUPPORT                                        #
@@ -252,19 +262,34 @@ def go_swap(rout_contr, tok_contr, amount_exact, swap_path=[], swap_type=1, slip
     print(cStrDivider_1, 'DONE - tx _ build, sign, & send\n', sep='\n')
 
 def exe_input_cli():
-    global SENDER_ADDRESS, ROUTER_CONTRACT, TOK_CONTR_0, TOK_CONTR_1, SWAP_TYPE_ET_FOR_T, SWAP_TYPE_T_FOR_ET
+    #global W3, SENDER_ADDRESS, ROUTER_CONTRACT, TOK_CONTR_0, TOK_CONTR_1, SWAP_TYPE_ET_FOR_T, SWAP_TYPE_T_FOR_ET
+    global W3, SENDER_ADDRESS, ROUTER_CONTRACT, SWAP_TYPE_ET_FOR_T, SWAP_TYPE_T_FOR_ET, lst_swap_paths
     # router contract, tok_contr (in), amount_exact (ET-T_in|T-ET_out), swap_path, swap_type (ET-T|T-ET)
     
     ## CHOOSE SWAP PATH
-    s_path = int(input("\n Choose swap_path:\n  0 = WPLS to PDAI\n  1 = PDAI to WPLS\n  > "))
-    assert 0 <= s_path <= 1, f"Invalid input: '{s_path}'"
-    if s_path == 0: swap_path = [wpls_addr, pdai_addr]
-    if s_path == 1: swap_path = [pdai_addr, wpls_addr]
-    if s_path == 0: swap_path_symb = [wpls_symb, pdai_symb]
-    if s_path == 1: swap_path_symb = [pdai_symb, wpls_symb]
-    if s_path == 0: tok_in_contr = TOK_CONTR_0
-    if s_path == 1: tok_in_contr = TOK_CONTR_1
+    str_ch_path = "\n Choose swap_path:"
+    for i in range(0, len(lst_swap_paths)):
+        l = lst_swap_paths[i] # lst_swap_paths idx: 0 = addr[in,out], 1 = symb[in,out], 2 = addr[in]->abi
+        str_ch_path = str_ch_path + f"\n  {i} = {l[1][0]} to {l[1][1]}"
+    str_ch_path = str_ch_path + '\n  > '
+    s_path = int(input(str_ch_path))
+    assert 0 <= s_path < len(lst_swap_paths), f"Invalid input: '{s_path}'"
+    swap_path = lst_swap_paths[s_path][0] # 0 = addr[in,out]
+    swap_path_symb = lst_swap_paths[s_path][1] # 1 = symb[in,out]
+    tok_in_contr = W3.eth.contract(address=swap_path[0], abi=lst_swap_paths[s_path][2]) # addr[in], addr[in]->abi
     
+#    ## CHOOSE SWAP PATH
+#    s_path = int(input("\n Choose swap_path:\n  0 = WPLS to PDAI\n  1 = PDAI to WPLS\n  > "))
+#    assert 0 <= s_path <= 1, f"Invalid input: '{s_path}'"
+#    if s_path == 0: swap_path = [wpls_addr, pdai_addr]
+#    if s_path == 1: swap_path = [pdai_addr, wpls_addr]
+#    if s_path == 0: swap_path_symb = [wpls_symb, pdai_symb]
+#    if s_path == 1: swap_path_symb = [pdai_symb, wpls_symb]
+##    if s_path == 0: tok_in_contr = TOK_CONTR_0
+##    if s_path == 1: tok_in_contr = TOK_CONTR_1
+#    if s_path == 0: tok_in_contr = W3.eth.contract(address=wpls_addr, abi=wpls_abi)
+#    if s_path == 1: tok_in_contr = W3.eth.contract(address=pdai_addr, abi=pdai_abi)
+
     ## CHOOSE SWAP TYPE
     s_type = int(input("\n Choose swap_type:\n  0 = SWAP_TYPE_ET_FOR_T\n  1 = SWAP_TYPE_T_FOR_ET\n  > "))
     assert 0 <= s_type <= 1, f"Invalid input: '{s_type}'"
