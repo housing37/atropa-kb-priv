@@ -71,49 +71,38 @@ abi_legal = [{"inputs":[],"stateMutability":"nonpayable","type":"constructor"},{
 #lst_st_vol = [leg_vol,st1_vol,st2_vol,st3_vol,st4_vol,st5_vol,st6_vol]
 #lst_st_abi = [leg_abi,st1_abi,st2_abi,st3_abi,st4_abi,st5_abi,st6_abi]
 
-# List for 'addr' variables
-lst_addr = [
-    addr_bond,
-    addr_legal,
-    addr_ojeon,
-    addr_ying,
-    addr_lol,
-    addr_atropa,
-    addr_treas,
-    addr_bul8
-]
-
-# List for 'symbol' variables
-lst_symb = [
-    symb_bond,
-    symb_legal,
-    symb_ojeon,
-    symb_ying,
-    symb_lol,
-    symb_atropa,
-    symb_treas,
-    symb_bul8
-]
-
-# List for 'abi' variables
-#lst_swap_paths = [
-#    [[addr_wpls, addr_pdai], [symb_wpls, symb_pdai], abi_wpls],
-#    [[addr_pdai, addr_wpls], [symb_pdai, symb_wpls], abi_pdai],
-#    [[addr_treas, addr_bond], [symb_treas, symb_bond], abi_treas],
-#    [[addr_bul8, addr_bond], [symb_bul8, symb_bond], abi_bul8],
-#    symb_legal:abi_legal,
-#    symb_ojeon:abi_ojeon,
-#    symb_ying:abi_ying,
-#    symb_lol:abi_lol,
-#    symb_atropa:abi_atropa,
-#    symb_treas:abi_treas,
-#    symb_bul8:abi_bul8
+## List for 'addr' variables
+#lst_addr = [
+#    addr_bond,
+#    addr_legal,
+#    addr_ojeon,
+#    addr_ying,
+#    addr_lol,
+#    addr_atropa,
+#    addr_treas,
+#    addr_bul8
 #]
-
-#lst_swap_paths = [
-#        # alt to ST
-#        
-#        # ST to PT
-#        [addr_treas, addr_bond],
-#        [addr_bul8, addr_bond],
-#    ]
+#
+## List for 'symbol' variables
+#lst_symb = [
+#    symb_bond,
+#    symb_legal,
+#    symb_ojeon,
+#    symb_ying,
+#    symb_lol,
+#    symb_atropa,
+#    symb_treas,
+#    symb_bul8
+#]
+#
+## List for 'abi' variables
+#lst_abi = [
+#    abi_bond,
+#    abi_legal,
+#    abi_ojeon,
+#    abi_ying,
+#    abi_lol,
+#    abi_atropa,
+#    abi_treas,
+#    abi_bul8
+#]

@@ -34,12 +34,17 @@ addr_pdai = _p.contract_pdai_addr
 symb_pdai = _p.contract_pdai_symb
 abi_pdai = _p.contract_pdai_abi
 
+inc_addr_rt = '0x2fa878Ab3F87CC1C9737Fc071108F904c0B0C95d'
 # idx: 0 = addr[in,out], 1 = symb[in,out], 3 = addr[in] abi
 lst_swap_paths = [
     [[addr_wpls, addr_pdai], [symb_wpls, symb_pdai], abi_wpls],
     [[addr_pdai, addr_wpls], [symb_pdai, symb_wpls], abi_pdai],
+
+    # treas -> bond (direct)
+    #[[_b.addr_treas, _b.addr_bond], [_b.symb_treas, _b.symb_bond], _b.abi_treas],
     
-    [[_b.addr_treas, _b.addr_bond], [_b.symb_treas, _b.symb_bond], _b.abi_treas],
+    # treas -> bond (w/ route: inc -> wpls) ... synces w/ v2-app.pulsex.com/swap    
+    [[_b.addr_treas, inc_addr_rt, addr_wpls, _b.addr_bond], [_b.symb_treas, _b.symb_bond], _b.abi_treas],
     [[_b.addr_bul8, _b.addr_bond], [_b.symb_bul8, _b.symb_bond], _b.abi_bul8],
 ]
 
@@ -262,7 +267,6 @@ def go_swap(rout_contr, tok_contr, amount_exact, swap_path=[], swap_type=1, slip
     print(cStrDivider_1, 'DONE - tx _ build, sign, & send\n', sep='\n')
 
 def exe_input_cli():
-    #global W3, SENDER_ADDRESS, ROUTER_CONTRACT, TOK_CONTR_0, TOK_CONTR_1, SWAP_TYPE_ET_FOR_T, SWAP_TYPE_T_FOR_ET
     global W3, SENDER_ADDRESS, ROUTER_CONTRACT, SWAP_TYPE_ET_FOR_T, SWAP_TYPE_T_FOR_ET, lst_swap_paths
     # router contract, tok_contr (in), amount_exact (ET-T_in|T-ET_out), swap_path, swap_type (ET-T|T-ET)
     
@@ -278,18 +282,6 @@ def exe_input_cli():
     swap_path_symb = lst_swap_paths[s_path][1] # 1 = symb[in,out]
     tok_in_contr = W3.eth.contract(address=swap_path[0], abi=lst_swap_paths[s_path][2]) # addr[in], addr[in]->abi
     
-#    ## CHOOSE SWAP PATH
-#    s_path = int(input("\n Choose swap_path:\n  0 = WPLS to PDAI\n  1 = PDAI to WPLS\n  > "))
-#    assert 0 <= s_path <= 1, f"Invalid input: '{s_path}'"
-#    if s_path == 0: swap_path = [wpls_addr, pdai_addr]
-#    if s_path == 1: swap_path = [pdai_addr, wpls_addr]
-#    if s_path == 0: swap_path_symb = [wpls_symb, pdai_symb]
-#    if s_path == 1: swap_path_symb = [pdai_symb, wpls_symb]
-##    if s_path == 0: tok_in_contr = TOK_CONTR_0
-##    if s_path == 1: tok_in_contr = TOK_CONTR_1
-#    if s_path == 0: tok_in_contr = W3.eth.contract(address=wpls_addr, abi=wpls_abi)
-#    if s_path == 1: tok_in_contr = W3.eth.contract(address=pdai_addr, abi=pdai_abi)
-
     ## CHOOSE SWAP TYPE
     s_type = int(input("\n Choose swap_type:\n  0 = SWAP_TYPE_ET_FOR_T\n  1 = SWAP_TYPE_T_FOR_ET\n  > "))
     assert 0 <= s_type <= 1, f"Invalid input: '{s_type}'"
@@ -319,11 +311,11 @@ def exe_input_cli():
             if swap_type == SWAP_TYPE_ET_FOR_T: # uses exact amount 'in'
                 lst_amnts = rc.functions.getAmountsOut(amnt_exact, swap_path).call() # get lst_amnts (in/out)
                 amount_out = lst_amnts[-1] # -1 = 'out' estimate val in wei (10**18)
-                print(f"  [{i}] {n} QUOTE: swap {amnt_exact_inp:,} {swap_path_symb[0]} (EXACT) for ~{(amount_out/10**18):,} {swap_path_symb[-1]}")
+                print(f"  [{i}] {n} QUOTE: swap {amnt_exact_inp:,} {swap_path_symb[0]} (EXACT) for ~{amount_out/10**18:,.10f} {swap_path_symb[-1]}")
             if swap_type == SWAP_TYPE_T_FOR_ET: # uses exact amount 'out'
                 lst_amnts = rc.functions.getAmountsIn(amnt_exact, swap_path).call() # get lst_amnts (in/out); vals in wei (10**18)
                 amount_in = lst_amnts[0] # 0 = 'in' estimate val in wei (10**18)
-                print(f"  [{i}] {n} QUOTE: swap ~{(amount_in/10**18):,} {swap_path_symb[0]} for {amnt_exact_inp:,} {swap_path_symb[-1]} (EXACT)")
+                print(f"  [{i}] {n} QUOTE: swap ~{amount_in/10**18:,.10f} {swap_path_symb[0]} for {amnt_exact_inp:,} {swap_path_symb[-1]} (EXACT)")
         except Exception as e:
             print(f'  [{i}] {n} QUOTE: *ERROR* ... aborts if chosen\n       {e}\n')
         
@@ -339,15 +331,15 @@ def exe_input_cli():
     if swap_type == SWAP_TYPE_ET_FOR_T: # uses exact amount 'in'
         lst_amnts = ROUTER_CONTRACT.functions.getAmountsOut(amnt_exact, swap_path).call() # get lst_amnts (in/out)
         amount_out = lst_amnts[-1] # -1 = 'out' estimate val in wei (10**18)
-        str_conf = str_conf + f"\n\n  QUOTE:\n   swap {amnt_exact_inp:,} {swap_path_symb[0]} (EXACT) for ~{(amount_out/10**18):,} {swap_path_symb[-1]}"
+        str_conf = str_conf + f"\n\n  QUOTE:\n   swap {amnt_exact_inp:,} {swap_path_symb[0]} (EXACT) for ~{amount_out/10**18:,.10f} {swap_path_symb[-1]}"
         amount_out_min = int(amount_out - (amount_out * slip_perc / 100)) # considers slippage
-        str_conf = str_conf + f"\n\n  QUOTE (w/ {slip_perc}% slippage):\n   swap {amnt_exact_inp:,} {swap_path_symb[0]} (EXACT) for ~{(amount_out_min/10**18):,} {swap_path_symb[-1]} (MIN)"
+        str_conf = str_conf + f"\n\n  QUOTE (w/ {slip_perc}% slippage):\n   swap {amnt_exact_inp:,} {swap_path_symb[0]} (EXACT) for ~{amount_out_min/10**18:,.10f} {swap_path_symb[-1]} (MIN)"
     if swap_type == SWAP_TYPE_T_FOR_ET: # uses exact amount 'out'
         lst_amnts = ROUTER_CONTRACT.functions.getAmountsIn(amnt_exact, swap_path).call() # get lst_amnts (in/out); vals in wei (10**18)
         amount_in = lst_amnts[0] # 0 = 'in' estimate val in wei (10**18)
-        str_conf = str_conf + f"\n\n  QUOTE:\n   swap ~{(amount_in/10**18):,} {swap_path_symb[0]} for {amnt_exact_inp:,} {swap_path_symb[-1]} (EXACT)"
+        str_conf = str_conf + f"\n\n  QUOTE:\n   swap ~{amount_in/10**18:,.10f} {swap_path_symb[0]} for {amnt_exact_inp:,} {swap_path_symb[-1]} (EXACT)"
         amount_in_max = int(amount_in + (amount_in * slip_perc / 100)) # considers slippage
-        str_conf = str_conf + f"\n\n  QUOTE (w/ {slip_perc}% slippage):\n   swap ~{(amount_in_max/10**18):,} {swap_path_symb[0]} (MAX) for {amnt_exact_inp:,} {swap_path_symb[-1]} (EXACT)"
+        str_conf = str_conf + f"\n\n  QUOTE (w/ {slip_perc}% slippage):\n   swap ~{amount_in_max/10**18:,.10f} {swap_path_symb[0]} (MAX) for {amnt_exact_inp:,} {swap_path_symb[-1]} (EXACT)"
     
     # Fat-fingering check
     confirm = input(str_conf+"\n\n  OK to proceed? [y/n]\n   > ")
