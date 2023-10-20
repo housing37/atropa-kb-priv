@@ -33,20 +33,35 @@ abi_wpls = _p.contract_wpls_abi
 addr_pdai = _p.contract_pdai_addr
 symb_pdai = _p.contract_pdai_symb
 abi_pdai = _p.contract_pdai_abi
+addr_inc_rt = '0x2fa878Ab3F87CC1C9737Fc071108F904c0B0C95d'
+symb_inc_rt = 'INC'
 
-inc_addr_rt = '0x2fa878Ab3F87CC1C9737Fc071108F904c0B0C95d'
+# note_101923: globals “LST_SWAP_PATHS_vX|v1|v2” must maintain in sync with each other
+#   in regards to idx: 0 = addr[in,out], 1 = symb[in,out], 3 = addr[in]->abi
+#          ie. -> idx: 0 = addr[0,-1], 1 = symb[0,-1], 3 = addr[0]->abi
+#    (EXCEPT vX: currently will always fail; need to figure out correct integration)
 # idx: 0 = addr[in,out], 1 = symb[in,out], 3 = addr[in] abi
-lst_swap_paths = [
+LST_SWAP_PATHS_vX = []
+LST_SWAP_PATHS_v1 = [
     [[addr_wpls, addr_pdai], [symb_wpls, symb_pdai], abi_wpls],
     [[addr_pdai, addr_wpls], [symb_pdai, symb_wpls], abi_pdai],
 
     # treas -> bond (direct)
-    #[[_b.addr_treas, _b.addr_bond], [_b.symb_treas, _b.symb_bond], _b.abi_treas],
-    
-    # treas -> bond (w/ route: inc -> wpls) ... synces w/ v2-app.pulsex.com/swap    
-    [[_b.addr_treas, inc_addr_rt, addr_wpls, _b.addr_bond], [_b.symb_treas, _b.symb_bond], _b.abi_treas],
+    [[_b.addr_treas, _b.addr_bond], [_b.symb_treas, _b.symb_bond], _b.abi_treas],
     [[_b.addr_bul8, _b.addr_bond], [_b.symb_bul8, _b.symb_bond], _b.abi_bul8],
 ]
+LST_SWAP_PATHS_v2 = [
+    [[addr_wpls, addr_pdai], [symb_wpls, symb_pdai], abi_wpls],
+    [[addr_pdai, addr_wpls], [symb_pdai, symb_wpls], abi_pdai],
+
+    # treas -> bond (w/ route: inc -> wpls) ... synces w/ v2-app.pulsex.com/swap
+    [[_b.addr_treas, addr_inc_rt, addr_wpls, _b.addr_bond], [_b.symb_treas, symb_inc_rt, symb_wpls, _b.symb_bond], _b.abi_treas],
+    [[_b.addr_bul8, _b.addr_bond], [_b.symb_bul8, _b.symb_bond], _b.abi_bul8],
+]
+
+# note: 'LST_SWAP_PATHS' is only used here for initial UI selection & display
+#   the actual 'swap_path' & 'tok_in_contr' is set later in '## CHOOSE PULSEX ROUTER VERSION'
+LST_SWAP_PATHS = LST_SWAP_PATHS_v1
 
 #wpls_amnt_exact = 500 * 10**18 # wpls exact trade amount
 #pdai_amnt_exact = 30 * 10**18 # pdai exact trade amount
@@ -267,20 +282,22 @@ def go_swap(rout_contr, tok_contr, amount_exact, swap_path=[], swap_type=1, slip
     print(cStrDivider_1, 'DONE - tx _ build, sign, & send\n', sep='\n')
 
 def exe_input_cli():
-    global W3, SENDER_ADDRESS, ROUTER_CONTRACT, SWAP_TYPE_ET_FOR_T, SWAP_TYPE_T_FOR_ET, lst_swap_paths
+    global W3, SENDER_ADDRESS, ROUTER_CONTRACT, SWAP_TYPE_ET_FOR_T, SWAP_TYPE_T_FOR_ET, LST_SWAP_PATHS
     # router contract, tok_contr (in), amount_exact (ET-T_in|T-ET_out), swap_path, swap_type (ET-T|T-ET)
     
     ## CHOOSE SWAP PATH
-    str_ch_path = "\n Choose swap_path:"
-    for i in range(0, len(lst_swap_paths)):
-        l = lst_swap_paths[i] # lst_swap_paths idx: 0 = addr[in,out], 1 = symb[in,out], 2 = addr[in]->abi
+    #   note: 'LST_SWAP_PATHS' is only used here for initial UI selection & display
+    #    the actual 'swap_path' & 'tok_in_contr' is set later in '## CHOOSE PULSEX ROUTER VERSION'
+    str_ch_path = "\n Choose Swap Tokens:"
+    for i in range(0, len(LST_SWAP_PATHS)):
+        l = LST_SWAP_PATHS[i] # LST_SWAP_PATHS idx: 0 = addr[in,out], 1 = symb[in,out], 2 = addr[in]->abi
         str_ch_path = str_ch_path + f"\n  {i} = {l[1][0]} to {l[1][1]}"
     str_ch_path = str_ch_path + '\n  > '
     s_path = int(input(str_ch_path))
-    assert 0 <= s_path < len(lst_swap_paths), f"Invalid input: '{s_path}'"
-    swap_path = lst_swap_paths[s_path][0] # 0 = addr[in,out]
-    swap_path_symb = lst_swap_paths[s_path][1] # 1 = symb[in,out]
-    tok_in_contr = W3.eth.contract(address=swap_path[0], abi=lst_swap_paths[s_path][2]) # addr[in], addr[in]->abi
+    assert 0 <= s_path < len(LST_SWAP_PATHS), f"Invalid input: '{s_path}'"
+    sw_path = LST_SWAP_PATHS[s_path][0] # 0 = addr[in,out]
+    sw_path_symb = LST_SWAP_PATHS[s_path][1] # 1 = symb[in,out]
+    #tok_in_contr = W3.eth.contract(address=sw_path[0], abi=LST_SWAP_PATHS[s_path][2]) # addr[in], addr[in]->abi
     
     ## CHOOSE SWAP TYPE
     s_type = int(input("\n Choose swap_type:\n  0 = SWAP_TYPE_ET_FOR_T\n  1 = SWAP_TYPE_T_FOR_ET\n  > "))
@@ -290,8 +307,8 @@ def exe_input_cli():
     
     ## INPUT EXACT AMOUNT (IN/OUT)
     str_inp = '\n Input exact amount to '
-    if swap_type == SWAP_TYPE_ET_FOR_T: str_inp = str_inp + f'sell (trade-in) for: {swap_path_symb[0]} ({swap_path[0]})\n  > '
-    if swap_type == SWAP_TYPE_T_FOR_ET: str_inp = str_inp + f'buy (receive-out) for: {swap_path_symb[-1]} ({swap_path[-1]})\n  > '
+    if swap_type == SWAP_TYPE_ET_FOR_T: str_inp = str_inp + f'sell (trade-in) for: {sw_path_symb[0]} ({sw_path[0]})\n  > '
+    if swap_type == SWAP_TYPE_T_FOR_ET: str_inp = str_inp + f'buy (receive-out) for: {sw_path_symb[-1]} ({sw_path[-1]})\n  > '
     amnt_exact_inp = float(input(str_inp))
     assert 0 < amnt_exact_inp, f"Invalid input: '{amnt_exact_inp}'"
     amnt_exact = int(amnt_exact_inp * 10**18) # convert to BEAT (wei)
@@ -300,34 +317,42 @@ def exe_input_cli():
     slip_perc = float(input('\n Input slippage as percent (%)\n  > '))
     assert 0 <= slip_perc < 100, f"Invalid input: '{slip_perc}'"
     
-    ## SHOW QUOTES FOR ALL ROUTERS
+    ## SHOW QUOTES FOR ALL ROUTERS (and their available swap paths)
     lst_routers = [ROUTER_CONTRACT_vX, ROUTER_CONTRACT_v1, ROUTER_CONTRACT_v2]
     lst_router_names = ['PulseXSwapRouter', 'PulseX "v1"', 'PulseX "v2"']
-    print('\n Printing PulseX Router quote options:')
+    lst_router_swap_paths = [LST_SWAP_PATHS_vX, LST_SWAP_PATHS_v1, LST_SWAP_PATHS_v2]
+    print('\n Printing PulseX Router quote options (w/ swap paths):')
     for i in range(0,len(lst_routers)):
-        rc = lst_routers[i]
-        n = lst_router_names[i]
         try:
+            rc = lst_routers[i]
+            n = lst_router_names[i]
+            sw_path = [] if 0 == len(lst_router_swap_paths[i]) else lst_router_swap_paths[i][s_path][0] # 0 = addr[in,out]
+            sw_path_symb = [] if 0 == len(lst_router_swap_paths[i]) else lst_router_swap_paths[i][s_path][1] # 1 = symb[in,out]
             if swap_type == SWAP_TYPE_ET_FOR_T: # uses exact amount 'in'
-                lst_amnts = rc.functions.getAmountsOut(amnt_exact, swap_path).call() # get lst_amnts (in/out)
+                lst_amnts = rc.functions.getAmountsOut(amnt_exact, sw_path).call() # get lst_amnts (in/out)
                 amount_out = lst_amnts[-1] # -1 = 'out' estimate val in wei (10**18)
-                print(f"  [{i}] {n} QUOTE: swap {amnt_exact_inp:,} {swap_path_symb[0]} (EXACT) for ~{amount_out/10**18:,.10f} {swap_path_symb[-1]}")
+                print(f"  [{i}] {n} _ SWAP PATH: {sw_path_symb}\n       QUOTE: swap {amnt_exact_inp:,} {sw_path_symb[0]} (EXACT) for ~{amount_out/10**18:,.10f} {sw_path_symb[-1]}")
             if swap_type == SWAP_TYPE_T_FOR_ET: # uses exact amount 'out'
-                lst_amnts = rc.functions.getAmountsIn(amnt_exact, swap_path).call() # get lst_amnts (in/out); vals in wei (10**18)
+                lst_amnts = rc.functions.getAmountsIn(amnt_exact, sw_path).call() # get lst_amnts (in/out); vals in wei (10**18)
                 amount_in = lst_amnts[0] # 0 = 'in' estimate val in wei (10**18)
-                print(f"  [{i}] {n} QUOTE: swap ~{amount_in/10**18:,.10f} {swap_path_symb[0]} for {amnt_exact_inp:,} {swap_path_symb[-1]} (EXACT)")
+                print(f"  [{i}] {n} _ SWAP PATH: {sw_path_symb}\n       QUOTE: swap ~{amount_in/10**18:,.10f} {sw_path_symb[0]} for {amnt_exact_inp:,} {sw_path_symb[-1]} (EXACT)")
         except Exception as e:
-            print(f'  [{i}] {n} QUOTE: *ERROR* ... aborts if chosen\n       {e}\n')
+            print(f'  [{i}] {n} _ SWAP PATH: {sw_path_symb}\n       QUOTE: *ERROR* ... aborts if chosen\n       {e}\n')
         
     ## CHOOSE PULSEX ROUTER VERSION
     router_v = int(input(f'\n Choose pulsex router version:\n  0 = {lst_router_names[0]} ({lst_routers[0].address})\n  1 = {lst_router_names[1]} ({lst_routers[1].address})\n  2 = {lst_router_names[2]} ({lst_routers[2].address})\n  > '))
     assert 0 <= router_v < len(lst_routers), f"Invalid input: '{router_v}'"
     ROUTER_CONTRACT = lst_routers[router_v]
     router_name = lst_router_names[router_v]
+    swap_path = lst_router_swap_paths[router_v][s_path][0] # 0 = addr[in,out]
+    swap_path_symb = lst_router_swap_paths[router_v][s_path][1] # 1 = symb[in,out]
+    tok_in_contr = W3.eth.contract(address=swap_path[0], abi=lst_router_swap_paths[router_v][s_path][2]) # addr[in], addr[in]->abi
     
     ## CONFIRM INPUTS (w/ new quotes)
     str_conf = f"\n Confirm swap inputs params...\n  using wallet_addr: {SENDER_ADDRESS}\n  using {router_name}: {ROUTER_CONTRACT.address}"
     str_conf = str_conf + f"\n   trade-in    {swap_path_symb[0]}: {swap_path[0]}\n   receive-out {swap_path_symb[-1]}: {swap_path[-1]}"
+    str_conf = str_conf + f'\n   swap path: {swap_path_symb}'
+    #str_conf = str_conf + f'\n   swap path: {swap_path}'
     if swap_type == SWAP_TYPE_ET_FOR_T: # uses exact amount 'in'
         lst_amnts = ROUTER_CONTRACT.functions.getAmountsOut(amnt_exact, swap_path).call() # get lst_amnts (in/out)
         amount_out = lst_amnts[-1] # -1 = 'out' estimate val in wei (10**18)
@@ -422,6 +447,7 @@ def go_main(debug=True):
     #   NEXT: add support for BOND minting STs and PTs
     #   NEXT: test router select w/ token swaps with larger diffs between router versions
 	#	    like treasury to bond maybe or treasury to teddy maybe
+    #   NEXT: decouple LST_SWAP_PATHS -> integrate one set of paths for each pulsex router version
     
     # TODO: review new 414 mintable (x2)
     #   ref: One Time Pass Fake (OTPF) -> 0x3815D67214216EC3683652c6f1DA4fD99F677d0b
