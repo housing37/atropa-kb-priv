@@ -20,19 +20,13 @@ from web3 import Account, Web3
 #   GLOBALS
 #------------------------------------------------------------#
 # DYNAMIC INPUTS: set contract addr, abi, & amnt
-router_addr_v1 = _p.pulsex_router02_addr_v1
-router_abi_v1 = _p.pulsex_router02_abi_v1
-router_addr_v2 = _p.pulsex_router02_addr_v2
-router_abi_v2 = _p.pulsex_router02_abi_v2
-router_addr_vX = _p.pulsex_router02_addr_vX
-router_abi_vX = _p.pulsex_router02_abi_vX
+router_addr_v1 = _p.addr_pulsex_router02_v1
+router_abi_v1 = _p.abi_pulsex_router02_v1
+router_addr_v2 = _p.addr_pulsex_router02_v2
+router_abi_v2 = _p.abi_pulsex_router02_v2
+router_addr_vX = _p.addr_pulsex_router02_vX
+router_abi_vX = _p.abi_pulsex_router02_vX
 
-addr_wpls = _p.contract_wpls_addr
-symb_wpls = _p.contract_wpls_symb
-abi_wpls = _p.contract_wpls_abi
-addr_pdai = _p.contract_pdai_addr
-symb_pdai = _p.contract_pdai_symb
-abi_pdai = _p.contract_pdai_abi
 addr_inc_rt = '0x2fa878Ab3F87CC1C9737Fc071108F904c0B0C95d'
 symb_inc_rt = 'INC'
 
@@ -43,20 +37,38 @@ symb_inc_rt = 'INC'
 # idx: 0 = addr[in,out], 1 = symb[in,out], 3 = addr[in] abi
 LST_SWAP_PATHS_vX = []
 LST_SWAP_PATHS_v1 = [
-    [[addr_wpls, addr_pdai], [symb_wpls, symb_pdai], abi_wpls],
-    [[addr_pdai, addr_wpls], [symb_pdai, symb_wpls], abi_pdai],
+    # wpls <-> pdai
+    [[_p.addr_wpls, _p.addr_pdai], [_p.symb_wpls, _p.symb_pdai], _p.abi_wpls],
+    [[_p.addr_pdai, _p.addr_wpls], [_p.symb_pdai, _p.symb_wpls], _p.abi_pdai],
 
+    # wpls <-> tsfi
+    [[_p.addr_wpls, _p.addr_tsfi], [_p.symb_wpls, _p.symb_tsfi], _p.abi_wpls],
+    [[_p.addr_tsfi, _p.addr_wpls], [_p.symb_tsfi, _p.symb_wpls], _p.abi_tsfi],
+    
+    # pdai <-> tsfi
+    [[_p.addr_pdai, _p.addr_tsfi], [_p.symb_pdai, _p.symb_tsfi], _p.abi_pdai],
+    [[_p.addr_tsfi, _p.addr_pdai], [_p.symb_tsfi, _p.symb_pdai], _p.abi_tsfi],
+    
     # treas -> bond (direct)
     [[_b.addr_treas, _b.addr_bond], [_b.symb_treas, _b.symb_bond], _b.abi_treas],
-    [[_b.addr_bul8, _b.addr_bond], [_b.symb_bul8, _b.symb_bond], _b.abi_bul8],
+    #[[_b.addr_bul8, _b.addr_bond], [_b.symb_bul8, _b.symb_bond], _b.abi_bul8], # bul8 abi error
 ]
 LST_SWAP_PATHS_v2 = [
-    [[addr_wpls, addr_pdai], [symb_wpls, symb_pdai], abi_wpls],
-    [[addr_pdai, addr_wpls], [symb_pdai, symb_wpls], abi_pdai],
+    # wpls <-> pdai
+    [[_p.addr_wpls, _p.addr_pdai], [_p.symb_wpls, _p.symb_pdai], _p.abi_wpls],
+    [[_p.addr_pdai, _p.addr_wpls], [_p.symb_pdai, _p.symb_wpls], _p.abi_pdai],
+    
+    # wpls <-> tsfi
+    [[_p.addr_wpls, _p.addr_tsfi], [_p.symb_wpls, _p.symb_tsfi], _p.abi_wpls],
+    [[_p.addr_tsfi, _p.addr_wpls], [_p.symb_tsfi, _p.symb_wpls], _p.abi_tsfi],
+    
+    # pdai <-> tsfi
+    [[_p.addr_pdai, _p.addr_tsfi], [_p.symb_pdai, _p.symb_tsfi], _p.abi_pdai],
+    [[_p.addr_tsfi, _p.addr_pdai], [_p.symb_tsfi, _p.symb_pdai], _p.abi_tsfi],
 
     # treas -> bond (w/ route: inc -> wpls) ... synces w/ v2-app.pulsex.com/swap
-    [[_b.addr_treas, addr_inc_rt, addr_wpls, _b.addr_bond], [_b.symb_treas, symb_inc_rt, symb_wpls, _b.symb_bond], _b.abi_treas],
-    [[_b.addr_bul8, _b.addr_bond], [_b.symb_bul8, _b.symb_bond], _b.abi_bul8],
+    [[_b.addr_treas, addr_inc_rt, _p.addr_wpls, _b.addr_bond], [_b.symb_treas, symb_inc_rt, _p.symb_wpls, _b.symb_bond], _b.abi_treas],
+    #[[_b.addr_bul8, _b.addr_bond], [_b.symb_bul8, _b.symb_bond], _b.abi_bul8], # bul8 abi error
 ]
 
 # note: 'LST_SWAP_PATHS' is only used here for initial UI selection & display
@@ -84,14 +96,17 @@ ROUTER_CONTRACT_v2 = W3.eth.contract(address=router_addr_v2, abi=router_abi_v2)
 ROUTER_CONTRACT_vX = W3.eth.contract(address=router_addr_vX, abi=router_abi_vX)
 ROUTER_CONTRACT = ROUTER_CONTRACT_v1 # default to v1
 
-TOK_CONTR_0 = W3.eth.contract(address=addr_wpls, abi=abi_wpls)
-TOK_CONTR_1 = W3.eth.contract(address=addr_pdai, abi=abi_pdai)
-#TOK_ADDR_0 = wpls_addr
-#TOK_ADDR_1 = pdai_addr
-#TOK_SYMB_0 = wpls_symb
-#TOK_SYMB_1 = pdai_symb
-#TOK_AMNT_0 = wpls_amnt_exact
-#TOK_AMNT_1 = pdai_amnt_exact
+CONTR_wpls = W3.eth.contract(address=_p.addr_wpls, abi=_p.abi_wpls)
+CONTR_pdai = W3.eth.contract(address=_p.addr_pdai, abi=_p.abi_pdai)
+CONTR_tsfi = W3.eth.contract(address=_p.addr_tsfi, abi=_p.abi_tsfi)
+
+#CONTR_bond = W3.eth.contract(address=_b.addr_bond, abi=_b.abi_bond) # bond abi error
+CONTR_bul8 = W3.eth.contract(address=_b.addr_bul8, abi=_b.abi_bul8)
+CONTR_treas = W3.eth.contract(address=_b.addr_treas, abi=_b.abi_treas)
+
+#LST_TOK_CONTR = [CONTR_wpls, CONTR_pdai, CONTR_tsfi, CONTR_bul8, CONTR_treas] # bul8 abi error
+LST_TOK_CONTR = [CONTR_wpls, CONTR_pdai, CONTR_tsfi, CONTR_treas]
+
 
 #------------------------------------------------------------#
 #   FUNCTNION SUPPORT                                        #
@@ -133,23 +148,24 @@ def get_sender_pls_bal(go_print=True):
     print(f" _ Sender Account Balance: {bal_eth} PLS = {bal_wei} BEAT (WEI)")
     return bal_eth
     
-def get_tok_bals(tok_contract_a, tok_contract_b, go_print=True):
+#def get_tok_bals(tok_contract_a, tok_contract_b, go_print=True):
+def get_tok_bals(lst_tok_contr, go_print=True):
     global W3, ACCOUNT
-    tok_name_a = tok_contract_a.functions.name().call()
-    tok_symb_a = tok_contract_a.functions.symbol().call()
-    tok_bal_a = tok_contract_a.functions.balanceOf(ACCOUNT.address).call()
     
-    tok_name_b = tok_contract_b.functions.name().call()
-    tok_symb_b = tok_contract_b.functions.symbol().call()
-    tok_bal_b = tok_contract_b.functions.balanceOf(ACCOUNT.address).call()
-
-    if go_print:
-        print('', cStrDivider_1, 'get_tok_bals ...', cStrDivider_1, sep='\n')
-        print(f' PLS balance: {(W3.eth.get_balance(ACCOUNT.address) / 10**18):,.2f}\n')
-        print(f' {tok_symb_a}: {tok_contract_a.address}\n   balance = {(tok_bal_a / 10**18):,} {tok_symb_a}\n')
-        print(f' {tok_symb_b}: {tok_contract_b.address}\n   balance = {(tok_bal_b / 10**18):,} {tok_symb_b}')
-        print(cStrDivider_1, 'get_tok_bals _ DONE', cStrDivider_1, '', sep='\n')
-    return tok_bal_a, tok_bal_b
+    print('', cStrDivider_1, 'get_tok_bals ...', cStrDivider_1, sep='\n')
+    print(f'Wallet Address: {ACCOUNT.address}')
+    print(f' PLS balance: {(W3.eth.get_balance(ACCOUNT.address) / 10**18):,.2f}\n')
+    
+    lst_bals = []
+    for c in lst_tok_contr:
+        tok_name = c.functions.name().call()
+        tok_symb = c.functions.symbol().call()
+        tok_bal = c.functions.balanceOf(ACCOUNT.address).call()
+        lst_bals.append(tok_bal)
+        if go_print:
+            print(f' {tok_symb}: {c.address}\n   balance = {(tok_bal / 10**18):,} {tok_symb}\n')
+    print(cStrDivider_1, 'get_tok_bals _ DONE', cStrDivider_1, '', sep='\n')
+    return list(lst_bals)
     
 # swap exact token amount FOR min token amount (after slippage)
 def tx_get_swap_exact_for_tokens(amount_in_exact=-1, path=[], slip_perc=1, dead_sec=180):
@@ -417,7 +433,7 @@ def read_cli_args():
 def go_main(debug=True):
     print('START - swap TOK for TOK testing')
     # print token swap balances (w/ pls balance) ... BEFORE swap
-    tok_bal_a, tok_bal_B = get_tok_bals(TOK_CONTR_0, TOK_CONTR_1, go_print=True)
+    lst_tok_bals = get_tok_bals(LST_TOK_CONTR, go_print=True)
 
     if not debug:
         try:
@@ -426,7 +442,7 @@ def go_main(debug=True):
             print(f'exe_input_cli() _ DONE (success = {success})')
             
             # print token swap balances (w/ pls balance) ... AFTER swap
-            tok_bal_a, tok_bal_b = get_tok_bals(TOK_CONTR_0, TOK_CONTR_1, go_print=True)
+            lst_tok_bals = get_tok_bals(LST_TOK_CONTR, go_print=True)
             print('DONE - swap TOK for TOK testing')
         except Exception as e:
             print(f'\n *ERROR* -> {e} _ ABORTING\n')
