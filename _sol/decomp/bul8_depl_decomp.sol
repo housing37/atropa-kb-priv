@@ -90,10 +90,6 @@ function burn(uint256 varg0) public payable {
     0xf01(varg0, msg.sender);
 }
 
-// house_091623: public mint start?
-//  "0x423a35c7" = 1,109,483,811.00
-//  note: might be able to pass '0' to this function and return success
-//      (w/ trading 0 for minting 0)
 function 0x4a50bbf3(uint256 varg0) public payable {
     require(4 + (msg.data.length - 4) - 4 >= 32);
     require(varg0 == varg0);

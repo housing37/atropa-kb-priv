@@ -52,7 +52,9 @@ LST_SWAP_PATHS_v1 = [
     
     # treas -> bond (direct)
     [[_b.addr_treas, _b.addr_bond], [_b.symb_treas, _b.symb_bond], _b.abi_treas],
-    #[[_b.addr_bul8, _b.addr_bond], [_b.symb_bul8, _b.symb_bond], _b.abi_bul8], # bul8 abi error
+    
+    # bul8 -> bond (direct)
+    [[_b.addr_bul8, _b.addr_bond], [_b.symb_bul8, _b.symb_bond], _b.abi_bul8],
 ]
 LST_SWAP_PATHS_v2 = [
     # wpls <-> pdai
@@ -67,9 +69,12 @@ LST_SWAP_PATHS_v2 = [
     [[_p.addr_pdai, _p.addr_tsfi], [_p.symb_pdai, _p.symb_tsfi], _p.abi_pdai],
     [[_p.addr_tsfi, _p.addr_pdai], [_p.symb_tsfi, _p.symb_pdai], _p.abi_tsfi],
 
-    # treas -> bond (w/ route: inc -> wpls) ... synces w/ v2-app.pulsex.com/swap
-    [[_b.addr_treas, addr_inc_rt, _p.addr_wpls, _b.addr_bond], [_b.symb_treas, symb_inc_rt, _p.symb_wpls, _b.symb_bond], _b.abi_treas],
-    #[[_b.addr_bul8, _b.addr_bond], [_b.symb_bul8, _b.symb_bond], _b.abi_bul8], # bul8 abi error
+    # treas -> bond (w/ routes: |wpls|, |inc -> wpls|) ... found w/ v2-app.pulsex.com/swap
+    [[_b.addr_treas, _p.addr_wpls, _b.addr_bond], [_b.symb_treas, _p.symb_wpls, _b.symb_bond], _b.abi_treas],
+    #[[_b.addr_treas, addr_inc_rt, _p.addr_wpls, _b.addr_bond], [_b.symb_treas, symb_inc_rt, _p.symb_wpls, _b.symb_bond], _b.abi_treas],
+    
+    # bul8 -> bond (direct)
+    [[_b.addr_bul8, _b.addr_bond], [_b.symb_bul8, _b.symb_bond], _b.abi_bul8],
 ]
 
 # note: 'LST_SWAP_PATHS' is only used here for initial UI selection & display
@@ -101,13 +106,11 @@ CONTR_wpls = W3.eth.contract(address=_p.addr_wpls, abi=_p.abi_wpls)
 CONTR_pdai = W3.eth.contract(address=_p.addr_pdai, abi=_p.abi_pdai)
 CONTR_tsfi = W3.eth.contract(address=_p.addr_tsfi, abi=_p.abi_tsfi)
 
-#CONTR_bond = W3.eth.contract(address=_b.addr_bond, abi=_b.abi_bond) # bond abi error
+CONTR_bond = W3.eth.contract(address=_b.addr_bond, abi=_b.abi_bond)
 CONTR_bul8 = W3.eth.contract(address=_b.addr_bul8, abi=_b.abi_bul8)
 CONTR_treas = W3.eth.contract(address=_b.addr_treas, abi=_b.abi_treas)
 
-#LST_TOK_CONTR = [CONTR_wpls, CONTR_pdai, CONTR_tsfi, CONTR_bul8, CONTR_treas] # bul8 abi error
-LST_TOK_CONTR = [CONTR_wpls, CONTR_pdai, CONTR_tsfi, CONTR_treas]
-
+LST_TOK_CONTR = [CONTR_wpls, CONTR_pdai, CONTR_tsfi, CONTR_treas, CONTR_bul8, CONTR_bond]
 
 #------------------------------------------------------------#
 #   FUNCTNION SUPPORT                                        #
@@ -351,8 +354,8 @@ def exe_input_cli():
     #    the actual 'swap_path' & 'tok_in_contr' is set later in '## CHOOSE PULSEX ROUTER VERSION'
     str_ch_path = "\n Choose Swap Tokens:"
     for i in range(0, len(LST_SWAP_PATHS)):
-        l = LST_SWAP_PATHS[i] # LST_SWAP_PATHS idx: 0 = addr[in,out], 1 = symb[in,out], 2 = addr[in]->abi
-        str_ch_path = str_ch_path + f"\n  {i} = {l[1][0]} to {l[1][1]}"
+        l = LST_SWAP_PATHS[i] # LST_SWAP_PATHS idx: 0 = addr[in,...,out], 1 = symb[in,...,out], 2 = addr[in]->abi
+        str_ch_path = str_ch_path + f"\n  {i} = {l[1][0]} to {l[1][-1]}"
     str_ch_path = str_ch_path + '\n  > '
     s_path = int(input(str_ch_path))
     assert 0 <= s_path < len(LST_SWAP_PATHS), f"Invalid input: '{s_path}'"
@@ -404,7 +407,7 @@ def exe_input_cli():
                 print(f"       QUOTE: swap {amnt_exact_inp:,} {sw_path_symb[0]} (EXACT) for ~{amount_out/10**18:,.10f} {sw_path_symb[-1]}")
                 
                 # print swap quote (usd)
-                tok_in_usd_price = f'~${(float(tok_in_usd_val) * amnt_exact_inp):.2f}'
+                tok_in_usd_price = f'~${(float(tok_in_usd_val) * amnt_exact_inp):,.2f}'
                 tok_out_usd_price = f'~${(float(tok_out_usd_val) * (amount_out/10**18)):,.2f}'
                 print(f"       usd est: swap {tok_in_usd_price} in {sw_path_symb[0]} for {tok_out_usd_price} in {sw_path_symb[-1]}\n")
             if swap_type == SWAP_TYPE_T_FOR_ET: # uses exact amount 'out'
@@ -414,8 +417,8 @@ def exe_input_cli():
                 print(f"       QUOTE: swap ~{amount_in/10**18:,.10f} {sw_path_symb[0]} for {amnt_exact_inp:,} {sw_path_symb[-1]} (EXACT)")
                 
                 # print swap quote (usd)
-                tok_in_usd_price = f'~${(float(tok_in_usd_val) * (amount_in/10**18)):.2f}'
-                tok_out_usd_price = f'~${(float(tok_out_usd_val) * amnt_exact_inp):.2f}'
+                tok_in_usd_price = f'~${(float(tok_in_usd_val) * (amount_in/10**18)):,.2f}'
+                tok_out_usd_price = f'~${(float(tok_out_usd_val) * amnt_exact_inp):,.2f}'
                 print(f"       usd est: swap {tok_in_usd_price} in {sw_path_symb[0]} for {tok_out_usd_price} in {sw_path_symb[-1]}\n")
         except Exception as e:
             print(f'       QUOTE: *ERROR* ... aborts if chosen\n       {e}\n')
