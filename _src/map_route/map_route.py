@@ -156,7 +156,13 @@ def go_main(run_default=True):
     addr_wpls = '0xA1077a294dDE1B09bB078844df40758a5D0f9a27'
     addr_bear = '0xd6c31bA0754C4383A41c0e9DF042C62b5e918f6d'
     addr_a1a = '0x697fc467720B2a8e1b2F7F665d0e3f28793E65e8'
+    
+    addr_legal = '0x0b1307dc5D90a0B60Be18D2634843343eBc098AF' # 1 LEGAL (LegalContract) _ 'LEGAL'
+    addr_ojeon = '0xFa4d9C6E012d946853386113ACbF166deC5465Bb' # 500 ã (OjeonContract) _ (ã = E3889D)
     addr_ying = '0x271197EFe41073681577CdbBFD6Ee1DA259BAa3c'
+    addr_lol = '0xA63F8061A67ecdbf147Cd1B60f91Cf95464E868D' # 999 LOL (LOLContract) _ (Þ = DE8D)
+    addr_treas = '0x463413c579D29c26D59a65312657DFCe30D545A1' # 100,000 Treasury (TreasuryBillContract) _ 'TREASURY BILL'
+    addr_bul8 = '0x2959221675bdF0e59D0cC3dE834a998FA5fFb9F4' # (1311 * 9**18) / 10**18 Bullion (Bullion8Contract) _ (â§ = E291A7)
     
     addr_write = '0x26D5906c4Cdf8C9F09CBd94049f99deaa874fB0b' # ޖޮޔިސްދޭވޯހީ (write) $M price token
     addr_r = '0x557F7e30aA6D909Cfe8a229A4CB178ab186EC622'
@@ -173,7 +179,24 @@ def go_main(run_default=True):
     get_lps(t_addr=addr_pdai,
             t_symb='pDAI',
             d_print=True)
-            
+    get_lps(t_addr=addr_legal,
+            t_symb='LEGAL',
+            d_print=True)
+    get_lps(t_addr=addr_ojeon,
+            t_symb='OJEON',
+            d_print=True)
+    get_lps(t_addr=addr_ying,
+            t_symb='YING',
+            d_print=True)
+    get_lps(t_addr=addr_lol,
+            t_symb='LOL',
+            d_print=True)
+    get_lps(t_addr=addr_treas,
+            t_symb='TREAS',
+            d_print=True)
+    get_lps(t_addr=addr_bul8,
+            t_symb='BUL8',
+            d_print=True)
     get_lps(t_addr=addr_bond,
             t_symb='BOND',
             d_print=True)
