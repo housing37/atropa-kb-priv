@@ -424,7 +424,7 @@ def go_swap(rout_contr, tok_contr, amount_exact, swap_path=[], swap_type=1, slip
     swap_tx = tx_build_sign_send(swap_tx, lst_gas_params, wait_rec=True)
     print(cStrDivider_1, 'DONE - tx _ build, sign, & send\n', sep='\n')
 
-def exe_input_cli():
+def exe_input_cli(show_start_bals=True):
     global W3, ACCOUNT, SENDER_ADDRESS, ROUTER_CONTRACT, SWAP_TYPE_ET_FOR_T, SWAP_TYPE_T_FOR_ET, LST_SWAP_PATHS
     # router contract, tok_contr (in), amount_exact (ET-T_in|T-ET_out), swap_path, swap_type (ET-T|T-ET)
     
@@ -440,7 +440,7 @@ def exe_input_cli():
     ACCOUNT = Account.from_key(SENDER_SECRET) # default
     
     # PRINT SENDER_ADDRESS BALANCES ... BEFORE swap
-    lst_tok_bals = get_tok_bals(LST_TOK_CONTR, go_print=True)
+    if show_start_bals: lst_tok_bals = get_tok_bals(LST_TOK_CONTR, go_print=True)
     
     ## CHOOSE SWAP PATH
     #   note: 'LST_SWAP_PATHS' is only used here for initial UI selection & display
@@ -500,8 +500,6 @@ def exe_input_cli():
                 print(f"       QUOTE: swap {amnt_exact_inp:,} {sw_path_symb[0]} (EXACT) for ~{amount_out/10**18:,.10f} {sw_path_symb[-1]}")
                 
                 # print swap quote (usd)
-#                tok_in_usd_price = f'~${(float(tok_in_usd_val) * amnt_exact_inp):,.2f}'
-#                tok_out_usd_price = f'~${(float(tok_out_usd_val) * (amount_out/10**18)):,.2f}'
                 tok_in_usd_price = float(tok_in_usd_val) * amnt_exact_inp
                 tok_out_usd_price = float(tok_out_usd_val) * (amount_out/10**18)
                 loss_gain_usd = tok_out_usd_price - tok_in_usd_price
@@ -519,8 +517,6 @@ def exe_input_cli():
                 print(f"       QUOTE: swap ~{amount_in/10**18:,.10f} {sw_path_symb[0]} for {amnt_exact_inp:,} {sw_path_symb[-1]} (EXACT)")
                 
                 # print swap quote (usd)
-#                tok_in_usd_price = f'~${(float(tok_in_usd_val) * (amount_in/10**18)):,.2f}'
-#                tok_out_usd_price = f'~${(float(tok_out_usd_val) * amnt_exact_inp):,.2f}'
                 tok_in_usd_price = float(tok_in_usd_val) * (amount_in/10**18)
                 tok_out_usd_price = float(tok_out_usd_val) * amnt_exact_inp
                 loss_gain_usd = tok_out_usd_price - tok_in_usd_price
@@ -586,12 +582,15 @@ READ_ME = f'''
         
         run {__filename} and follow embedded CLI prompts
         
+    *NOTE* FLAGS & INPUT PARAMS...
+        # print wallet balances BEFORE swap
+            '-sb' or '--start-balances'
+            
     *EXAMPLE EXECUTION*
         # run {__filename} and follow embedded CLI prompts
         $ python3 {__filename}
-        
-    *NOTE* FLAGS & INPUT PARAMS...
-        -<nil> <nil>
+        $ python3 {__filename} -sb
+        $ python3 {__filename} --start-balances
 '''
 def wait_sleep(wait_sec : int, b_print=True, bp_one_line=True): # sleep 'wait_sec'
     print(f'waiting... {wait_sec} sec')
@@ -612,12 +611,12 @@ def read_cli_args():
     print('read_cli_args _ DONE\n')
     return sys.argv, len(sys.argv)
 
-def go_main(debug=True):
+def go_main(debug=True, flag_sb=False):
     print('START - swap TOK for TOK testing')
     if not debug:
         try:
             print(f'exe_input_cli() ...')
-            success = exe_input_cli()
+            success = exe_input_cli(show_start_bals=flag_sb)
             print(f'exe_input_cli() _ DONE (success = {success})')
         except Exception as e:
             print(f'\n *ERROR* -> {e} _ ABORTING\n')
@@ -648,7 +647,8 @@ if __name__ == "__main__":
     lst_argv_OG, argv_cnt = read_cli_args()
     
     ## exe ##
-    go_main(debug=False)
+    print_sb = '-sb' in lst_argv_OG or '--start-balances' in lst_argv_OG
+    go_main(debug=False, flag_sb=print_sb)
     
     ## end ##
     print(f'\n\nRUN_TIME_START: {run_time_start}\nRUN_TIME_END:   {get_time_now()}\n')
