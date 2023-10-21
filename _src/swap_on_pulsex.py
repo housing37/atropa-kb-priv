@@ -503,7 +503,7 @@ def exe_input_cli(show_start_bals=True):
                 tok_in_usd_price = float(tok_in_usd_val) * amnt_exact_inp
                 tok_out_usd_price = float(tok_out_usd_val) * (amount_out/10**18)
                 loss_gain_usd = tok_out_usd_price - tok_in_usd_price
-                loss_gain_perc = (1 - (tok_in_usd_price / tok_out_usd_price)) * 100
+                loss_gain_perc = (1 - (tok_out_usd_price / tok_in_usd_price)) * -100
                 
                 tok_in_usd_price = f'~${tok_in_usd_price:,.2f}'
                 tok_out_usd_price = f'~${tok_out_usd_price:,.2f}'
@@ -520,7 +520,7 @@ def exe_input_cli(show_start_bals=True):
                 tok_in_usd_price = float(tok_in_usd_val) * (amount_in/10**18)
                 tok_out_usd_price = float(tok_out_usd_val) * amnt_exact_inp
                 loss_gain_usd = tok_out_usd_price - tok_in_usd_price
-                loss_gain_perc = (1 - (tok_in_usd_price / tok_out_usd_price)) * 100
+                loss_gain_perc = (1 - (tok_out_usd_price / tok_in_usd_price)) * -100
                 
                 tok_in_usd_price = f'~${tok_in_usd_price:,.2f}'
                 tok_out_usd_price = f'~${tok_out_usd_price:,.2f}'
