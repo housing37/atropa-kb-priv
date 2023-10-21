@@ -296,19 +296,9 @@ def parse_price_usd(data, tok_addr, plog=True):
             pair_skip_chain_cnt += 1
             if plog: print(f' ... found chainId: "{v["chainId"]}" != "pulsechain" OR dexId: "{v["dexId"]}" != "pulsex" ... skip/continue _ {pair_skip_chain_cnt}')
             continue
-
-        pair_addr = v['pairAddress']
         liquid = -1 if 'liquidity' not in v else v['liquidity']['usd']
-        chain_id = v['chainId']
-        dex_id = v['dexId']
-        labels = v['labels']
         price_usd = '-1' if 'priceUsd' not in v else v['priceUsd']
         base_tok_addr = v['baseToken']['address']
-        base_tok_symb = v['baseToken']['symbol']
-        base_tok_name = v['baseToken']['name']
-        quote_tok_addr = v['quoteToken']['address']
-        quote_tok_symb = v['quoteToken']['symbol']
-        quote_tok_name = v['quoteToken']['name']
         
         # track priceUsd of highest liquidity where tok_addr is baseToken
         if str(base_tok_addr) == str(tok_addr) and liquid > liq_high:
