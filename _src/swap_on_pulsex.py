@@ -491,47 +491,53 @@ def exe_input_cli(show_start_bals=True):
             sw_path = [] if 0 == len(lst_router_swap_paths[i]) else lst_router_swap_paths[i][s_path][0] # 0 = addr[in,out]
             sw_path_symb = [] if 0 == len(lst_router_swap_paths[i]) else lst_router_swap_paths[i][s_path][1] # 1 = symb[in,out]
             
-            # print swap paths
-            print(f"  [{i}] {n} _ SWAP PATH: {sw_path_symb}")
-            if swap_type == SWAP_TYPE_ET_FOR_T: # uses exact amount 'in'
-                # print swap quote (alts)
-                lst_amnts = rc.functions.getAmountsOut(amnt_exact, sw_path).call() # get lst_amnts (in/out)
-                amount_out = lst_amnts[-1] # -1 = 'out' estimate val in wei (10**18)
-                print(f"       QUOTE: swap {amnt_exact_inp:,} {sw_path_symb[0]} (EXACT) for ~{amount_out/10**18:,.10f} {sw_path_symb[-1]}")
-                
-                # print swap quote (usd)
-                tok_in_usd_price = float(tok_in_usd_val) * amnt_exact_inp
-                tok_out_usd_price = float(tok_out_usd_val) * (amount_out/10**18)
-                loss_gain_usd = tok_out_usd_price - tok_in_usd_price
-                loss_gain_perc = (1 - (tok_out_usd_price / tok_in_usd_price)) * -100
-                
-                tok_in_usd_price = f'~${tok_in_usd_price:,.2f}'
-                tok_out_usd_price = f'~${tok_out_usd_price:,.2f}'
-                loss_gain_usd = f'${loss_gain_usd:,.2f}'
-                loss_gain_perc = f'{loss_gain_perc:,.2f}%'
-                print(f"       usd est: swap {tok_in_usd_price} in {sw_path_symb[0]} for {tok_out_usd_price} in {sw_path_symb[-1]} _ LOSS/GAIN: {loss_gain_usd} ({loss_gain_perc})\n")
-            if swap_type == SWAP_TYPE_T_FOR_ET: # uses exact amount 'out'
-                # print swap quote (alts)
-                lst_amnts = rc.functions.getAmountsIn(amnt_exact, sw_path).call() # get lst_amnts (in/out); vals in wei (10**18)
-                amount_in = lst_amnts[0] # 0 = 'in' estimate val in wei (10**18)
-                print(f"       QUOTE: swap ~{amount_in/10**18:,.10f} {sw_path_symb[0]} for {amnt_exact_inp:,} {sw_path_symb[-1]} (EXACT)")
-                
-                # print swap quote (usd)
-                tok_in_usd_price = float(tok_in_usd_val) * (amount_in/10**18)
-                tok_out_usd_price = float(tok_out_usd_val) * amnt_exact_inp
-                loss_gain_usd = tok_out_usd_price - tok_in_usd_price
-                loss_gain_perc = (1 - (tok_out_usd_price / tok_in_usd_price)) * -100
-                
-                tok_in_usd_price = f'~${tok_in_usd_price:,.2f}'
-                tok_out_usd_price = f'~${tok_out_usd_price:,.2f}'
-                loss_gain_usd = f'${loss_gain_usd:,.2f}'
-                loss_gain_perc = f'{loss_gain_perc:,.2f}%'
-                print(f"       usd est: swap {tok_in_usd_price} in {sw_path_symb[0]} for {tok_out_usd_price} in {sw_path_symb[-1]} _ LOSS/GAIN: {loss_gain_usd} ({loss_gain_perc})\n")
+            # print swap paths w/ quotes (calcs 'quote_cnt' num of quotes)
+            #   each quote = amount / quote_cnt
+            #   if proceed: quote_cnt # 0 is used
+            quote_cnt = 4
+            print(f"  [{i}] {n} _ SWAP PATH: {sw_path_symb} _ x{quote_cnt}")
+            for i in range(0, quote_cnt):
+                amnt_exact_x = int(amnt_exact / (i+1))
+                amnt_exact_inp_x = amnt_exact_inp / (i+1)
+                if swap_type == SWAP_TYPE_ET_FOR_T: # uses exact amount 'in'
+                    # print swap quote (alts)
+                    lst_amnts = rc.functions.getAmountsOut(amnt_exact_x, sw_path).call() # get lst_amnts (in/out)
+                    amount_out = lst_amnts[-1] # -1 = 'out' estimate val in wei (10**18)
+                    print(f"       {i} _ QUOTE: swap {amnt_exact_inp_x:,} {sw_path_symb[0]} (EXACT) for ~{amount_out/10**18:,.10f} {sw_path_symb[-1]}")
+                    
+                    # print swap quote (usd)
+                    tok_in_usd_price = float(tok_in_usd_val) * amnt_exact_inp_x
+                    tok_out_usd_price = float(tok_out_usd_val) * (amount_out/10**18)
+                    loss_gain_usd = tok_out_usd_price - tok_in_usd_price
+                    loss_gain_perc = (1 - (tok_out_usd_price / tok_in_usd_price)) * -100
+                    
+                    tok_in_usd_price = f'~${tok_in_usd_price:,.2f}'
+                    tok_out_usd_price = f'~${tok_out_usd_price:,.2f}'
+                    loss_gain_usd = f'${loss_gain_usd:,.2f}'
+                    loss_gain_perc = f'{loss_gain_perc:,.2f}%'
+                    print(f"       {i} _ usd est: swap {tok_in_usd_price} in {sw_path_symb[0]} for {tok_out_usd_price} in {sw_path_symb[-1]} _ LOSS/GAIN: {loss_gain_usd} ({loss_gain_perc})\n")
+                if swap_type == SWAP_TYPE_T_FOR_ET: # uses exact amount 'out'
+                    # print swap quote (alts)
+                    lst_amnts = rc.functions.getAmountsIn(amnt_exact_x, sw_path).call() # get lst_amnts (in/out); vals in wei (10**18)
+                    amount_in = lst_amnts[0] # 0 = 'in' estimate val in wei (10**18)
+                    print(f"       {i} _ QUOTE: swap ~{amount_in/10**18:,.10f} {sw_path_symb[0]} for {amnt_exact_inp_x:,} {sw_path_symb[-1]} (EXACT)")
+                    
+                    # print swap quote (usd)
+                    tok_in_usd_price = float(tok_in_usd_val) * (amount_in/10**18)
+                    tok_out_usd_price = float(tok_out_usd_val) * amnt_exact_inp_x
+                    loss_gain_usd = tok_out_usd_price - tok_in_usd_price
+                    loss_gain_perc = (1 - (tok_out_usd_price / tok_in_usd_price)) * -100
+                    
+                    tok_in_usd_price = f'~${tok_in_usd_price:,.2f}'
+                    tok_out_usd_price = f'~${tok_out_usd_price:,.2f}'
+                    loss_gain_usd = f'${loss_gain_usd:,.2f}'
+                    loss_gain_perc = f'{loss_gain_perc:,.2f}%'
+                    print(f"       {i} _ usd est: swap {tok_in_usd_price} in {sw_path_symb[0]} for {tok_out_usd_price} in {sw_path_symb[-1]} _ LOSS/GAIN: {loss_gain_usd} ({loss_gain_perc})\n")
         except Exception as e:
             print(f'       QUOTE: *ERROR* ... aborts if chosen\n       {e}\n')
         
     ## CHOOSE PULSEX ROUTER VERSION
-    router_v = int(input(f'\n Choose pulsex router version:\n  0 = {lst_router_names[0]} ({lst_routers[0].address})\n  1 = {lst_router_names[1]} ({lst_routers[1].address})\n  2 = {lst_router_names[2]} ({lst_routers[2].address})\n  > '))
+    router_v = int(input(f'\n Choose pulsex router version (uses quote #0 above):\n  0 = {lst_router_names[0]} ({lst_routers[0].address})\n  1 = {lst_router_names[1]} ({lst_routers[1].address})\n  2 = {lst_router_names[2]} ({lst_routers[2].address})\n  > '))
     assert 0 <= router_v < len(lst_routers), f"Invalid input: '{router_v}'"
     ROUTER_CONTRACT = lst_routers[router_v]
     router_name = lst_router_names[router_v]
