@@ -10,6 +10,7 @@ cStrDivider_1 = '#--------------------------------------------------------------
 #------------------------------------------------------------#
 import sys, os, time
 from datetime import datetime
+import requests
 import _req_pulsex as _p, _req_bond as _b
 from web3 import Account, Web3
 #import inspect # this_funcname = inspect.stack()[0].function
@@ -270,6 +271,60 @@ def get_gas_params_lst(min_params=False, max_params=False, def_params=True, mpf_
     else:
         return [{'gas':gas_limit}]
 
+def exe_dexscreener_request(url='nil_url'):
+    try:
+        response = requests.get(url)
+        if response.status_code == 200:
+            data = response.json()
+            return data
+        else:
+            print(f"Request failed with status code {response.status_code}\n returning empty list")
+            return []
+    except requests.exceptions.RequestException as e:
+        # Handle request exceptions
+        print(f"Request error: {e};\n returning -1")
+        return -1
+        
+def parse_price_usd(data, tok_addr, plog=True):
+    lst_pair_toks = []
+    pair_skip_chain_cnt = 0
+    liq_high = -1
+    liq_high_price_usd = '-1'
+    for k,v in enumerate(data['pairs']):
+        # ignore pairs not from 'pulsechain'|'pulsex'
+        if v['chainId'] != 'pulsechain' or v['dexId'] != 'pulsex':
+            pair_skip_chain_cnt += 1
+            if plog: print(f' ... found chainId: "{v["chainId"]}" != "pulsechain" OR dexId: "{v["dexId"]}" != "pulsex" ... skip/continue _ {pair_skip_chain_cnt}')
+            continue
+
+        pair_addr = v['pairAddress']
+        liquid = -1 if 'liquidity' not in v else v['liquidity']['usd']
+        chain_id = v['chainId']
+        dex_id = v['dexId']
+        labels = v['labels']
+        price_usd = '-1' if 'priceUsd' not in v else v['priceUsd']
+        base_tok_addr = v['baseToken']['address']
+        base_tok_symb = v['baseToken']['symbol']
+        base_tok_name = v['baseToken']['name']
+        quote_tok_addr = v['quoteToken']['address']
+        quote_tok_symb = v['quoteToken']['symbol']
+        quote_tok_name = v['quoteToken']['name']
+        
+        # track priceUsd of highest liquidity where tok_addr is baseToken
+        if str(base_tok_addr) == str(tok_addr) and liquid > liq_high:
+            liq_high = liquid
+            liq_high_price_usd = price_usd
+    return liq_high_price_usd
+            
+def get_price_usd(t_addr='nil_', t_symb='nil_', d_print=True):
+    if d_print: print('', cStrDivider, f'Getting USD price for T | {t_symb}: {t_addr} _ {get_time_now()}', cStrDivider, sep='\n')
+    data = exe_dexscreener_request(f"https://api.dexscreener.io/latest/dex/tokens/{t_addr}")
+    price_usd = parse_price_usd(data, t_addr, d_print)
+        # NOTE: ignores pairs not from 'pulsechain'|'pulsex'
+        
+    if d_print: print('', cStrDivider, f'priceUsd for T | {t_symb}: {t_addr} = ${price_usd} _ {get_time_now()}', cStrDivider, sep='\n')
+    return price_usd
+    
 # router contract, tok_contr (in), amount_exact (in_ET-T|out_T-ET), swap_path, swap_type (ET-T|T-ET)
 def go_swap(rout_contr, tok_contr, amount_exact, swap_path=[], swap_type=1, slip_perc=0, time_out_sec=180):
     global ACCOUNT
@@ -333,6 +388,11 @@ def exe_input_cli():
     slip_perc = float(input('\n Input slippage as percent (%)\n  > '))
     assert 0 <= slip_perc < 100, f"Invalid input: '{slip_perc}'"
     
+    ## GET USD PRICES FOR TOKEN-IN / TOKEN-OUT
+    tok_in_usd_val = get_price_usd(t_addr=sw_path[0], t_symb=sw_path_symb[0], d_print=False)
+    tok_out_usd_val = get_price_usd(t_addr=sw_path[-1], t_symb=sw_path_symb[-1], d_print=False)
+    print(f'\n Printing Dexscreener USD prices:\n  {sw_path_symb[0]} x1 = ${tok_in_usd_val}\n  {sw_path_symb[-1]} x1 = ${tok_out_usd_val}')
+    
     ## SHOW QUOTES FOR ALL ROUTERS (and their available swap paths)
     lst_routers = [ROUTER_CONTRACT_vX, ROUTER_CONTRACT_v1, ROUTER_CONTRACT_v2]
     lst_router_names = ['PulseXSwapRouter', 'PulseX "v1"', 'PulseX "v2"']
@@ -344,16 +404,31 @@ def exe_input_cli():
             n = lst_router_names[i]
             sw_path = [] if 0 == len(lst_router_swap_paths[i]) else lst_router_swap_paths[i][s_path][0] # 0 = addr[in,out]
             sw_path_symb = [] if 0 == len(lst_router_swap_paths[i]) else lst_router_swap_paths[i][s_path][1] # 1 = symb[in,out]
+            
+            # print swap paths
+            print(f"  [{i}] {n} _ SWAP PATH: {sw_path_symb}")
             if swap_type == SWAP_TYPE_ET_FOR_T: # uses exact amount 'in'
+                # print swap quote (alts)
                 lst_amnts = rc.functions.getAmountsOut(amnt_exact, sw_path).call() # get lst_amnts (in/out)
                 amount_out = lst_amnts[-1] # -1 = 'out' estimate val in wei (10**18)
-                print(f"  [{i}] {n} _ SWAP PATH: {sw_path_symb}\n       QUOTE: swap {amnt_exact_inp:,} {sw_path_symb[0]} (EXACT) for ~{amount_out/10**18:,.10f} {sw_path_symb[-1]}")
+                print(f"       QUOTE: swap {amnt_exact_inp:,} {sw_path_symb[0]} (EXACT) for ~{amount_out/10**18:,.10f} {sw_path_symb[-1]}")
+                
+                # print swap quote (usd)
+                tok_in_usd_price = f'~${(float(tok_in_usd_val) * amnt_exact_inp):.2f}'
+                tok_out_usd_price = f'~${(float(tok_out_usd_val) * (amount_out/10**18)):,.2f}'
+                print(f"       usd est: swap {tok_in_usd_price} in {sw_path_symb[0]} for {tok_out_usd_price} in {sw_path_symb[-1]}\n")
             if swap_type == SWAP_TYPE_T_FOR_ET: # uses exact amount 'out'
+                # print swap quote (alts)
                 lst_amnts = rc.functions.getAmountsIn(amnt_exact, sw_path).call() # get lst_amnts (in/out); vals in wei (10**18)
                 amount_in = lst_amnts[0] # 0 = 'in' estimate val in wei (10**18)
-                print(f"  [{i}] {n} _ SWAP PATH: {sw_path_symb}\n       QUOTE: swap ~{amount_in/10**18:,.10f} {sw_path_symb[0]} for {amnt_exact_inp:,} {sw_path_symb[-1]} (EXACT)")
+                print(f"       QUOTE: swap ~{amount_in/10**18:,.10f} {sw_path_symb[0]} for {amnt_exact_inp:,} {sw_path_symb[-1]} (EXACT)")
+                
+                # print swap quote (usd)
+                tok_in_usd_price = f'~${(float(tok_in_usd_val) * (amount_in/10**18)):.2f}'
+                tok_out_usd_price = f'~${(float(tok_out_usd_val) * amnt_exact_inp):.2f}'
+                print(f"       usd est: swap {tok_in_usd_price} in {sw_path_symb[0]} for {tok_out_usd_price} in {sw_path_symb[-1]}\n")
         except Exception as e:
-            print(f'  [{i}] {n} _ SWAP PATH: {sw_path_symb}\n       QUOTE: *ERROR* ... aborts if chosen\n       {e}\n')
+            print(f'       QUOTE: *ERROR* ... aborts if chosen\n       {e}\n')
         
     ## CHOOSE PULSEX ROUTER VERSION
     router_v = int(input(f'\n Choose pulsex router version:\n  0 = {lst_router_names[0]} ({lst_routers[0].address})\n  1 = {lst_router_names[1]} ({lst_routers[1].address})\n  2 = {lst_router_names[2]} ({lst_routers[2].address})\n  > '))
@@ -461,9 +536,6 @@ def go_main(debug=True):
     # TODO: left off here... (input cli testing successful)
     #   NEXT: design inputs for selective 'get_gas_params_lst()'
     #   NEXT: add support for BOND minting STs and PTs
-    #   NEXT: test router select w/ token swaps with larger diffs between router versions
-	#	    like treasury to bond maybe or treasury to teddy maybe
-    #   NEXT: decouple LST_SWAP_PATHS -> integrate one set of paths for each pulsex router version
     
     # TODO: review new 414 mintable (x2)
     #   ref: One Time Pass Fake (OTPF) -> 0x3815D67214216EC3683652c6f1DA4fD99F677d0b
