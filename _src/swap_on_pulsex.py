@@ -500,9 +500,18 @@ def exe_input_cli():
                 print(f"       QUOTE: swap {amnt_exact_inp:,} {sw_path_symb[0]} (EXACT) for ~{amount_out/10**18:,.10f} {sw_path_symb[-1]}")
                 
                 # print swap quote (usd)
-                tok_in_usd_price = f'~${(float(tok_in_usd_val) * amnt_exact_inp):,.2f}'
-                tok_out_usd_price = f'~${(float(tok_out_usd_val) * (amount_out/10**18)):,.2f}'
-                print(f"       usd est: swap {tok_in_usd_price} in {sw_path_symb[0]} for {tok_out_usd_price} in {sw_path_symb[-1]}\n")
+#                tok_in_usd_price = f'~${(float(tok_in_usd_val) * amnt_exact_inp):,.2f}'
+#                tok_out_usd_price = f'~${(float(tok_out_usd_val) * (amount_out/10**18)):,.2f}'
+                tok_in_usd_price = float(tok_in_usd_val) * amnt_exact_inp
+                tok_out_usd_price = float(tok_out_usd_val) * (amount_out/10**18)
+                loss_gain_usd = tok_out_usd_price - tok_in_usd_price
+                loss_gain_perc = (1 - (tok_in_usd_price / tok_out_usd_price)) * 100
+                
+                tok_in_usd_price = f'~${tok_in_usd_price:,.2f}'
+                tok_out_usd_price = f'~${tok_out_usd_price:,.2f}'
+                loss_gain_usd = f'${loss_gain_usd:,.2f}'
+                loss_gain_perc = f'{loss_gain_perc:,.2f}%'
+                print(f"       usd est: swap {tok_in_usd_price} in {sw_path_symb[0]} for {tok_out_usd_price} in {sw_path_symb[-1]} _ LOSS/GAIN: {loss_gain_usd} ({loss_gain_perc})\n")
             if swap_type == SWAP_TYPE_T_FOR_ET: # uses exact amount 'out'
                 # print swap quote (alts)
                 lst_amnts = rc.functions.getAmountsIn(amnt_exact, sw_path).call() # get lst_amnts (in/out); vals in wei (10**18)
@@ -510,9 +519,18 @@ def exe_input_cli():
                 print(f"       QUOTE: swap ~{amount_in/10**18:,.10f} {sw_path_symb[0]} for {amnt_exact_inp:,} {sw_path_symb[-1]} (EXACT)")
                 
                 # print swap quote (usd)
-                tok_in_usd_price = f'~${(float(tok_in_usd_val) * (amount_in/10**18)):,.2f}'
-                tok_out_usd_price = f'~${(float(tok_out_usd_val) * amnt_exact_inp):,.2f}'
-                print(f"       usd est: swap {tok_in_usd_price} in {sw_path_symb[0]} for {tok_out_usd_price} in {sw_path_symb[-1]}\n")
+#                tok_in_usd_price = f'~${(float(tok_in_usd_val) * (amount_in/10**18)):,.2f}'
+#                tok_out_usd_price = f'~${(float(tok_out_usd_val) * amnt_exact_inp):,.2f}'
+                tok_in_usd_price = float(tok_in_usd_val) * (amount_in/10**18)
+                tok_out_usd_price = float(tok_out_usd_val) * amnt_exact_inp
+                loss_gain_usd = tok_out_usd_price - tok_in_usd_price
+                loss_gain_perc = (1 - (tok_in_usd_price / tok_out_usd_price)) * 100
+                
+                tok_in_usd_price = f'~${tok_in_usd_price:,.2f}'
+                tok_out_usd_price = f'~${tok_out_usd_price:,.2f}'
+                loss_gain_usd = f'${loss_gain_usd:,.2f}'
+                loss_gain_perc = f'{loss_gain_perc:,.2f}%'
+                print(f"       usd est: swap {tok_in_usd_price} in {sw_path_symb[0]} for {tok_out_usd_price} in {sw_path_symb[-1]} _ LOSS/GAIN: {loss_gain_usd} ({loss_gain_perc})\n")
         except Exception as e:
             print(f'       QUOTE: *ERROR* ... aborts if chosen\n       {e}\n')
         
