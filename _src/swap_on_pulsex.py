@@ -129,10 +129,16 @@ CONTR_pdai = W3.eth.contract(address=_p.addr_pdai, abi=_p.abi_pdai)
 CONTR_tsfi = W3.eth.contract(address=_p.addr_tsfi, abi=_p.abi_tsfi)
 
 CONTR_bond = W3.eth.contract(address=_b.addr_bond, abi=_b.abi_bond)
-CONTR_bul8 = W3.eth.contract(address=_b.addr_bul8, abi=_b.abi_bul8)
+CONTR_legal = W3.eth.contract(address=_b.addr_legal, abi=_b.abi_legal)
+CONTR_ojeon = W3.eth.contract(address=_b.addr_ojeon, abi=_b.abi_ojeon)
+CONTR_ying = W3.eth.contract(address=_b.addr_ying, abi=_b.abi_ying)
+CONTR_lol = W3.eth.contract(address=_b.addr_lol, abi=_b.abi_lol)
+CONTR_atropa = W3.eth.contract(address=_b.addr_atropa, abi=_b.abi_atropa)
 CONTR_treas = W3.eth.contract(address=_b.addr_treas, abi=_b.abi_treas)
+CONTR_bul8 = W3.eth.contract(address=_b.addr_bul8, abi=_b.abi_bul8)
 
-LST_TOK_CONTR = [CONTR_wpls, CONTR_pdai, CONTR_tsfi, CONTR_treas, CONTR_bul8, CONTR_bond]
+
+LST_TOK_CONTR = [CONTR_wpls, CONTR_pdai, CONTR_tsfi, CONTR_legal, CONTR_ojeon, CONTR_ying, CONTR_lol, CONTR_atropa, CONTR_treas, CONTR_bul8, CONTR_bond]
 
 #------------------------------------------------------------#
 #   FUNCTNION SUPPORT                                        #
