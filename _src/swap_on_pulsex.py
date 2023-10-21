@@ -52,6 +52,10 @@ LST_SWAP_PATHS_v1 = [
     [[_p.addr_wpls, _b.addr_bul8], [_p.symb_wpls, _b.symb_bul8], _p.abi_wpls],
     #[[_p.addr_wpls, _p.addr_bear, _b.addr_bul8], [_p.symb_wpls, _p.symb_bear, _b.symb_bul8], _p.abi_wpls],
     
+    # wpls -> bond (102123_error: default, |bear|)
+    [[_p.addr_wpls, _b.addr_bond], [_p.symb_wpls, _b.symb_bond], _p.abi_wpls],
+    #[[_p.addr_wpls, _p.addr_bear, _b.addr_bond], [_p.symb_wpls, _p.symb_bear, _b.symb_bond], _p.abi_wpls],
+    
     # pdai -> wpls
     [[_p.addr_pdai, _p.addr_wpls], [_p.symb_pdai, _p.symb_wpls], _p.abi_pdai],
     
@@ -100,6 +104,10 @@ LST_SWAP_PATHS_v2 = [
     #[[_p.addr_wpls, _b.addr_bul8], [_p.symb_wpls, _b.symb_bul8], _p.abi_wpls],
     [[_p.addr_wpls, _p.addr_bear, _b.addr_bul8], [_p.symb_wpls, _p.symb_bear, _b.symb_bul8], _p.abi_wpls],
     
+    # wpls -> bond (102123_high_quote: default, 102123_error: |bear|)
+    [[_p.addr_wpls, _b.addr_bond], [_p.symb_wpls, _b.symb_bond], _p.abi_wpls],
+    #[[_p.addr_wpls, _p.addr_bear, _b.addr_bond], [_p.symb_wpls, _p.symb_bear, _b.symb_bond], _p.abi_wpls],
+
     # pdai -> wpls
     [[_p.addr_pdai, _p.addr_wpls], [_p.symb_pdai, _p.symb_wpls], _p.abi_pdai],
     
