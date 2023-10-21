@@ -33,7 +33,8 @@ addr_atropa = '0xCc78A0acDF847A2C1714D2A925bB4477df5d48a6' # 313 Atropa (AtropaC
 addr_treas = '0x463413c579D29c26D59a65312657DFCe30D545A1' # 100,000 Treasury (TreasuryBillContract) _ 'TREASURY BILL'
 addr_bul8 = '0x2959221675bdF0e59D0cC3dE834a998FA5fFb9F4' # (1311 * 9**18) / 10**18 Bullion (Bullion8Contract) _ (â§ = E291A7)
 
-symb_bond = '⑦ _ BOND'
+#symb_bond = '⑦ _ BOND'
+symb_bond = 'BOND'
 symb_legal = 'LEGAL'
 symb_ojeon = 'ã _ Ojeon'
 symb_ying = 'YING'
