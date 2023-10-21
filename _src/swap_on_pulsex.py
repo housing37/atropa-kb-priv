@@ -108,15 +108,15 @@ LST_SWAP_PATHS = LST_SWAP_PATHS_v1
 
 # STATIC CONSTANTS
 RPC_URL = _p.pulsechain_rpc_url
-SENDER_ADDRESS = _p.sender_address
-SENDER_SECRET = _p.sender_secret
+SENDER_ADDRESS = _p.sender_address_0 # default
+SENDER_SECRET = _p.sender_secret_0 # default
 AMNT_MAX = 115792089237316195423570985008687907853269984665640564039457584007913129639935 # uint256.max
 SWAP_TYPE_ET_FOR_T = 0
 SWAP_TYPE_T_FOR_ET = 1
 
 print('connecting to pulsechain ... (getting account for secret)')
 W3 = Web3(Web3.HTTPProvider(RPC_URL))
-ACCOUNT = Account.from_key(SENDER_SECRET)
+ACCOUNT = Account.from_key(SENDER_SECRET) # default
 
 print('loading contracts ...')
 ROUTER_CONTRACT_v1 = W3.eth.contract(address=router_addr_v1, abi=router_abi_v1)
@@ -195,7 +195,7 @@ def get_tok_bals(lst_tok_contr, go_print=True):
         tok_bal = c.functions.balanceOf(ACCOUNT.address).call()
         lst_bals.append(tok_bal)
         if go_print:
-            print(f' {tok_symb}: {c.address}\n   balance = {(tok_bal / 10**18):,} {tok_symb}\n')
+            print(f' "{tok_symb}" : {c.address}\n   balance = {(tok_bal / 10**18):,} {tok_symb}\n')
     print(cStrDivider_1, 'get_tok_bals _ DONE', cStrDivider_1, '', sep='\n')
     return list(lst_bals)
     
@@ -374,8 +374,22 @@ def go_swap(rout_contr, tok_contr, amount_exact, swap_path=[], swap_type=1, slip
     print(cStrDivider_1, 'DONE - tx _ build, sign, & send\n', sep='\n')
 
 def exe_input_cli():
-    global W3, SENDER_ADDRESS, ROUTER_CONTRACT, SWAP_TYPE_ET_FOR_T, SWAP_TYPE_T_FOR_ET, LST_SWAP_PATHS
+    global W3, ACCOUNT, SENDER_ADDRESS, ROUTER_CONTRACT, SWAP_TYPE_ET_FOR_T, SWAP_TYPE_T_FOR_ET, LST_SWAP_PATHS
     # router contract, tok_contr (in), amount_exact (ET-T_in|T-ET_out), swap_path, swap_type (ET-T|T-ET)
+    
+    ## CHOOSE WALLET
+    w_num = int(input(f"\n Choose Wallet Address:\n  0 = {_p.sender_address_0}\n  1 = {_p.sender_address_1}\n  > "))
+    assert 0 <= w_num <= 1, f"Invalid input: '{w_num}'"
+    if w_num == 0:
+        SENDER_ADDRESS = _p.sender_address_0
+        SENDER_SECRET = _p.sender_secret_0
+    if w_num == 1:
+        SENDER_ADDRESS = _p.sender_address_1
+        SENDER_SECRET = _p.sender_secret_1
+    ACCOUNT = Account.from_key(SENDER_SECRET) # default
+    
+    # PRINT SENDER_ADDRESS BALANCES ... BEFORE swap
+    lst_tok_bals = get_tok_bals(LST_TOK_CONTR, go_print=True)
     
     ## CHOOSE SWAP PATH
     #   note: 'LST_SWAP_PATHS' is only used here for initial UI selection & display
@@ -484,6 +498,9 @@ def exe_input_cli():
         
     # router contract, tok_contr (in), amount_exact (ET-T_in|T-ET_out), swap_path, swap_type (ET-T|T-ET), slip_perc, dead_sec
     go_swap(ROUTER_CONTRACT, tok_in_contr, amnt_exact, swap_path, swap_type, slip_perc) # not tested
+    
+    # PRINT SENDER_ADDRESS BALANCES ... AFTER swap
+    lst_tok_bals = get_tok_bals(LST_TOK_CONTR, go_print=True)
     return True
     
 #------------------------------------------------------------#
@@ -528,18 +545,11 @@ def read_cli_args():
 
 def go_main(debug=True):
     print('START - swap TOK for TOK testing')
-    # print token swap balances (w/ pls balance) ... BEFORE swap
-    lst_tok_bals = get_tok_bals(LST_TOK_CONTR, go_print=True)
-
     if not debug:
         try:
             print(f'exe_input_cli() ...')
             success = exe_input_cli()
             print(f'exe_input_cli() _ DONE (success = {success})')
-            
-            # print token swap balances (w/ pls balance) ... AFTER swap
-            lst_tok_bals = get_tok_bals(LST_TOK_CONTR, go_print=True)
-            print('DONE - swap TOK for TOK testing')
         except Exception as e:
             print(f'\n *ERROR* -> {e} _ ABORTING\n')
     else:

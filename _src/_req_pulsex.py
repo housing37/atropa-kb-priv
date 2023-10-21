@@ -12,10 +12,10 @@ import os
 from read_env import read_env #ref: https://github.com/sloria/read_env
 try: read_env() # recursively traverse up dir tree looking for '.env' file
 except: print(" ERROR: no .env files found ")
-sender_address = os.environ['PUBLIC_KEY_3']
-sender_secret = os.environ['PRIVATE_KEY_3']
-#sender_address = os.environ['PUBLIC_KEY_4']
-#sender_secret = os.environ['PRIVATE_KEY_4']
+sender_address_0 = os.environ['PUBLIC_KEY_3']
+sender_secret_0 = os.environ['PRIVATE_KEY_3']
+sender_address_1 = os.environ['PUBLIC_KEY_4']
+sender_secret_1 = os.environ['PRIVATE_KEY_4']
 
 #------------------------------------------------------------#
 #   GLOBALS
