@@ -50,11 +50,22 @@ LST_SWAP_PATHS_v1 = [
     [[_p.addr_pdai, _p.addr_tsfi], [_p.symb_pdai, _p.symb_tsfi], _p.abi_pdai],
     [[_p.addr_tsfi, _p.addr_pdai], [_p.symb_tsfi, _p.symb_pdai], _p.abi_tsfi],
     
-    # treas -> bond (direct)
+    # treas -> bond (102023_error: direct & |wpls| & |inc -> wpls|)
     [[_b.addr_treas, _b.addr_bond], [_b.symb_treas, _b.symb_bond], _b.abi_treas],
+    #[[_b.addr_treas, _p.addr_wpls, _b.addr_bond], [_b.symb_treas, _p.symb_wpls, _b.symb_bond], _b.abi_treas],
+    #[[_b.addr_treas, addr_inc_rt, _p.addr_wpls, _b.addr_bond], [_b.symb_treas, symb_inc_rt, _p.symb_wpls, _b.symb_bond], _b.abi_treas],
     
-    # bul8 -> bond (direct)
+    # bond -> treas (102023_high_quote: |wpls|, 102023_error: direct)
+    #[[_b.addr_bond, _b.addr_treas], [_b.symb_bond, _b.symb_treas], _b.abi_bond],
+    [[_b.addr_bond, _p.addr_wpls, _b.addr_treas], [_b.symb_bond, _p.symb_wpls, _b.symb_treas], _b.abi_bond],
+    
+    # bul8 -> bond (102023_error: direct & |wpls|)
     [[_b.addr_bul8, _b.addr_bond], [_b.symb_bul8, _b.symb_bond], _b.abi_bul8],
+    #[[_b.addr_bul8, _p.addr_wpls, _b.addr_bond], [_b.symb_bul8, _p.symb_wpls, _b.symb_bond], _b.abi_bul8],
+    
+    # bond -> bul8 (102023_high_quote: |wpls|)
+    #[[_b.addr_bond, _b.addr_bul8], [_b.symb_bond, _b.symb_bul8], _b.abi_bond],
+    [[_b.addr_bond, _p.addr_wpls, _b.addr_bul8], [_b.symb_bond, _p.symb_wpls, _b.symb_bul8], _b.abi_bond],
 ]
 LST_SWAP_PATHS_v2 = [
     # wpls <-> pdai
@@ -69,12 +80,22 @@ LST_SWAP_PATHS_v2 = [
     [[_p.addr_pdai, _p.addr_tsfi], [_p.symb_pdai, _p.symb_tsfi], _p.abi_pdai],
     [[_p.addr_tsfi, _p.addr_pdai], [_p.symb_tsfi, _p.symb_pdai], _p.abi_tsfi],
 
-    # treas -> bond (w/ routes: |wpls|, |inc -> wpls|) ... found w/ v2-app.pulsex.com/swap
+    # treas -> bond (102023_high_quote: |wpls|, 102023_error: direct, |inc -> wpls|) ... found w/ v2-app.pulsex.com/swap
+    #[[_b.addr_treas, _b.addr_bond], [_b.symb_treas, _b.symb_bond], _b.abi_treas],
     [[_b.addr_treas, _p.addr_wpls, _b.addr_bond], [_b.symb_treas, _p.symb_wpls, _b.symb_bond], _b.abi_treas],
     #[[_b.addr_treas, addr_inc_rt, _p.addr_wpls, _b.addr_bond], [_b.symb_treas, symb_inc_rt, _p.symb_wpls, _b.symb_bond], _b.abi_treas],
     
-    # bul8 -> bond (direct)
-    [[_b.addr_bul8, _b.addr_bond], [_b.symb_bul8, _b.symb_bond], _b.abi_bul8],
+    # bond -> treas (102023_high_quote: |wpls|, 102023_error: 102023_error: direct)
+    #[[_b.addr_bond, _b.addr_treas], [_b.symb_bond, _b.symb_treas], _b.abi_bond],
+    [[_b.addr_bond, _p.addr_wpls, _b.addr_treas], [_b.symb_bond, _p.symb_wpls, _b.symb_treas], _b.abi_bond],
+    
+    # bul8 -> bond (102023_high_quote: |wpls|)
+    #[[_b.addr_bul8, _b.addr_bond], [_b.symb_bul8, _b.symb_bond], _b.abi_bul8],
+    [[_b.addr_bul8, _p.addr_wpls, _b.addr_bond], [_b.symb_bul8, _p.symb_wpls, _b.symb_bond], _b.abi_bul8],
+    
+    # bond -> bul8 (102023_high_quote: direct)
+    [[_b.addr_bond, _b.addr_bul8], [_b.symb_bond, _b.symb_bul8], _b.abi_bond],
+    #[[_b.addr_bond, _p.addr_wpls, _b.addr_bul8], [_b.symb_bond, _p.symb_wpls, _b.symb_bul8], _b.abi_bond],
 ]
 
 # note: 'LST_SWAP_PATHS' is only used here for initial UI selection & display
