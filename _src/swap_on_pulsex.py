@@ -87,7 +87,7 @@ LST_SWAP_PATHS_v1 = [
     #[[_b.addr_bul8, _p.addr_wpls, _b.addr_bond], [_b.symb_bul8, _p.symb_wpls, _b.symb_bond], _b.abi_bul8],
     
     # bond -> wpls [102123_best: |tsfi, bear|] [102123_error: direct, |bear|]
-    #   note: all routes high slippage
+    #   note: v2 lowest slippage, but all routes v1 & v2 high slippage
     #[[_b.addr_bond, _p.addr_wpls], [_b.symb_bond, _p.symb_wpls], _b.abi_bond],
     [[_b.addr_bond, _p.addr_tsfi, _p.addr_bear, _p.addr_wpls], [_b.symb_bond, _p.symb_tsfi, _p.symb_bear, _p.symb_wpls], _b.abi_bond],
     
@@ -150,6 +150,7 @@ LST_SWAP_PATHS_v2 = [
     #[[_b.addr_bul8, _p.addr_wpls, _b.addr_bond], [_b.symb_bul8, _p.symb_wpls, _b.symb_bond], _b.abi_bul8],
     
     # bond -> wpls [102123_best: |bul8|, slightly better than direct]
+    #   note: v2 lowest slippage, but all routes v1 & v2 high slippage
     #[[_b.addr_bond, _p.addr_wpls], [_b.symb_bond, _p.symb_wpls], _b.abi_bond],
     [[_b.addr_bond, _b.addr_bul8, _p.addr_wpls], [_b.symb_bond, _b.symb_bul8, _p.symb_wpls], _b.abi_bond],
     #[[_b.addr_bond, _p.addr_bear, _p.addr_wpls], [_b.symb_bond, _p.symb_bear, _p.symb_wpls], _b.abi_bond],
