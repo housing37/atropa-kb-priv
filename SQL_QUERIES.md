@@ -55,6 +55,13 @@ select * from log_irc order by id desc;
 -- 		and usr_parse like '%maria%'
 -- 	order by time_parse asc;
 
+-- get latest #atropa_logged (by limit)
+select * from log_irc where channel = '#atropa_logged' order by time_parse desc limit 50;
+select id, time_parse, channel, usr_parse, msg_parse from log_irc 
+	where channel = '#atropa' 
+		and msg_parse != 'nil_parse'
+	order by time_parse desc limit 100;
+
 -- get latest #atropa (by limit)
 select * from log_irc where channel = '#atropa' order by time_parse desc limit 50;
 select id, time_parse, channel, usr_parse, msg_parse from log_irc 
@@ -123,6 +130,32 @@ select * from log_irc order by time_parse desc;
 select time_parse, channel, usr_parse, msg_parse, usr_loc_parse from log_irc 
 	where usr_loc_parse like '%146.70.183.19%'
 	order by time_parse desc;
+
+-- #============ COMMON log_irc ============#
+
+select `server`, `port`, time_parse, channel, usr_parse, msg_parse, str_print from log_irc order by time_parse desc;
+select nick_log, time_parse, channel, usr_parse, msg_parse, str_print from log_irc order by time_parse desc;
+
+select `server`, `port`, channel, dt_created, time_parse, usr_parse, msg_parse from log_irc order by time_parse DESC;
+select dt_updated, usr_parse, msg_parse from log_irc order by dt_updated desc;
+select str_print from log_irc order by id desc;
+select raw_data from log_irc order by id desc;
+select * from log_irc order by id desc;
+
+select usr_loc_parse, raw_data from log_irc order by id desc;
+
+-- delete from log_irc;
+
+select nick_log, dt_updated, time_parse, channel, usr_parse, msg_parse, str_print, raw_data 
+from log_irc 
+where nick_log = 'hlog_import'
+order by time_parse desc;
+
+select nick_log, dt_updated, time_parse, channel, usr_parse, msg_parse, str_print, raw_data from log_irc order by time_parse desc;
+select * from log_irc where usr_parse = 'jack_';
+
+select time_parse, usr_parse, msg_parse from log_irc where raw_data like '%mariarahel%' order by time_parse desc;
+
 
 -- #============ COMMON log_irc ============#
 
