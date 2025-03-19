@@ -1,6 +1,17 @@
 ###############################
-# house_091223 (model house_052923)
+# house_031925 (model house_030625) _ OG: house_091223 (model house_052923)
 ###############################
+## ignore folder
+_ignore/
+
+## vscode
+.vscode/
+
+## solidity & npm support
+bin/
+node_modules/
+package-lock.json
+
 ## misc OSx
 *~
 .#.*
@@ -26,11 +37,16 @@ logs/
 ## hide posts ##
 posts/
 
+## hide wallets ##
+_wallets/
 ## hide environmentals
 .env*
+pkg-*/
 
 ## hide legacy helpers
 _legacy/
+_inv/
+_expenses/
 
 ## ignore folders ##
 #_*/
