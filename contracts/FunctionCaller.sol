@@ -22,8 +22,8 @@ contract FunctionCaller {
     address public KEEPER;
     uint256 private KEEPER_CHECK; // misc key, set to help ensure no-one else calls 'KEEPER_collectiveStableBalances'
     string public constant tVERSION = '0.6'; 
-    address public TARGET = address(0xA1BEe1daE9Af77dAC73aA0459eD63b4D93fC6d29);
-    bytes4 public SELECTOR = 0xa4566950;
+    address public TARGET = address(0xA1BEe1daE9Af77dAC73aA0459eD63b4D93fC6d29); // MV address (ie. address constant WMContract = address(0xA1BEe1daE9Af77dAC73aA0459eD63b4D93fC6d29) in maria's atropa_pulsechain repo)
+    bytes4 public SELECTOR = 0xa4566950; // func hash to mint MV
 
     /* -------------------------------------------------------- */
     /* EVENT SUPPORT 
