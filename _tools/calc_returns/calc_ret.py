@@ -88,7 +88,7 @@ def get_usd_val_for_tok_cnt(tok_addr='nil_tok_addr', tok_cnt=-1, d_print=False):
                 d = dict(v)
                 
                 # required keys for pair / address check
-                labels_0 = v['labels']
+                labels_0 = v['labels'] if 'labels' in v else 'nil_labels_found'
                 pair_addr_0 = v['pairAddress']
                 liq_0 = -1 if 'liquidity' not in v else v['liquidity']['usd']
                 base_tok_addr_0 = v['baseToken']['address']

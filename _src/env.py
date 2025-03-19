@@ -62,3 +62,58 @@ SECRET_KEY = os.environ['SECRET_KEY']
 ## mysql return keys
 #============================================================================#
 
+#============================================================================#
+# blockchain support
+# ported from 'snowbank-dev' (012425)
+#============================================================================#
+# infura support
+#ETH_MAIN_RPC_KEY = os.environ['ETH_MAIN_INFURA_KEY_0']
+ETH_MAIN_RPC_KEY = os.environ['ETH_MAIN_INFURA_KEY_1']
+
+# wallet support
+sender_address_0 = os.environ['PUBLIC_KEY_3']
+sender_secret_0 = os.environ['PRIVATE_KEY_3']
+sender_address_1 = os.environ['PUBLIC_KEY_4']
+sender_secret_1 = os.environ['PRIVATE_KEY_4']
+sender_address_2 = os.environ['PUBLIC_KEY_5']
+sender_secret_2 = os.environ['PRIVATE_KEY_5']
+sender_address_3 = os.environ['PUBLIC_KEY_6']
+sender_secret_3 = os.environ['PRIVATE_KEY_6']
+
+sender_addr_trinity = sender_address_1
+sender_secr_trinity = sender_secret_1
+
+#============================================================================#
+## web3 constants
+#============================================================================#
+local_test = 'http://localhost:8545'
+eth_test = f'https://goerli.infura.io/v3/'
+eth_main = f'https://mainnet.infura.io/v3/{ETH_MAIN_RPC_KEY}'
+eth_main_cid=1
+
+pc_main = f'https://rpc.pulsechain.com'
+pc_main_cid=369
+
+sonic_blaze_test = f'https://rpc.blaze.soniclabs.com' # blaze testnet
+sonic_blaze_cid=57054 # blaze testnet
+
+sonic_main = f'https://rpc.soniclabs.com' # sonic mainnet
+sonic_main_cid=146 # sonic mainnet
+
+bst_contr_addr = os.environ['BST_CONTR_ADDR']
+bst_contr_symb = os.environ['BST_CONTR_SYMB']
+
+list_chain_data = [{'name':'eth_main',
+                    'urn':eth_main,
+                    'cid':eth_main_cid},
+                   {'name':'pc_main',
+                    'urn':pc_main,
+                    'cid':pc_main_cid},
+                   {'name':'sonic_blaze_test',
+                    'urn':sonic_blaze_test,
+                    'cid':sonic_blaze_cid},
+                   {'name':'sonic_main',
+                    'urn':sonic_main,
+                    'cid':sonic_main_cid},
+                    ]
+dict_chains = {}
