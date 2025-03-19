@@ -1,4 +1,4 @@
-__fname = '_web3' # ported from 'snowbank-dev' (012425)
+__fname = '_web3' # ported from 'sol-audits' (031925)
 __filename = __fname + '.py'
 cStrDivider = '#================================================================#'
 print('', cStrDivider, f'GO _ {__filename} -> starting IMPORTs & declaring globals', cStrDivider, sep='\n')
@@ -7,8 +7,7 @@ cStrDivider_1 = '#--------------------------------------------------------------
 from web3 import Account, Web3, HTTPProvider
 # from web3.middleware import geth_poa_middleware
 from datetime import datetime
-# from _env import env
-import env
+from _env import env
 import sys, os, traceback, time, pprint
 from attributedict.collections import AttributeDict # tx_receipt requirement
 
