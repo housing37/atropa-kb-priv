@@ -14,7 +14,7 @@ ABI_FILE = None
 BIN_FILE = None
 CONTRACT = None
 LST_CONTR_ABI_BIN = [
-    "../bin/contracts/XUSD",
+    "../bin/contracts/_atropa_pulsechain/TT",
 ]
 
 # Function to calculate the selector from a function signature
